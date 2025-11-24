@@ -29,6 +29,20 @@ This marketplace contains a curated collection of:
 - `create-meta-prompt` - Generate optimized prompts for Claude-to-Claude pipelines
 - `hello` - Example command demonstrating basic command structure
 
+#### Decision-Making Frameworks (consider/)
+- `consider/10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
+- `consider/5-whys` - Root cause analysis by asking "why" five times
+- `consider/eisenhower-matrix` - Prioritize tasks by urgency and importance
+- `consider/first-principles` - Break down problems to fundamental truths
+- `consider/inversion` - Think backwards by considering what to avoid
+- `consider/occams-razor` - Favor simpler explanations and solutions
+- `consider/one-thing` - Identify the single most important action
+- `consider/opportunity-cost` - Evaluate what you give up by choosing something
+- `consider/pareto` - Apply 80/20 principle to find highest-leverage actions
+- `consider/second-order` - Analyze downstream consequences beyond immediate effects
+- `consider/swot` - Assess Strengths, Weaknesses, Opportunities, and Threats
+- `consider/via-negativa` - Improve by removing rather than adding
+
 ### Agents
 - `example-agent` - Demonstration agent showing agent structure
 
