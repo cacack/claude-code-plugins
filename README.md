@@ -2,18 +2,14 @@
 
 My personal Claude Code plugin collection.
 
-## Usage
-
-Add this marketplace to your Claude Code instance:
+## Installation
 
 ```bash
-/plugin marketplace add https://github.com/cacack/claude-code-plugins
-```
+# Add marketplace
+claude plugin marketplace add cacack/claude-code-plugins
 
-Or add it locally for development:
-
-```bash
-/plugin marketplace add /Users/chris/devel/home/claude-code-plugins
+# Then install plugins
+claude plugin install cacack
 ```
 
 ## Available Resources
@@ -21,13 +17,12 @@ Or add it locally for development:
 This marketplace contains a curated collection of:
 
 ### Commands
-- `ship` - Intelligently commit and ship changes using basic or advanced workflow
-- `create-prompt` - Expert prompt engineer that creates optimized, XML-structured prompts with intelligent depth selection
-- `run-prompt` - Delegate one or more prompts to fresh sub-task contexts with parallel or sequential execution
-- `whats-next` - Analyze the current conversation and create a handoff document for continuing work in a fresh context
-- `debug` - Apply expert debugging methodology to investigate a specific issue
 - `create-meta-prompt` - Generate optimized prompts for Claude-to-Claude pipelines
-- `hello` - Example command demonstrating basic command structure
+- `create-prompt` - Expert prompt engineer that creates optimized, XML-structured prompts with intelligent depth selection
+- `debug` - Apply expert debugging methodology to investigate a specific issue
+- `run-prompt` - Delegate one or more prompts to fresh sub-task contexts with parallel or sequential execution
+- `ship` - Intelligently commit and ship changes using basic or advanced workflow
+- `whats-next` - Analyze the current conversation and create a handoff document for continuing work in a fresh context
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
@@ -43,32 +38,14 @@ This marketplace contains a curated collection of:
 - `consider:swot` - Assess Strengths, Weaknesses, Opportunities, and Threats
 - `consider:via-negativa` - Improve by removing rather than adding
 
-### Agents
-- `example-agent` - Demonstration agent showing agent structure
-
 ### Skills
 - `create-meta-prompts` - Autonomous workflow for creating optimized meta-prompts with reference patterns
 - `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols
 
-## Repository Structure
+## Contributing
 
-```
-├── .claude-plugin/
-│   └── marketplace.json       # Marketplace configuration
-├── agents/                    # Custom agent definitions
-│   └── *.md
-├── commands/                  # Custom slash commands
-│   └── *.md
-└── skills/                    # Autonomous workflows
-    └── */
-```
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details on contributing to this repo.
 
-## Adding New Resources
-
-1. Add command files to `commands/` directory
-2. Add agent definitions to `agents/` directory
-3. Add skills to `skills/` directory
-4. Commit and push changes
 
 ## Attribution
 
