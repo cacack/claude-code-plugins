@@ -1,5 +1,5 @@
 {
-  "name": "chris-personal-plugins",
+  "name": "cacack",
   "owner": {
     "name": "Chris Clonch",
     "email": "chris@theclonchs.com"
@@ -10,7 +10,7 @@
   },
   "plugins": [
     {
-      "name": "chris-personal-plugins",
+      "name": "cacack",
       "source": "./",
       "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
       "version": "1.0.0",

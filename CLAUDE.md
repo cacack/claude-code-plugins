@@ -22,10 +22,10 @@ The marketplace.json references the root directory as a single plugin, making al
 
 ```json
 {
-  "name": "chris-personal-plugins",
+  "name": "cacack",
   "owner": {...},
   "plugins": [{
-    "name": "chris-personal-plugins",
+    "name": "cacack",
     "source": "./",
     "version": "1.0.0",
     "strict": true
