@@ -22,8 +22,11 @@ This marketplace contains a curated collection of:
 
 ### Commands
 - `ship` - Intelligently commit and ship changes using basic or advanced workflow
+- `create-prompt` - Expert prompt engineer that creates optimized, XML-structured prompts with intelligent depth selection
+- `run-prompt` - Delegate one or more prompts to fresh sub-task contexts with parallel or sequential execution
+- `whats-next` - Analyze the current conversation and create a handoff document for continuing work in a fresh context
+- `debug` - Apply expert debugging methodology to investigate a specific issue
 - `create-meta-prompt` - Generate optimized prompts for Claude-to-Claude pipelines
-- `run-prompt` - Execute meta-prompts with structured output handling
 - `hello` - Example command demonstrating basic command structure
 
 ### Agents
