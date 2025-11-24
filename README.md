@@ -70,7 +70,16 @@ This marketplace contains a curated collection of:
 3. Add skills to `skills/` directory
 4. Commit and push changes
 
+## Attribution
+
+Many resources in this collection are adapted from [taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) by glittercowboy. These include:
+- All `consider:*` decision-making framework commands
+- `create-prompt` and `run-prompt` commands for prompt workflow
+- `whats-next` command for context handoff
+- `debug` command and `debug-like-expert` skill for systematic debugging
+
 ## References
 
 - [Plugin Marketplaces Documentation](https://code.claude.com/docs/en/plugin-marketplaces)
 - [Claude Code Documentation](https://code.claude.com/docs)
+- [taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) - Source of many resources in this collection
