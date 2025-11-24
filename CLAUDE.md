@@ -70,6 +70,20 @@ description: Detailed description of skill purpose and use cases
 
 Use kebab-case for all file and directory names.
 
+## Version Management
+
+After creating commits, bump version numbers in both `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` following semantic versioning (semver):
+
+- **Major (x.0.0)**: Breaking changes to plugin structure or behavior
+- **Minor (0.x.0)**: New features (feat:), backwards compatible
+- **Patch (0.0.x)**: Bug fixes (fix:), documentation (docs:), chores (chore:)
+
+Version fields to update:
+- `marketplace.json`: `metadata.version` and `plugins[0].version`
+- `plugin.json`: `version`
+
+Always commit version bumps separately with commit message format: `chore: bump version to X.Y.Z`
+
 ## Distribution
 
 Users can add this marketplace to Claude Code using:
