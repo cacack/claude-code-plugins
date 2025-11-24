@@ -1,0 +1,14 @@
+{
+  "name": "meta-prompting",
+  "description": "Create optimized prompts for Claude-to-Claude pipelines (research → plan → implement)",
+  "version": "1.0.0",
+  "author": {
+    "name": "TÂCHES (ported by Chris Clonch)",
+    "email": "chris@theclonchs.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/glittercowboy/taches-cc-resources",
+  "keywords": ["meta-prompting", "workflows", "prompts", "pipelines"],
+  "commands": "./commands",
+  "skills": "./skills"
+}
