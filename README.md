@@ -17,12 +17,32 @@ claude plugin install cacack
 This marketplace contains a curated collection of:
 
 ### Commands
+
+#### Prompt Engineering & Workflows
 - `create-meta-prompt` - Generate optimized prompts for Claude-to-Claude pipelines
 - `create-prompt` - Expert prompt engineer that creates optimized, XML-structured prompts with intelligent depth selection
-- `debug` - Apply expert debugging methodology to investigate a specific issue
 - `run-prompt` - Delegate one or more prompts to fresh sub-task contexts with parallel or sequential execution
-- `ship` - Intelligently commit and ship changes using basic or advanced workflow
+
+#### Context & Planning
+- `add-to-todos` - Add items to your todo list
+- `check-todos` - Review and manage your todo list
 - `whats-next` - Analyze the current conversation and create a handoff document for continuing work in a fresh context
+
+#### Development Workflow
+- `debug` - Apply expert debugging methodology to investigate a specific issue
+- `ship` - Intelligently commit and ship changes using basic or advanced workflow
+
+#### Extension Creation
+- `create-agent-skill` - Create new agent skills with structured references and workflows
+- `create-hook` - Create custom hooks for Claude Code
+- `create-slash-command` - Create new slash commands
+- `create-subagent` - Create specialized subagent definitions
+
+#### Extension Maintenance
+- `audit-skill` - Audit and validate skill structure and quality
+- `audit-slash-command` - Audit and validate slash command implementation
+- `audit-subagent` - Audit and validate subagent definitions
+- `heal-skill` - Self-improvement workflow for skills
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
@@ -38,9 +58,27 @@ This marketplace contains a curated collection of:
 - `consider:swot` - Assess Strengths, Weaknesses, Opportunities, and Threats
 - `consider:via-negativa` - Improve by removing rather than adding
 
+### Agents
+- `skill-auditor` - Specialized agent for auditing skill quality and structure
+- `slash-command-auditor` - Specialized agent for auditing slash command implementations
+- `subagent-auditor` - Specialized agent for auditing subagent definitions
+
 ### Skills
+
+#### Meta Skills (Creating Extensions)
+- `create-agent-skills` - Comprehensive workflow for building agent skills with references, templates, and workflows
+- `create-hooks` - Build custom hooks with examples and troubleshooting guides
+- `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
+- `create-slash-commands` - Build slash commands with argument handling and tool restrictions
+- `create-subagents` - Design and implement specialized subagents with orchestration patterns
+
+#### Core Skills
 - `create-meta-prompts` - Autonomous workflow for creating optimized meta-prompts with reference patterns
 - `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols
+
+#### Domain Expertise
+- `expertise/iphone-apps` - Comprehensive iPhone app development expertise (SwiftUI, App Store, testing, CI/CD)
+- `expertise/macos-apps` - Complete macOS app development knowledge (AppKit, document apps, system APIs)
 
 ## Contributing
 
@@ -49,11 +87,14 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details on contributing to this rep
 
 ## Attribution
 
-Many resources in this collection are adapted from [taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) by glittercowboy. These include:
-- All `consider:*` decision-making framework commands
-- `create-prompt` and `run-prompt` commands for prompt workflow
-- `whats-next` command for context handoff
-- `debug` command and `debug-like-expert` skill for systematic debugging
+The majority of resources in this collection are adapted from [taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) by glittercowboy. This includes:
+- All decision-making framework commands (`consider:*`)
+- Prompt engineering workflows (`create-prompt`, `run-prompt`, `create-meta-prompt`)
+- Context management (`whats-next`, `add-to-todos`, `check-todos`)
+- Debugging tools (`debug` command and `debug-like-expert` skill)
+- Extension creation tools (all `create-*` and `audit-*` commands)
+- All agent definitions
+- All skills including meta skills and domain expertise
 
 ## References
 
