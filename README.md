@@ -7,7 +7,7 @@ My personal Claude Code plugin collection.
 Add this marketplace to your Claude Code instance:
 
 ```bash
-/plugin marketplace add https://github.com/cclonch/claude-code-plugins
+/plugin marketplace add https://github.com/cacack/claude-code-plugins
 ```
 
 Or add it locally for development:

@@ -74,5 +74,5 @@ Use kebab-case for all file and directory names.
 
 Users can add this marketplace to Claude Code using:
 ```
-/plugin marketplace add https://github.com/cclonch/claude-code-plugins
+/plugin marketplace add https://github.com/cacack/claude-code-plugins
 ```
