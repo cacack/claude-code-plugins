@@ -30,6 +30,7 @@ This marketplace contains a curated collection of:
 
 #### Development Workflow
 - `debug` - Apply expert debugging methodology to investigate a specific issue
+- `security-review` - Comprehensive security analysis of changes, context, or entire repository
 - `ship` - Intelligently commit and ship changes using basic or advanced workflow
 
 #### Extension Creation
