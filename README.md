@@ -34,6 +34,7 @@ This marketplace contains a curated collection of:
 
 ### Skills
 - `create-meta-prompts` - Autonomous workflow for creating optimized meta-prompts with reference patterns
+- `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols
 
 ## Repository Structure
 
