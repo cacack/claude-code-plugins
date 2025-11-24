@@ -94,9 +94,15 @@ Since this is a single-plugin marketplace, keep these three version fields synch
 
 All three should have the same version number since they represent the same release unit.
 
-### Commit Format
+### Commit and Tag Format
 
-Always commit version bumps separately with format: `chore: bump version to X.Y.Z`
+After bumping versions:
+
+1. Commit version bumps separately with format: `chore: bump version to X.Y.Z`
+2. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
+3. Push the tag: `git push origin vX.Y.Z`
+
+The git tag should match the version number across all configuration files.
 
 ## Distribution
 
