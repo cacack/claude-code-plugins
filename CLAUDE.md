@@ -72,17 +72,31 @@ Use kebab-case for all file and directory names.
 
 ## Version Management
 
-After creating commits, bump version numbers in both `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` following semantic versioning (semver):
+This repository is configured as a **single-plugin marketplace** where all resources are distributed as one cohesive plugin. The version numbers should stay synchronized across all configuration files.
 
-- **Major (x.0.0)**: Breaking changes to plugin structure or behavior
-- **Minor (0.x.0)**: New features (feat:), backwards compatible
-- **Patch (0.0.x)**: Bug fixes (fix:), documentation (docs:), chores (chore:)
+### When to Bump Versions
 
-Version fields to update:
-- `marketplace.json`: `metadata.version` and `plugins[0].version`
-- `plugin.json`: `version`
+After creating commits, bump version numbers following semantic versioning (semver) based on conventional commit types:
 
-Always commit version bumps separately with commit message format: `chore: bump version to X.Y.Z`
+- **Major (x.0.0)**: Breaking changes to plugin structure, command signatures, or behavior (`BREAKING CHANGE:` footer)
+- **Minor (0.x.0)**: New features (`feat:`), new commands/agents/skills, backwards compatible
+- **Patch (0.0.x)**: Bug fixes (`fix:`), documentation (`docs:`), chores (`chore:`)
+
+### Version Fields to Update
+
+Since this is a single-plugin marketplace, keep these three version fields synchronized:
+
+1. **`marketplace.json`**:
+   - `metadata.version` (marketplace distribution version)
+   - `plugins[0].version` (the "cacack" plugin version)
+2. **`plugin.json`**:
+   - `version` (plugin definition version)
+
+All three should have the same version number since they represent the same release unit.
+
+### Commit Format
+
+Always commit version bumps separately with format: `chore: bump version to X.Y.Z`
 
 ## Distribution
 
