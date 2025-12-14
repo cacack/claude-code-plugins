@@ -1,7 +1,7 @@
 ---
 description: Review a GitHub/GitLab issue, plan the work, and present for approval before implementation
 argument-hint: <issue-number>
-allowed-tools: [Read, Grep, Glob, Bash(gh issue:*), Bash(gh pr:*), Bash(glab issue:*), Bash(git status:*), Bash(git branch:*), Bash(git log:*), WebFetch, Task, AskUserQuestion, TodoWrite, EnterPlanMode]
+allowed-tools: [Read, Write, Grep, Glob, Bash(gh issue:*), Bash(gh pr:*), Bash(glab issue:*), Bash(git status:*), Bash(git branch:*), Bash(git log:*), WebFetch, Task, AskUserQuestion, TodoWrite, EnterPlanMode, SlashCommand]
 ---
 
 <objective>
@@ -85,7 +85,8 @@ Recent commits: ! `git log --oneline -5`
 ---
 
 **Ready to proceed?** Let me know if you'd like to:
-- ✅ Proceed with this plan
+- ✅ Proceed manually - I'll implement step by step in this session
+- 🚀 Generate prompts - Create execution prompts for delegation via /run-prompt
 - ✏️ Modify the approach
 - ❓ Discuss specific aspects
 
@@ -97,8 +98,90 @@ Recent commits: ! `git log --oneline -5`
 - Relevant codebase areas identified
 - Implementation plan is concrete and actionable
 - Plan presented for user approval before any implementation
-- User given clear options to proceed, modify, or discuss
+- User given clear options to proceed, modify, discuss, or generate prompts
+- If prompt generation selected: prompts saved and execution options presented
 </success_criteria>
+
+<prompt_generation>
+When user selects "🚀 Generate prompts", create execution-ready prompts from the implementation plan.
+
+**Pre-generation steps:**
+1. Use Glob on `./prompts/*.md` to find existing prompts and determine next sequence number
+2. Analyze implementation plan steps for dependencies
+3. Determine execution strategy:
+   - **Parallel**: Independent steps, no shared file modifications
+   - **Sequential**: Steps with dependencies (one must complete before next)
+
+**Prompt structure** - Use XML tags for clarity:
+
+```xml
+<objective>
+[Clear statement from the implementation step]
+[Why this matters in context of issue #$ARGUMENTS]
+</objective>
+
+<context>
+Issue: #$ARGUMENTS - [title]
+[Relevant background from issue analysis]
+@[files identified during exploration]
+</context>
+
+<requirements>
+[Specific requirements from the implementation plan]
+[Acceptance criteria mapped from the issue]
+</requirements>
+
+<implementation>
+[Approach identified during planning]
+[Patterns to follow from codebase exploration]
+[What to avoid based on existing code]
+</implementation>
+
+<output>
+Files to create/modify:
+- `./path/to/file.ext` - [what changes]
+</output>
+
+<verification>
+Before completing:
+- [Specific check from testing plan]
+- [How to confirm success]
+</verification>
+
+<success_criteria>
+[Measurable criteria mapped from issue requirements]
+</success_criteria>
+```
+
+**File naming**: `./prompts/[NNN]-[issue-number]-[step-name].md`
+- Example: `./prompts/001-42-setup-database.md`, `./prompts/002-42-create-api.md`
+
+**After saving prompts, present:**
+
+```
+✓ Generated prompts from issue #$ARGUMENTS implementation plan:
+  - ./prompts/NNN-$ARGUMENTS-[step1].md
+  - ./prompts/NNN-$ARGUMENTS-[step2].md
+  [...]
+
+Execution strategy: [PARALLEL/SEQUENTIAL] - [brief reason]
+
+What's next?
+1. Run all prompts now
+2. Run first prompt only
+3. Review/edit prompts first
+4. Return to planning
+
+Choose (1-4): _
+```
+
+**Execute user choice:**
+- Option 1 (parallel): `/run-prompt NNN NNN+1 ... --parallel`
+- Option 1 (sequential): `/run-prompt NNN NNN+1 ... --sequential`
+- Option 2: `/run-prompt NNN`
+- Option 3: List files for user to review
+- Option 4: Return to plan presentation
+</prompt_generation>
 
 <examples>
 
