@@ -27,7 +27,6 @@ The marketplace.json references the root directory as a single plugin, making al
   "plugins": [{
     "name": "cacack",
     "source": "./",
-    "version": "1.0.0",
     "strict": true
   }]
 }
@@ -72,7 +71,7 @@ Use kebab-case for all file and directory names.
 
 ## Version Management
 
-This repository is configured as a **single-plugin marketplace** where all resources are distributed as one cohesive plugin. The version numbers should stay synchronized across all configuration files.
+Plugin version is maintained in `.claude-plugin/plugin.json` only. Claude Code reads the version from `plugin.json` when installing/caching plugins - `marketplace.json` version fields are ignored.
 
 ### When to Bump Versions
 
@@ -82,22 +81,13 @@ This repository is configured as a **single-plugin marketplace** where all resou
 - **Minor (0.x.0)**: New features (`feat:`), new commands/agents/skills, backwards compatible
 - **Patch (0.0.x)**: Bug fixes (`fix:`), documentation (`docs:`), chores (`chore:`)
 
-### Version Fields to Update
-
-Since this is a single-plugin marketplace, keep these two version fields synchronized in `marketplace.json`:
-
-- `metadata.version` (marketplace distribution version)
-- `plugins[0].version` (the "cacack" plugin version)
-
 ### Commit and Tag Format
 
-After bumping versions:
+After bumping version in `.claude-plugin/plugin.json`:
 
 1. Commit version bumps separately with format: `chore: bump version to X.Y.Z`
 2. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
 3. Push the tag: `git push origin vX.Y.Z`
-
-The git tag should match the version number across all configuration files.
 
 ## Distribution
 
