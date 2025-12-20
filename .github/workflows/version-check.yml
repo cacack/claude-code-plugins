@@ -23,6 +23,24 @@ jobs:
       - name: Validate plugin structure
         run: claude plugin validate .
 
+      - name: Test plugin installation
+        run: |
+          # Use isolated home directory for clean test
+          export HOME=$(mktemp -d)
+
+          # Add local marketplace and install
+          claude plugin marketplace add ./
+          claude plugin install cacack@cacack
+
+          # Verify installation
+          if [ -d "$HOME/.claude/plugins/cache/cacack/cacack" ]; then
+            echo "✓ Plugin installed successfully"
+            ls -la "$HOME/.claude/plugins/cache/cacack/cacack/"
+          else
+            echo "✗ Plugin installation failed"
+            exit 1
+          fi
+
   check-version-bump:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
