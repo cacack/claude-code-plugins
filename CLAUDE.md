@@ -24,18 +24,18 @@ repo-root/
 ### Structure Rules
 
 1. **marketplace.json** lives at `.claude-plugin/marketplace.json`
-2. **plugin.json** lives at `.claude-plugin/plugin.json` (NOT repo root)
-3. **source: "./"** in marketplace.json means repo root (relative to where `.claude-plugin/` lives)
+2. **plugin.json** lives at `.claude-plugin/plugin.json`
+3. **source: "./"** in marketplace.json points to plugin root (repo root)
 4. **Resource directories** (commands/, agents/, skills/, hooks/) are at repo root
-5. **Paths in plugin.json** are relative to `.claude-plugin/`, so hooks uses `../hooks/hooks.json`
+5. **Paths in plugin.json** are relative to **plugin root** (repo root), so hooks uses `./hooks/hooks.json`
 
 ### Path Resolution
 
 ```
 marketplace.json location: .claude-plugin/marketplace.json
-source: "./"             → resolves to repo root
-plugin.json lookup:      → {source}/.claude-plugin/plugin.json = .claude-plugin/plugin.json
-hooks in plugin.json:    → ../hooks/hooks.json (relative to .claude-plugin/)
+source: "./"             → plugin root = repo root
+plugin.json location:    → .claude-plugin/plugin.json
+hooks in plugin.json:    → ./hooks/hooks.json (relative to plugin root, NOT to plugin.json)
 ```
 
 ## Resource Types
@@ -57,7 +57,7 @@ Agent definitions in `agents/` directory as `.md` files.
 Autonomous workflows in `skills/` directory. Each skill is a directory with `SKILL.md`.
 
 ### Hooks
-Hook configurations in `hooks/hooks.json`, referenced from plugin.json as `../hooks/hooks.json`.
+Hook configurations in `hooks/hooks.json`, referenced from plugin.json as `./hooks/hooks.json`.
 
 ## Adding Resources
 
