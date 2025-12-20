@@ -10,7 +10,7 @@ Personal Claude Code plugin collection organized as a single-plugin marketplace.
 
 ```
 ├── .claude-plugin/
-│   └── marketplace.json       # Points to root with "source": "./"
+│   └── marketplace.json       # Points to repo root via "source": "../"
 ├── agents/                    # Agent definitions (*.md)
 ├── commands/                  # Slash commands (*.md)
 ├── hooks/                     # Hook configurations (hooks.json)
@@ -27,7 +27,7 @@ The marketplace.json references the root directory as a single plugin, making al
   "owner": {...},
   "plugins": [{
     "name": "cacack",
-    "source": "./",
+    "source": "../",
     "strict": true
   }]
 }
