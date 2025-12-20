@@ -76,7 +76,7 @@ This repository is configured as a **single-plugin marketplace** where all resou
 
 ### When to Bump Versions
 
-After creating commits, bump version numbers following semantic versioning (semver) based on conventional commit types:
+**Always bump version before using /ship.** Follow semantic versioning (semver) based on conventional commit types:
 
 - **Major (x.0.0)**: Breaking changes to plugin structure, command signatures, or behavior (`BREAKING CHANGE:` footer)
 - **Minor (0.x.0)**: New features (`feat:`), new commands/agents/skills, backwards compatible
@@ -84,15 +84,10 @@ After creating commits, bump version numbers following semantic versioning (semv
 
 ### Version Fields to Update
 
-Since this is a single-plugin marketplace, keep these three version fields synchronized:
+Since this is a single-plugin marketplace, keep these two version fields synchronized in `marketplace.json`:
 
-1. **`marketplace.json`**:
-   - `metadata.version` (marketplace distribution version)
-   - `plugins[0].version` (the "cacack" plugin version)
-2. **`plugin.json`**:
-   - `version` (plugin definition version)
-
-All three should have the same version number since they represent the same release unit.
+- `metadata.version` (marketplace distribution version)
+- `plugins[0].version` (the "cacack" plugin version)
 
 ### Commit and Tag Format
 

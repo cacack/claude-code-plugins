@@ -1,5 +1,4 @@
 ---
-name: whats-next
 description: Discover and pick up work from handoffs, todos, issues, or ideas - prioritized by readiness
 allowed-tools:
   - Read
