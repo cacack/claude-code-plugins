@@ -1,24 +1,34 @@
 ---
-description: Discover and pick up work from handoffs, todos, issues, or ideas - prioritized by readiness
+description: Interactive discovery and selection of pending work prioritized by readiness (handoffs, todos, issues, ideas)
+argument-hint: "[source-type: handoff|todos|issues|ideas]"
 allowed-tools:
   - Read
   - Glob
-  - Bash
+  - Bash(ls *)
+  - Bash(rm HANDOFF-*)
+  - Bash(gh issue list*)
   - AskUserQuestion
   - Skill
 ---
 
+<objective>
 Find work to pick up, prioritized from most-ready to least-defined.
+Help discover the most actionable work available and smoothly hand off to appropriate handlers.
+</objective>
 
+<context>
+Handoff files: !`ls HANDOFF-*.md 2>/dev/null | head -5`
+Legacy whats-next: !`ls whats-next.md 2>/dev/null`
+TO-DOS file: !`ls TO-DOS.md 2>/dev/null`
+GitHub issues: !`gh issue list --assignee=@me --limit=5 2>/dev/null || gh issue list --limit=5 2>/dev/null`
+IDEAS file: !`ls IDEAS.md 2>/dev/null`
+</context>
+
+<process>
 ## Discovery Phase
 
-Run quick checks (existence only, no reads yet) in priority order:
-
-1. **Handoff files**: `! ls HANDOFF-*.md 2>/dev/null | head -5`
-2. **Legacy whats-next**: `! ls whats-next.md 2>/dev/null`
-3. **TO-DOS.md**: `! ls TO-DOS.md 2>/dev/null`
-4. **GitHub issues**: `! gh issue list --assignee=@me --limit=5 2>/dev/null || gh issue list --limit=5 2>/dev/null`
-5. **IDEAS.md**: `! ls IDEAS.md 2>/dev/null`
+If an argument is provided, skip directly to that source type.
+Otherwise, use the context above to identify available work sources.
 
 ## Presentation
 
@@ -27,11 +37,11 @@ Present discovered sources in priority order:
 ```
 What's next? Found these work sources:
 
-1. 📋 HANDOFF-do-command-enhancement.md (handoff)
-2. 📋 HANDOFF-session-auth-work.md (handoff)
-3. ✅ TO-DOS.md (local todos)
-4. 🎫 GitHub: 3 open issues
-5. 💡 IDEAS.md (ideas backlog)
+1. HANDOFF-do-command-enhancement.md (handoff)
+2. HANDOFF-session-auth-work.md (handoff)
+3. TO-DOS.md (local todos)
+4. GitHub: 3 open issues
+5. IDEAS.md (ideas backlog)
 
 Pick a source (1-5), or 0 to skip: _
 ```
@@ -63,10 +73,10 @@ Based on selection, read and present the work:
    {List remaining tasks}
 
    Ready to continue this work?
-   - ✅ Yes, let's go
-   - 📋 Show full handoff details
-   - 🗑️ Delete handoff (already done or not needed)
-   - ⬅️ Back to source list
+   - Yes, let's go
+   - Show full handoff details
+   - Delete handoff (already done or not needed)
+   - Back to source list
    ```
 
 3. If continuing: Keep handoff context loaded, begin work
@@ -81,7 +91,7 @@ Based on selection, read and present the work:
 
 ### For GitHub Issues
 
-1. Run `/play` skill with issue selection:
+1. Delegate to `/play` skill with issue selection:
    ```
    Found issues:
    1. #42 - Add retry logic to API
@@ -90,7 +100,7 @@ Based on selection, read and present the work:
 
    Pick an issue (1-3): _
    ```
-2. Delegate to `/play {issue-number}` for selected issue
+2. Run `/play {issue-number}` for selected issue
 
 ### For IDEAS.md
 
@@ -101,17 +111,34 @@ Based on selection, read and present the work:
    - Start working directly
    - Refine the idea first
 
+## Plugin Feature Delegation
+
+When picked-up work involves creating new plugin resources, delegate to the appropriate creation skill:
+
+| Work involves...       | Delegate to              |
+|------------------------|--------------------------|
+| New slash command      | `/create-slash-command`  |
+| New subagent           | `/create-subagent`       |
+| New skill              | `/create-agent-skill`    |
+| New hook               | `/create-hook`           |
+| New prompt             | `/create-prompt`         |
+| New meta-prompt        | `/create-meta-prompt`    |
+
+These skills ensure best practices are followed and provide guided creation workflows.
+
 ## Priority Rationale
 
 1. **Handoffs first**: Already-started work, has context, highest value to continue
 2. **TO-DOS**: Committed local tasks, defined scope
 3. **GitHub issues**: Tracked, possibly assigned, team-visible
 4. **IDEAS last**: Vague concepts, need refinement before real work
+</process>
 
-## Success Criteria
-
-- Quick discovery without reading file contents
+<success_criteria>
+- Quick discovery using context (no redundant file reads)
 - Clear presentation of available work sources
-- Smooth handoff to appropriate handler (/play for issues)
+- Smooth handoff to appropriate handler (/play for issues, /create-* for new features)
 - Option to delete processed handoffs
 - Graceful handling when no work found
+- Direct source access when argument provided
+</success_criteria>
