@@ -37,6 +37,7 @@ Use **advanced workflow** when:
    - Run `git status` to see current branch and changes
    - Run `git diff --stat` to assess change complexity
    - Check if current user owns the repository
+   - Check CLAUDE.md for project-specific requirements (versioning, tagging, etc.)
 
 2. **Determine workflow:**
    - Apply decision criteria above
