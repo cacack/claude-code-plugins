@@ -17,11 +17,11 @@ Help discover the most actionable work available and smoothly hand off to approp
 </objective>
 
 <context>
-Handoff files: !`ls HANDOFF-*.md 2>/dev/null | head -5`
-Legacy whats-next: !`ls whats-next.md 2>/dev/null`
-TO-DOS file: !`ls TO-DOS.md 2>/dev/null`
-GitHub issues: !`gh issue list --assignee=@me --limit=5 2>/dev/null || gh issue list --limit=5 2>/dev/null`
-IDEAS file: !`ls IDEAS.md 2>/dev/null`
+Handoff files: !`ls HANDOFF-*.md 2>/dev/null | head -5 || true`
+Legacy whats-next: !`ls whats-next.md 2>/dev/null || true`
+TO-DOS file: !`ls TO-DOS.md 2>/dev/null || true`
+GitHub issues: !`gh issue list --assignee=@me --limit=5 2>/dev/null || gh issue list --limit=5 2>/dev/null || true`
+IDEAS file: !`ls IDEAS.md 2>/dev/null || true`
 </context>
 
 <process>

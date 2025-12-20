@@ -66,6 +66,10 @@ This marketplace contains a curated collection of:
 - `slash-command-auditor` - Specialized agent for auditing slash command implementations
 - `subagent-auditor` - Specialized agent for auditing subagent definitions
 
+### Hooks
+
+- `ship-version-validation` - Enforces version bump checking before `/ship` by prompting Claude to read CLAUDE.md for project-specific versioning requirements
+
 ### Skills
 
 #### Meta Skills (Creating Extensions)

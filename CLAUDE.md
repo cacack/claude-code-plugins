@@ -13,6 +13,7 @@ Personal Claude Code plugin collection organized as a single-plugin marketplace.
 │   └── marketplace.json       # Points to root with "source": "./"
 ├── agents/                    # Agent definitions (*.md)
 ├── commands/                  # Slash commands (*.md)
+├── hooks/                     # Hook configurations (hooks.json)
 └── skills/                    # Autonomous workflows (directories with SKILL.md)
 ```
 
@@ -60,11 +61,20 @@ description: Detailed description of skill purpose and use cases
 ---
 ```
 
+### Hooks
+Hook configurations in `hooks/` directory. Hooks are defined in `hooks.json` and referenced from `plugin.json`. Hooks inject prompts or run commands on Claude Code events.
+
+Supported hook types:
+- `prompt`: Injects instructions into Claude's context
+- `command`: Runs shell commands
+- `agent`: Spawns subagents
+
 ## Adding Resources
 
 - Commands: Add `.md` files to `commands/` with appropriate frontmatter
 - Agents: Add `.md` files to `agents/` describing agent behavior
 - Skills: Create directory in `skills/` with `SKILL.md` and any reference files
+- Hooks: Add configurations to `hooks/hooks.json` and ensure `plugin.json` references it
 - After adding new resources, update README.md to list them
 
 Use kebab-case for all file and directory names.
