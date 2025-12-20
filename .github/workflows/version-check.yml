@@ -1,12 +1,31 @@
-name: Version Check
+name: Plugin Validation
 
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 jobs:
+  validate-plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate plugin structure
+        run: claude plugin validate .
+
   check-version-bump:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,14 +34,12 @@ jobs:
       - name: Check if resources changed
         id: resources
         run: |
-          # Get list of changed files compared to main
           CHANGED=$(git diff --name-only origin/main...HEAD)
 
-          # Check if any resource directories have changes
-          if echo "$CHANGED" | grep -qE '^(commands/|agents/|skills/)'; then
+          if echo "$CHANGED" | grep -qE '^(commands/|agents/|skills/|hooks/)'; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Resource files changed:"
-            echo "$CHANGED" | grep -E '^(commands/|agents/|skills/)' || true
+            echo "$CHANGED" | grep -E '^(commands/|agents/|skills/|hooks/)' || true
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No resource file changes detected"
@@ -31,50 +48,29 @@ jobs:
       - name: Check version bump
         if: steps.resources.outputs.changed == 'true'
         run: |
-          # Get versions from PR branch
-          PR_MARKETPLACE_META=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
-          PR_MARKETPLACE_PLUGIN=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          PR_MARKETPLACE=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
           PR_PLUGIN=$(jq -r '.version' .claude-plugin/plugin.json)
 
-          # Get versions from main branch
           git show origin/main:.claude-plugin/marketplace.json > /tmp/main-marketplace.json
           git show origin/main:.claude-plugin/plugin.json > /tmp/main-plugin.json
 
-          MAIN_MARKETPLACE_META=$(jq -r '.metadata.version' /tmp/main-marketplace.json)
-          MAIN_MARKETPLACE_PLUGIN=$(jq -r '.plugins[0].version' /tmp/main-marketplace.json)
+          MAIN_MARKETPLACE=$(jq -r '.plugins[0].version' /tmp/main-marketplace.json)
           MAIN_PLUGIN=$(jq -r '.version' /tmp/main-plugin.json)
 
-          echo "Main branch versions:"
-          echo "  marketplace.json metadata.version: $MAIN_MARKETPLACE_META"
-          echo "  marketplace.json plugins[0].version: $MAIN_MARKETPLACE_PLUGIN"
-          echo "  plugin.json version: $MAIN_PLUGIN"
-          echo ""
-          echo "PR branch versions:"
-          echo "  marketplace.json metadata.version: $PR_MARKETPLACE_META"
-          echo "  marketplace.json plugins[0].version: $PR_MARKETPLACE_PLUGIN"
-          echo "  plugin.json version: $PR_PLUGIN"
+          echo "Main: marketplace=$MAIN_MARKETPLACE, plugin=$MAIN_PLUGIN"
+          echo "PR:   marketplace=$PR_MARKETPLACE, plugin=$PR_PLUGIN"
 
-          # Check if versions are in sync
-          if [ "$PR_MARKETPLACE_META" != "$PR_MARKETPLACE_PLUGIN" ] || [ "$PR_MARKETPLACE_META" != "$PR_PLUGIN" ]; then
-            echo ""
-            echo "::error::Version mismatch! All three version fields must be identical."
+          if [ "$PR_MARKETPLACE" != "$PR_PLUGIN" ]; then
+            echo "::error::Version mismatch between marketplace.json and plugin.json"
             exit 1
           fi
 
-          # Check if version was bumped
-          if [ "$PR_MARKETPLACE_META" = "$MAIN_MARKETPLACE_META" ]; then
-            echo ""
+          if [ "$PR_MARKETPLACE" = "$MAIN_MARKETPLACE" ]; then
             echo "::error::Resource files changed but version was not bumped!"
-            echo "::error::Current version: $MAIN_MARKETPLACE_META"
-            echo "::error::Please bump the version in:"
-            echo "::error::  - .claude-plugin/marketplace.json (metadata.version)"
-            echo "::error::  - .claude-plugin/marketplace.json (plugins[0].version)"
-            echo "::error::  - .claude-plugin/plugin.json (version)"
             exit 1
           fi
 
-          echo ""
-          echo "Version bumped from $MAIN_MARKETPLACE_META to $PR_MARKETPLACE_META"
+          echo "Version bumped from $MAIN_MARKETPLACE to $PR_MARKETPLACE"
 
       - name: Skip version check
         if: steps.resources.outputs.changed == 'false'

@@ -107,6 +107,35 @@ After bumping version in BOTH `.claude-plugin/plugin.json` AND `.claude-plugin/m
 
 **Versions and tags are immutable.** Never force-push tags.
 
+## Testing
+
+### Before Committing
+Always validate the plugin structure:
+```bash
+claude plugin validate .
+```
+
+### Local Testing (before pushing)
+Test installation locally to catch issues before pushing:
+```bash
+# Remove remote marketplace and add local
+claude plugin marketplace remove cacack
+claude plugin marketplace add ./
+
+# Install and verify
+claude plugin install cacack@cacack
+
+# After testing, switch back to remote
+claude plugin marketplace remove cacack
+claude plugin marketplace add https://github.com/cacack/claude-code-plugins
+```
+
+### CI Validation
+The GitHub Actions workflow automatically:
+1. Validates plugin structure on every push/PR
+2. Checks version sync between marketplace.json and plugin.json
+3. Requires version bump when resources change
+
 ## Distribution
 
 ```
