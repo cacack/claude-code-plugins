@@ -71,7 +71,23 @@ Use kebab-case for all file and directory names.
 
 ## Version Management
 
-Plugin version is maintained in `.claude-plugin/plugin.json` only.
+Plugin version must be maintained in BOTH files and kept in sync:
+- `.claude-plugin/plugin.json` - canonical source, also contains hooks
+- `.claude-plugin/marketplace.json` - in the plugin entry's `version` field
+
+### marketplace.json Plugin Entry
+
+Each plugin entry in marketplace.json MUST include these fields (matching official marketplace pattern):
+```json
+{
+  "name": "plugin-name",
+  "version": "1.0.0",
+  "description": "...",
+  "author": { "name": "...", "email": "..." },
+  "source": "./",
+  "strict": true
+}
+```
 
 ### When to Bump Versions
 
@@ -83,7 +99,7 @@ Plugin version is maintained in `.claude-plugin/plugin.json` only.
 
 ### Commit and Tag Format
 
-After bumping version in `.claude-plugin/plugin.json`:
+After bumping version in BOTH `.claude-plugin/plugin.json` AND `.claude-plugin/marketplace.json`:
 
 1. Commit: `chore: bump version to X.Y.Z`
 2. Tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
