@@ -1,8 +1,8 @@
 {
   "name": "cacack",
   "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
-  "version": "1.5.2",
-  "hooks": "./hooks/hooks.json",
+  "version": "1.5.3",
+  "hooks": "../hooks/hooks.json",
   "author": {
     "name": "Chris Clonch",
     "email": "chris@theclonchs.com"

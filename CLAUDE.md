@@ -4,107 +4,95 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-Personal Claude Code plugin collection organized as a single-plugin marketplace. Resources are organized in top-level directories following the taches-cc-resources pattern.
+Personal Claude Code plugin collection organized as a single-plugin marketplace.
 
-## Repository Structure
+## Repository Structure (Canonical - Do Not Deviate)
+
+This structure follows Claude Code's documented plugin marketplace standards:
 
 ```
+repo-root/
 ├── .claude-plugin/
-│   └── marketplace.json       # Marketplace config with "source": "./"
-├── plugin.json                # Plugin metadata (version, hooks, etc.)
-├── agents/                    # Agent definitions (*.md)
-├── commands/                  # Slash commands (*.md)
-├── hooks/                     # Hook configurations (hooks.json)
-└── skills/                    # Autonomous workflows (directories with SKILL.md)
+│   ├── marketplace.json   # Marketplace catalog (source: "./")
+│   └── plugin.json        # Plugin metadata (version, hooks, etc.)
+├── agents/                # Agent definitions (*.md)
+├── commands/              # Slash commands (*.md)
+├── hooks/                 # Hook configurations (hooks.json)
+└── skills/                # Autonomous workflows (SKILL.md dirs)
 ```
 
-The marketplace.json references the root directory as a single plugin, making all resources available together.
+### Structure Rules
 
-### Marketplace Format
+1. **marketplace.json** lives at `.claude-plugin/marketplace.json`
+2. **plugin.json** lives at `.claude-plugin/plugin.json` (NOT repo root)
+3. **source: "./"** in marketplace.json means repo root (relative to where `.claude-plugin/` lives)
+4. **Resource directories** (commands/, agents/, skills/, hooks/) are at repo root
+5. **Paths in plugin.json** are relative to `.claude-plugin/`, so hooks uses `../hooks/hooks.json`
 
-```json
-{
-  "name": "cacack",
-  "owner": {...},
-  "plugins": [{
-    "name": "cacack",
-    "source": "./",
-    "strict": true
-  }]
-}
+### Path Resolution
+
+```
+marketplace.json location: .claude-plugin/marketplace.json
+source: "./"             → resolves to repo root
+plugin.json lookup:      → {source}/.claude-plugin/plugin.json = .claude-plugin/plugin.json
+hooks in plugin.json:    → ../hooks/hooks.json (relative to .claude-plugin/)
 ```
 
 ## Resource Types
 
 ### Commands
-Slash commands in `commands/` directory. Commands are `.md` files with frontmatter:
+Slash commands in `commands/` directory as `.md` files with frontmatter:
 ```yaml
 ---
-description: Brief description of what the command does
-argument-hint: [optional argument description]
-allowed-tools: Optional tool restrictions
+description: Brief description
+argument-hint: [optional]
+allowed-tools: [optional]
 ---
 ```
 
 ### Agents
-Agent definitions in `agents/` directory. Agents are `.md` files with markdown content describing agent behavior and capabilities.
+Agent definitions in `agents/` directory as `.md` files.
 
 ### Skills
-Autonomous workflows in `skills/` directory. Each skill is a directory containing:
-- `SKILL.md` - Main skill definition with frontmatter
-- `references/` - Supporting documentation and patterns (optional)
-
-Skills use frontmatter:
-```yaml
----
-name: skill-name
-description: Detailed description of skill purpose and use cases
----
-```
+Autonomous workflows in `skills/` directory. Each skill is a directory with `SKILL.md`.
 
 ### Hooks
-Hook configurations in `hooks/` directory. Hooks are defined in `hooks.json` and referenced from `plugin.json`. Hooks inject prompts or run commands on Claude Code events.
-
-Supported hook types:
-- `prompt`: Injects instructions into Claude's context
-- `command`: Runs shell commands
-- `agent`: Spawns subagents
+Hook configurations in `hooks/hooks.json`, referenced from plugin.json as `../hooks/hooks.json`.
 
 ## Adding Resources
 
-- Commands: Add `.md` files to `commands/` with appropriate frontmatter
-- Agents: Add `.md` files to `agents/` describing agent behavior
-- Skills: Create directory in `skills/` with `SKILL.md` and any reference files
-- Hooks: Add configurations to `hooks/hooks.json` and ensure `plugin.json` references it
-- After adding new resources, update README.md to list them
+- Commands: Add `.md` files to `commands/`
+- Agents: Add `.md` files to `agents/`
+- Skills: Create directory in `skills/` with `SKILL.md`
+- Hooks: Add to `hooks/hooks.json`
+- Update README.md after adding resources
 
 Use kebab-case for all file and directory names.
 
 ## Version Management
 
-Plugin version is maintained in `plugin.json` at the repo root. Claude Code reads the version from `plugin.json` when installing/caching plugins - `marketplace.json` version fields are ignored.
+Plugin version is maintained in `.claude-plugin/plugin.json` only.
 
 ### When to Bump Versions
 
-**Always bump version before using /ship.** Follow semantic versioning (semver) based on conventional commit types:
+**Always bump version before using /ship.** Follow semver:
 
-- **Major (x.0.0)**: Breaking changes to plugin structure, command signatures, or behavior (`BREAKING CHANGE:` footer)
-- **Minor (0.x.0)**: New features (`feat:`), new commands/agents/skills, backwards compatible
-- **Patch (0.0.x)**: Bug fixes (`fix:`), documentation (`docs:`), chores (`chore:`)
+- **Major (x.0.0)**: Breaking changes
+- **Minor (0.x.0)**: New features (`feat:`)
+- **Patch (0.0.x)**: Bug fixes (`fix:`), docs, chores
 
 ### Commit and Tag Format
 
-After bumping version in `plugin.json`:
+After bumping version in `.claude-plugin/plugin.json`:
 
-1. Commit version bumps separately with format: `chore: bump version to X.Y.Z`
-2. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
-3. Push the tag: `git push origin vX.Y.Z`
+1. Commit: `chore: bump version to X.Y.Z`
+2. Tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
+3. Push: `git push origin vX.Y.Z`
 
-**Versions and tags are immutable.** Never force-push tags. If a version was tagged incorrectly (e.g., plugin.json wasn't updated), bump to the next patch version instead.
+**Versions and tags are immutable.** Never force-push tags.
 
 ## Distribution
 
-Users can add this marketplace to Claude Code using:
 ```
 /plugin marketplace add https://github.com/cacack/claude-code-plugins
 ```
