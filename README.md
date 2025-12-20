@@ -26,7 +26,8 @@ This marketplace contains a curated collection of:
 #### Context & Planning
 - `add-to-todos` - Add items to your todo list
 - `check-todos` - Review and manage your todo list
-- `whats-next` - Analyze the current conversation and create a handoff document for continuing work in a fresh context
+- `park` - Park current session context or capture cross-project ideas for later pickup
+- `whats-next` - Discover and pick up work from handoffs, todos, issues, or ideas (prioritized by readiness)
 
 #### Development Workflow
 - `debug` - Apply expert debugging methodology to investigate a specific issue

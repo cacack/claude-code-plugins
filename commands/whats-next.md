@@ -1,108 +1,118 @@
 ---
 name: whats-next
-description: Analyze the current conversation and create a handoff document for continuing this work in a fresh context
+description: Discover and pick up work from handoffs, todos, issues, or ideas - prioritized by readiness
 allowed-tools:
   - Read
-  - Write
+  - Glob
   - Bash
-  - WebSearch
-  - WebFetch
+  - AskUserQuestion
+  - Skill
 ---
 
-Create a comprehensive, detailed handoff document that captures all context from the current conversation. This allows continuing the work in a fresh context with complete precision.
+Find work to pick up, prioritized from most-ready to least-defined.
 
-## Instructions
+## Discovery Phase
 
-**PRIORITY: Comprehensive detail and precision over brevity.** The goal is to enable someone (or a fresh Claude instance) to pick up exactly where you left off with zero information loss.
+Run quick checks (existence only, no reads yet) in priority order:
 
-Adapt the level of detail to the task type (coding, research, analysis, writing, configuration, etc.) but maintain comprehensive coverage:
+1. **Handoff files**: `! ls HANDOFF-*.md 2>/dev/null | head -5`
+2. **Legacy whats-next**: `! ls whats-next.md 2>/dev/null`
+3. **TO-DOS.md**: `! ls TO-DOS.md 2>/dev/null`
+4. **GitHub issues**: `! gh issue list --assignee=@me --limit=5 2>/dev/null || gh issue list --limit=5 2>/dev/null`
+5. **IDEAS.md**: `! ls IDEAS.md 2>/dev/null`
 
-1. **Original Task**: Identify what was initially requested (not new scope or side tasks)
+## Presentation
 
-2. **Work Completed**: Document everything accomplished in detail
-   - All artifacts created, modified, or analyzed (files, documents, research findings, etc.)
-   - Specific changes made (code with line numbers, content written, data analyzed, etc.)
-   - Actions taken (commands run, APIs called, searches performed, tools used, etc.)
-   - Findings discovered (insights, patterns, answers, data points, etc.)
-   - Decisions made and the reasoning behind them
+Present discovered sources in priority order:
 
-3. **Work Remaining**: Specify exactly what still needs to be done
-   - Break down remaining work into specific, actionable steps
-   - Include precise locations, references, or targets (file paths, URLs, data sources, etc.)
-   - Note dependencies, prerequisites, or ordering requirements
-   - Specify validation or verification steps needed
-
-4. **Attempted Approaches**: Capture everything tried, including failures
-   - Approaches that didn't work and why they failed
-   - Errors encountered, blockers hit, or limitations discovered
-   - Dead ends to avoid repeating
-   - Alternative approaches considered but not pursued
-
-5. **Critical Context**: Preserve all essential knowledge
-   - Key decisions and trade-offs considered
-   - Constraints, requirements, or boundaries
-   - Important discoveries, gotchas, edge cases, or non-obvious behaviors
-   - Relevant environment, configuration, or setup details
-   - Assumptions made that need validation
-   - References to documentation, sources, or resources consulted
-
-6. **Current State**: Document the exact current state
-   - Status of deliverables (complete, in-progress, not started)
-   - What's committed, saved, or finalized vs. what's temporary or draft
-   - Any temporary changes, workarounds, or open questions
-   - Current position in the workflow or process
-
-Write to `whats-next.md` in the current working directory using the format below.
-
-## Output Format
-
-```xml
-<original_task>
-[The specific task that was initially requested - be precise about scope]
-</original_task>
-
-<work_completed>
-[Comprehensive detail of everything accomplished:
-- Artifacts created/modified/analyzed (with specific references)
-- Specific changes, additions, or findings (with details and locations)
-- Actions taken (commands, searches, API calls, tool usage, etc.)
-- Key discoveries or insights
-- Decisions made and reasoning
-- Side tasks completed]
-</work_completed>
-
-<work_remaining>
-[Detailed breakdown of what needs to be done:
-- Specific tasks with precise locations or references
-- Exact targets to create, modify, or analyze
-- Dependencies and ordering
-- Validation or verification steps needed]
-</work_remaining>
-
-<attempted_approaches>
-[Everything tried, including failures:
-- Approaches that didn't work and why
-- Errors, blockers, or limitations encountered
-- Dead ends to avoid
-- Alternative approaches considered but not pursued]
-</attempted_approaches>
-
-<critical_context>
-[All essential knowledge for continuing:
-- Key decisions and trade-offs
-- Constraints, requirements, or boundaries
-- Important discoveries, gotcas, or edge cases
-- Environment, configuration, or setup details
-- Assumptions requiring validation
-- References to documentation, sources, or resources]
-</critical_context>
-
-<current_state>
-[Exact state of the work:
-- Status of deliverables (complete/in-progress/not started)
-- What's finalized vs. what's temporary or draft
-- Temporary changes or workarounds in place
-- Current position in workflow or process
-- Any open questions or pending decisions]
-</current_state>
 ```
+What's next? Found these work sources:
+
+1. 📋 HANDOFF-do-command-enhancement.md (handoff)
+2. 📋 HANDOFF-session-auth-work.md (handoff)
+3. ✅ TO-DOS.md (local todos)
+4. 🎫 GitHub: 3 open issues
+5. 💡 IDEAS.md (ideas backlog)
+
+Pick a source (1-5), or 0 to skip: _
+```
+
+If nothing found:
+```
+No pending work found. You're all caught up!
+
+Options:
+- Create a GitHub issue to track new work
+- Start working on something and /park it when done
+```
+
+## Pickup Phase
+
+Based on selection, read and present the work:
+
+### For Handoff Files
+
+1. Read the selected handoff file
+2. Present summary:
+   ```
+   Picking up: HANDOFF-do-command-enhancement.md
+
+   ## Summary
+   {Extract key points from handoff}
+
+   ## Work Remaining
+   {List remaining tasks}
+
+   Ready to continue this work?
+   - ✅ Yes, let's go
+   - 📋 Show full handoff details
+   - 🗑️ Delete handoff (already done or not needed)
+   - ⬅️ Back to source list
+   ```
+
+3. If continuing: Keep handoff context loaded, begin work
+4. If deleting: `rm {handoff-file}` and return to discovery
+
+### For TO-DOS.md
+
+1. Read TO-DOS.md
+2. Present items grouped by priority/section
+3. Let user pick specific item to work on
+4. Selected item becomes the focus
+
+### For GitHub Issues
+
+1. Run `/play` skill with issue selection:
+   ```
+   Found issues:
+   1. #42 - Add retry logic to API
+   2. #38 - Fix auth token refresh
+   3. #35 - Update documentation
+
+   Pick an issue (1-3): _
+   ```
+2. Delegate to `/play {issue-number}` for selected issue
+
+### For IDEAS.md
+
+1. Read IDEAS.md
+2. Present ideas list
+3. For selected idea, offer:
+   - Create GitHub issue from it
+   - Start working directly
+   - Refine the idea first
+
+## Priority Rationale
+
+1. **Handoffs first**: Already-started work, has context, highest value to continue
+2. **TO-DOS**: Committed local tasks, defined scope
+3. **GitHub issues**: Tracked, possibly assigned, team-visible
+4. **IDEAS last**: Vague concepts, need refinement before real work
+
+## Success Criteria
+
+- Quick discovery without reading file contents
+- Clear presentation of available work sources
+- Smooth handoff to appropriate handler (/play for issues)
+- Option to delete processed handoffs
+- Graceful handling when no work found
