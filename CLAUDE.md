@@ -89,6 +89,8 @@ After bumping version in `.claude-plugin/plugin.json`:
 2. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
 3. Push the tag: `git push origin vX.Y.Z`
 
+**Versions and tags are immutable.** Never force-push tags. If a version was tagged incorrectly (e.g., plugin.json wasn't updated), bump to the next patch version instead.
+
 ## Distribution
 
 Users can add this marketplace to Claude Code using:
