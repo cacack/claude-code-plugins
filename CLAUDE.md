@@ -10,7 +10,8 @@ Personal Claude Code plugin collection organized as a single-plugin marketplace.
 
 ```
 ├── .claude-plugin/
-│   └── marketplace.json       # Points to repo root via "source": "../"
+│   └── marketplace.json       # Marketplace config with "source": "./"
+├── plugin.json                # Plugin metadata (version, hooks, etc.)
 ├── agents/                    # Agent definitions (*.md)
 ├── commands/                  # Slash commands (*.md)
 ├── hooks/                     # Hook configurations (hooks.json)
@@ -27,7 +28,7 @@ The marketplace.json references the root directory as a single plugin, making al
   "owner": {...},
   "plugins": [{
     "name": "cacack",
-    "source": "../",
+    "source": "./",
     "strict": true
   }]
 }
@@ -81,7 +82,7 @@ Use kebab-case for all file and directory names.
 
 ## Version Management
 
-Plugin version is maintained in `.claude-plugin/plugin.json` only. Claude Code reads the version from `plugin.json` when installing/caching plugins - `marketplace.json` version fields are ignored.
+Plugin version is maintained in `plugin.json` at the repo root. Claude Code reads the version from `plugin.json` when installing/caching plugins - `marketplace.json` version fields are ignored.
 
 ### When to Bump Versions
 
@@ -93,7 +94,7 @@ Plugin version is maintained in `.claude-plugin/plugin.json` only. Claude Code r
 
 ### Commit and Tag Format
 
-After bumping version in `.claude-plugin/plugin.json`:
+After bumping version in `plugin.json`:
 
 1. Commit version bumps separately with format: `chore: bump version to X.Y.Z`
 2. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`

@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "cacack",
-      "source": "../",
+      "source": "./",
       "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
       "strict": true
     }
