@@ -16,19 +16,17 @@ Find work to pick up, prioritized from most-ready to least-defined.
 Help discover the most actionable work available and smoothly hand off to appropriate handlers.
 </objective>
 
-<context>
-Handoff files: !`ls HANDOFF-*.md`
-Legacy whats-next: !`ls whats-next.md`
-TO-DOS file: !`ls TO-DOS.md`
-GitHub issues: !`gh issue list --limit=5`
-IDEAS file: !`ls IDEAS.md`
-</context>
-
 <process>
 ## Discovery Phase
 
 If an argument is provided, skip directly to that source type.
-Otherwise, use the context above to identify available work sources.
+
+Use Glob and Bash to discover available work sources:
+1. `Glob("HANDOFF-*.md")` - handoff files
+2. `Glob("whats-next.md")` - legacy whats-next
+3. `Glob("TO-DOS.md")` - local todos
+4. `Bash(gh issue list --limit=5)` - GitHub issues
+5. `Glob("IDEAS.md")` - ideas backlog
 
 ## Presentation
 
@@ -135,7 +133,7 @@ These skills ensure best practices are followed and provide guided creation work
 </process>
 
 <success_criteria>
-- Quick discovery using context (no redundant file reads)
+- Quick discovery using Glob (graceful when files don't exist)
 - Clear presentation of available work sources
 - Smooth handoff to appropriate handler (/play for issues, /create-* for new features)
 - Option to delete processed handoffs
