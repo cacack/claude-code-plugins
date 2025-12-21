@@ -31,6 +31,7 @@ This marketplace contains a curated collection of:
 
 #### Development Workflow
 - `debug` - Apply expert debugging methodology to investigate a specific issue
+- `do` - Execute work with selectable rigor level (vibe, delegate, or speckit)
 - `play` - Review a GitHub/GitLab issue, plan the work, and present for approval before implementation
 - `security-review` - Comprehensive security analysis of changes, context, or entire repository
 - `ship` - Intelligently commit and ship changes using basic or advanced workflow

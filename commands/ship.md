@@ -1,156 +1,195 @@
 ---
-description: Intelligently commit and ship changes using basic or advanced workflow
-argument-hint: [optional commit message]
+description: Intelligently commit and ship changes with optional version bumping
+argument-hint: [commit message] [--no-bump] [--no-docs-check]
 allowed-tools:
   - Read
-  - Bash(git *)
-  - Bash(gh *)
-  - Bash(glab *)
   - Edit
   - Glob
   - Grep
   - AskUserQuestion
+  - Bash(git add:*)
+  - Bash(git commit:*)
+  - Bash(git push:*)
+  - Bash(git checkout:*)
+  - Bash(git branch:*)
+  - Bash(git status:*)
+  - Bash(git diff:*)
+  - Bash(git remote:*)
+  - Bash(git tag:*)
+  - Bash(git log:*)
+  - Bash(gh pr:*)
+  - Bash(glab mr:*)
 ---
 
-Analyze the current repository state and changes, then intelligently choose between:
+<objective>
+Analyze current repository state and intelligently commit and ship changes using basic or advanced workflow.
+Handles version bumping, documentation checks, and PR/MR creation as appropriate.
+</objective>
 
-**Basic workflow** (for personal repos or simple changes):
-1. Stage all changes
-2. Create commit with conventional commit message
-3. Push to current branch
+<context>
+Git status: ! `git status`
+Current branch: ! `git branch --show-current`
+Remote info: ! `git remote -v | head -1`
+Changes summary: ! `git diff --stat HEAD`
+Staged changes: ! `git diff --cached --stat`
+Recent commits: ! `git log --oneline -5`
+Project conventions: @CLAUDE.md
+</context>
 
-**Advanced workflow** (for collaborative repos or complex changes):
-1. Create a feature branch (if not already on one)
-2. Stage all changes
-3. Create commit with conventional commit message
-4. Push branch with upstream tracking
-5. Create PR (GitHub) or MR (GitLab)
+<process>
 
-## Decision Criteria
+## 1. Parse Arguments
 
-Use **basic workflow** when:
-- Current branch is NOT main/master (already on feature branch)
-- Repository appears to be personal (user owns the repo)
-- Changes are simple (1-2 files, small diff)
+From `$ARGUMENTS`, extract:
+- **Commit message**: Free text (if provided)
+- **Flags**:
+  - `--no-bump` - Skip version bumping
+  - `--no-docs-check` - Skip documentation check
 
-Use **advanced workflow** when:
-- Currently on main/master branch
-- Repository is organizational/collaborative
-- Changes are complex (3+ files or significant modifications)
-- User explicitly wants a PR/MR
+## 2. Analyze Repository State
 
-## Workflow Steps
+Using context above, determine:
+- Current branch (main/master vs feature branch)
+- Platform (GitHub vs GitLab from remote URL)
+- Change complexity (file count, diff size)
+- Repository ownership (personal vs organizational)
 
-1. **Analyze repository context:**
-   - Run `git remote -v` to identify hosting platform (GitHub/GitLab)
-   - Run `git status` to see current branch and changes
-   - Run `git diff --stat` to assess change complexity
-   - Check if current user owns the repository
-   - Check CLAUDE.md for project-specific requirements (versioning, tagging, etc.)
+## 3. Select Workflow
 
-2. **Determine workflow:**
-   - Apply decision criteria above
-   - Inform user which workflow will be used and why
+**Basic workflow** when:
+- Already on feature branch (not main/master)
+- Personal repository
+- Simple changes (1-2 files)
 
-3. **Execute chosen workflow:**
+**Advanced workflow** when:
+- On main/master branch
+- Organizational/collaborative repo
+- Complex changes (3+ files)
+- User explicitly wants PR/MR
 
-   **Basic workflow:**
-   - Stage changes: `git add .`
-   - Create commit with message following conventional commits
-   - Push: `git push`
+Inform user which workflow will be used and why.
 
-   **Advanced workflow:**
-   - Create branch if needed: `git checkout -b feature/descriptive-name`
-   - Stage changes: `git add .`
-   - Create commit with message following conventional commits
-   - Push with tracking: `git push -u origin branch-name`
-   - Create PR/MR:
-     - GitHub: `gh pr create --title "..." --body "..."`
-     - GitLab: `glab mr create --title "..." --description "..."`
+## 4. Version Bump (if applicable)
 
-4. **Commit message guidelines:**
-   - If user provided argument, use it as commit message
-   - Otherwise, analyze changes and create conventional commit message
-   - Format: `type(scope): description`
-   - Include co-authored-by footer for Claude Code
-   - Add link to Claude Code in commit body
+Skip if `--no-bump` flag or conditions below.
 
-5. **Error handling:**
-   - Check for uncommitted changes
-   - Verify git repository exists
-   - Handle authentication issues
-   - Check if `gh` or `glab` CLI is available for PR/MR creation
-
-## Version Bump (Generic)
-
-Before committing, check if the project uses semantic versioning and bump if needed.
-
-### Version File Detection
-
-Search for version files in priority order:
+### Detection Priority
 1. `.claude-plugin/plugin.json` - Claude Code plugins
-2. `package.json` - Node.js/npm projects
-3. `pyproject.toml` - Python projects (PEP 621 or Poetry)
-4. `Cargo.toml` - Rust projects
-5. `VERSION` or `VERSION.txt` - Plain text version
-6. `setup.py` - Legacy Python (extract from `version=`)
+2. `package.json` - Node.js
+3. `pyproject.toml` - Python
+4. `Cargo.toml` - Rust
+5. `VERSION` or `VERSION.txt` - Plain text
 
-Use the first one found. If no version file exists, skip version bumping.
+### Bump Rules
+| Commit Type | Bump |
+|-------------|------|
+| `feat:` | minor (1.2.3 → 1.3.0) |
+| `fix:`, `perf:` | patch (1.2.3 → 1.2.4) |
+| `BREAKING CHANGE` | major (1.2.3 → 2.0.0) |
+| `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `ci:` | patch |
 
-### Bump Rules (Semver)
-
-Determine bump type from the commit type being created:
-
-| Commit Type | Bump | Example |
-|-------------|------|---------|
-| `feat:` | minor | 1.2.3 → 1.3.0 |
-| `fix:`, `perf:` | patch | 1.2.3 → 1.2.4 |
-| `BREAKING CHANGE` | major | 1.2.3 → 2.0.0 |
-| `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `ci:` | patch | 1.2.3 → 1.2.4 |
-
-### Bump Workflow
-
-1. **Detect version file** using priority list above
-2. **Read current version** from the file
-3. **Determine commit type** from changes or user-provided message
-4. **Calculate new version** using semver rules
-5. **Update version file** with new version
-6. **Commit changes** in this order:
-   - First: The actual code changes with conventional commit message
-   - Second: Version bump as `chore: bump version to X.Y.Z`
-7. **Create git tag** (if project conventions require it): `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
-
-### Version File Formats
-
-**JSON files** (package.json, plugin.json):
-```json
-{ "version": "1.2.3" }
-```
-
-**TOML files** (pyproject.toml, Cargo.toml):
-```toml
-[project]  # or [package] for Cargo
-version = "1.2.3"
-```
-
-**Plain text** (VERSION):
-```
-1.2.3
-```
-
-### Skip Conditions
-
-Skip version bumping when:
+### Skip When
 - No version file detected
-- Changes are only to ignored files (README, docs, etc.)
-- User explicitly passes `--no-bump` argument
-- Already on a version bump commit
+- Only documentation changes
+- Already on version bump commit
 
-## Important Notes
+## 5. Documentation Check (if applicable)
 
+Skip if `--no-docs-check` flag or commit type is `docs:`, `test:`, `ci:`, `style:`.
+
+Check for: `README.md`, `FEATURES.md`, `CHANGELOG.md`, `IDEAS.md`
+
+For `feat:` commits:
+```
+Documentation check for new feature:
+- [ ] README.md - Update if major user-facing change
+- [ ] FEATURES.md - Document new capability
+
+Update docs? (y/n/skip): _
+```
+
+## 6. Execute Workflow
+
+### Basic Workflow
+```bash
+git add .
+git commit -m "[conventional commit message]"
+git push
+```
+
+### Advanced Workflow
+```bash
+git checkout -b feature/descriptive-name  # if on main
+git add .
+git commit -m "[conventional commit message]"
+git push -u origin [branch-name]
+gh pr create --title "..." --body "..."  # or glab mr create
+```
+
+## 7. Commit Message
+
+If user provided message, use it. Otherwise generate:
+- Format: `type(scope): description`
+- Scope from changed files/directories
+- Include Claude Code footer:
+  ```
+  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+  Co-Authored-By: Claude <noreply@anthropic.com>
+  ```
+
+</process>
+
+<success_criteria>
+**Basic workflow complete when:**
+- All changes staged
+- Commit created with conventional message
+- Changes pushed to remote
+- No pre-commit hook failures
+
+**Advanced workflow complete when:**
+- Feature branch created (if needed)
+- All changes staged and committed
+- Branch pushed with upstream tracking
+- PR/MR created with clear title and description
+- PR/MR URL returned to user
+
+**Version bump complete when:**
+- Version file updated
+- Separate bump commit created
+- Tag created (if project requires)
+
+**All workflows:**
+- User informed of actions taken
+- No force pushes to main/master
+- Pre-commit hooks respected
+</success_criteria>
+
+<safety>
 - NEVER skip pre-commit hooks
 - NEVER force push to main/master
-- Always verify changes with `git status` and `git diff` before committing
+- NEVER commit secrets (.env, credentials, keys)
+- Always verify changes with `git status` before committing
 - Ask user for clarification if workflow choice is ambiguous
-- Respect conventional commit format unless project overrides exist
-- Check CLAUDE.md for project-specific version/tag requirements
+</safety>
+
+<examples>
+
+```bash
+# Auto-generate commit message, full workflow
+/ship
+
+# Use provided commit message
+/ship "feat: add user authentication"
+
+# Skip version bump
+/ship --no-bump
+
+# Skip docs check
+/ship "fix: resolve null pointer" --no-docs-check
+
+# Skip both
+/ship --no-bump --no-docs-check
+```
+
+</examples>

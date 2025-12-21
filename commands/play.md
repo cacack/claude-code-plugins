@@ -1,7 +1,21 @@
 ---
 description: Review a GitHub/GitLab issue, plan the work, and present for approval before implementation
 argument-hint: <issue-number>
-allowed-tools: [Read, Write, Grep, Glob, Bash(gh issue:*), Bash(gh pr:*), Bash(glab issue:*), Bash(git status:*), Bash(git branch:*), Bash(git log:*), WebFetch, Task, AskUserQuestion, TodoWrite, EnterPlanMode, SlashCommand]
+allowed-tools:
+  - Read
+  - Write
+  - Grep
+  - Glob
+  - Bash(gh issue:*)
+  - Bash(glab issue:*)
+  - Bash(git status:*)
+  - Bash(git branch:*)
+  - Bash(git log:*)
+  - Bash(git diff:*)
+  - WebFetch
+  - Task
+  - AskUserQuestion
+  - TodoWrite
 ---
 
 <objective>
@@ -13,14 +27,20 @@ This ensures alignment on approach before investing effort in implementation.
 <context>
 Repository info: ! `git remote -v | head -1`
 Current branch: ! `git branch --show-current`
+Working directory: ! `git status --short`
 Recent commits: ! `git log --oneline -5`
+GitHub CLI: ! `which gh >/dev/null 2>&1 && echo "available" || echo "NOT INSTALLED"`
 </context>
 
 <process>
-1. **Fetch the issue**:
+1. **Validate and fetch the issue**:
+   - If `$ARGUMENTS` is empty, ask user for issue number or URL
+   - If GitHub CLI not available (check context), inform user and suggest installing with `brew install gh`
+   - Parse input: number (`42`), hash-number (`#42`), or full URL
    - Try GitHub first: `gh issue view $ARGUMENTS`
    - If that fails, try GitLab: `glab issue view $ARGUMENTS`
    - If URL is provided instead of number, fetch directly
+   - On fetch failure (invalid number, auth error, network): present error and ask for valid input
 
 2. **Understand the issue**:
    - Parse title, description, labels, and comments
@@ -81,6 +101,14 @@ Recent commits: ! `git log --oneline -5`
 
 - [Any clarifications needed]
 - [Trade-offs to consider]
+
+## Documentation Impact
+
+Check which documentation may need updates:
+- [ ] README.md - [update if major user-facing feature]
+- [ ] FEATURES.md - [document new capability if file exists]
+- [ ] IDEAS.md - [remove item if implementing from ideas backlog]
+- [ ] CHANGELOG.md - [add entry if file exists]
 
 ---
 
