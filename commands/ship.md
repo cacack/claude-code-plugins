@@ -1,6 +1,6 @@
 ---
 description: Intelligently commit and ship changes with optional version bumping
-argument-hint: [commit message] [--no-bump] [--no-docs-check]
+argument-hint: [commit message] [--no-bump] [--no-docs-check] [--no-issue-link]
 allowed-tools:
   - Read
   - Edit
@@ -9,7 +9,9 @@ allowed-tools:
   - AskUserQuestion
   - Bash(git add:*)
   - Bash(git commit:*)
-  - Bash(git push:*)
+  - Bash(git push -u:*)
+  - Bash(git push origin:*)
+  - Bash(git push --force-with-lease:*)
   - Bash(git checkout:*)
   - Bash(git branch:*)
   - Bash(git status:*)
@@ -31,9 +33,7 @@ Git status: ! `git status`
 Current branch: ! `git branch --show-current`
 Remote info: ! `git remote -v | head -1`
 Changes summary: ! `git diff --stat HEAD`
-Staged changes: ! `git diff --cached --stat`
 Recent commits: ! `git log --oneline -5`
-Project conventions: @CLAUDE.md
 </context>
 
 <process>
@@ -41,10 +41,13 @@ Project conventions: @CLAUDE.md
 ## 1. Parse Arguments
 
 From `$ARGUMENTS`, extract:
-- **Commit message**: Free text (if provided)
-- **Flags**:
+- **Commit message**: Free text in quotes (if provided)
+- **Flags** (can appear before or after commit message):
   - `--no-bump` - Skip version bumping
   - `--no-docs-check` - Skip documentation check
+  - `--no-issue-link` - Skip issue detection and linking prompts
+
+**Valid orderings**: `/ship "message" --flag` or `/ship --flag "message"` or `/ship --flag`
 
 ## 2. Analyze Repository State
 
@@ -108,7 +111,70 @@ Documentation check for new feature:
 Update docs? (y/n/skip): _
 ```
 
-## 6. Execute Workflow
+## 6. Issue Detection and Linking
+
+Skip if `--no-issue-link` flag or using basic workflow.
+
+For advanced workflow (PR/MR creation), detect and link related issues.
+
+### Detection Sources (in priority order)
+1. **Branch name** - e.g., `feature/123-add-auth`, `fix/GH-456`, `issue-789-bug`
+2. **Commit messages** - run `git log --oneline main..HEAD` (or master) to scan commits
+3. **User-provided message** - from `$ARGUMENTS`
+
+### Patterns to Detect
+| Pattern | Example | Platform |
+|---------|---------|----------|
+| `#N` | `#123` | GitHub/GitLab |
+| `GH-N` or `gh-N` | `GH-456` | GitHub |
+| `PROJ-N` | `JIRA-789`, `ABC-123` | Jira/external |
+| `issue-N` or `issue/N` | `issue-42` | Generic |
+
+### Linking Process
+
+1. **Collect all detected issues** from sources above
+2. **Deduplicate** and present to user:
+   ```
+   Detected issue references:
+   - #123 (from branch name)
+   - #456 (from commit message)
+
+   Link these issues? Options:
+   1. Close all (adds "Closes #123, Closes #456")
+   2. Reference only (adds "Related to #123, #456")
+   3. Select which to close vs reference
+   4. Add different issues
+   5. Skip issue linking
+   ```
+
+3. **If no issues detected**, prompt:
+   ```
+   No issue references detected.
+   Link to an issue? (enter issue number, URL, or skip): _
+   ```
+
+4. **Generate appropriate keywords**:
+   - Closing: `Closes #N`, `Fixes #N`, or `Resolves #N`
+   - Reference only: `Related to #N` or `See #N`
+   - GitLab also supports: `Closes namespace/project#N` for cross-project
+
+### PR/MR Body Format
+```markdown
+## Summary
+[Auto-generated or user-provided description]
+
+## Changes
+[Brief list from commit messages or diff summary]
+
+## Issues
+Closes #123
+Related to #456
+
+---
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+## 7. Execute Workflow
 
 ### Basic Workflow
 ```bash
@@ -126,7 +192,9 @@ git push -u origin [branch-name]
 gh pr create --title "..." --body "..."  # or glab mr create
 ```
 
-## 7. Commit Message
+Include issue references in the PR/MR body using the format above.
+
+## 8. Commit Message
 
 If user provided message, use it. Otherwise generate:
 - Format: `type(scope): description`
@@ -151,7 +219,8 @@ If user provided message, use it. Otherwise generate:
 - Feature branch created (if needed)
 - All changes staged and committed
 - Branch pushed with upstream tracking
-- PR/MR created with clear title and description
+- Issue references detected and user prompted for linking preference
+- PR/MR created with clear title, description, and issue links
 - PR/MR URL returned to user
 
 **Version bump complete when:**
@@ -173,6 +242,15 @@ If user provided message, use it. Otherwise generate:
 - Ask user for clarification if workflow choice is ambiguous
 </safety>
 
+<verification>
+Before completing each workflow:
+1. Run `git status` to confirm expected files are staged
+2. Check for potential secrets in diff (patterns: password, secret, api_key, token, credentials)
+3. Verify commit message follows conventional commit format
+4. Confirm pre-commit hooks passed (if commit succeeds)
+5. For PR/MR: verify URL is returned and accessible
+</verification>
+
 <examples>
 
 ```bash
@@ -188,8 +266,16 @@ If user provided message, use it. Otherwise generate:
 # Skip docs check
 /ship "fix: resolve null pointer" --no-docs-check
 
-# Skip both
-/ship --no-bump --no-docs-check
+# Skip issue linking prompts
+/ship --no-issue-link
+
+# Skip all optional steps
+/ship --no-bump --no-docs-check --no-issue-link
+
+# Explicitly close an issue (detected from branch or commits)
+/ship "feat: add OAuth support"
+# → Detects #42 from branch name "feature/42-oauth"
+# → Prompts: "Close #42 with this PR?"
 ```
 
 </examples>
