@@ -1,10 +1,9 @@
 ---
 description: Interactive discovery and selection of pending work prioritized by readiness (handoffs, todos, issues, ideas)
-argument-hint: "[source-type: handoff|todos|issues|ideas]"
+argument-hint: "[handoff|todos|issues|ideas]"
 allowed-tools:
   - Read
   - Glob
-  - Bash(ls *)
   - Bash(rm HANDOFF-*)
   - Bash(gh issue list*)
   - AskUserQuestion
@@ -25,8 +24,23 @@ Use Glob and Bash to discover available work sources:
 1. `Glob("HANDOFF-*.md")` - handoff files
 2. `Glob("whats-next.md")` - legacy whats-next
 3. `Glob("TO-DOS.md")` - local todos
-4. `Bash(gh issue list --limit=5)` - GitHub issues
+4. GitHub issues (use prioritized discovery below)
 5. `Glob("IDEAS.md")` - ideas backlog
+
+### GitHub Issue Priority Discovery
+
+Fetch issues in priority order and deduplicate:
+
+1. **Assigned to you** (most actionable):
+   `gh issue list --assignee @me --limit=3 --sort updated --json number,title,labels`
+
+2. **High priority** (if priority labels used):
+   `gh issue list --label "priority:high" --limit=3 --sort updated --json number,title,labels`
+
+3. **Recently updated** (fallback):
+   `gh issue list --limit=5 --sort updated --json number,title,labels`
+
+Combine results, removing duplicates (keep first occurrence). Present up to 5 unique issues in priority order.
 
 ## Presentation
 
@@ -89,15 +103,21 @@ Based on selection, read and present the work:
 
 ### For GitHub Issues
 
-1. Delegate to `/play` skill with issue selection:
+1. Delegate to `/play` skill with issue selection, showing priority context:
    ```
-   Found issues:
-   1. #42 - Add retry logic to API
-   2. #38 - Fix auth token refresh
-   3. #35 - Update documentation
+   Found issues (prioritized):
+   1. #42 - Add retry logic to API [assigned to you]
+   2. #38 - Fix auth token refresh [priority:high]
+   3. #35 - Update documentation [recently updated]
 
    Pick an issue (1-3): _
    ```
+
+   Priority indicators:
+   - `[assigned to you]` - Issues assigned to current user
+   - `[priority:high]` - Issues with priority label
+   - `[recently updated]` - Active issues from fallback query
+
 2. Run `/play {issue-number}` for selected issue
 
 ### For IDEAS.md
@@ -140,3 +160,11 @@ These skills ensure best practices are followed and provide guided creation work
 - Graceful handling when no work found
 - Direct source access when argument provided
 </success_criteria>
+
+<verification>
+Before completing:
+- If handoff deleted: verify file no longer exists with Glob
+- If delegated to /play: verify issue context loaded successfully
+- If delegated to creation skill: verify skill invocation completed
+- If user selected "skip": confirm no action taken, return cleanly
+</verification>
