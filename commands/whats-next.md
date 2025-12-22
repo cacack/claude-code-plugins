@@ -29,7 +29,9 @@ Use Glob and Bash to discover available work sources:
 
 ### GitHub Issue Priority Discovery
 
-Fetch issues in priority order and deduplicate:
+Fetch issues in priority order and deduplicate.
+
+**IMPORTANT**: Run these commands exactly as shown - do NOT add `2>/dev/null`, `|| echo "[]"`, or other error suppression. Let errors surface so issues can be diagnosed. If a command fails, report the error to the user.
 
 1. **Assigned to you** (most actionable):
    `gh issue list --assignee @me --limit=3 --sort updated --json number,title,labels`

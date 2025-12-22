@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "cacack",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
       "author": {
         "name": "Chris Clonch",
