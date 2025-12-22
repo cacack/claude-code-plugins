@@ -1,9 +1,9 @@
 ---
 description: Review a GitHub/GitLab issue, plan the work, and present for approval before implementation
-argument-hint: <issue-number>
+argument-hint: <issue-number|issue-url>
 allowed-tools:
   - Read
-  - Write
+  - Write  # For prompt generation only - no implementation before approval
   - Grep
   - Glob
   - Bash(gh issue:*)
@@ -30,6 +30,7 @@ Current branch: ! `git branch --show-current`
 Working directory: ! `git status --short`
 Recent commits: ! `git log --oneline -5`
 GitHub CLI: ! `which gh >/dev/null 2>&1 && echo "available" || echo "NOT INSTALLED"`
+GitLab CLI: ! `which glab >/dev/null 2>&1 && echo "available" || echo "NOT INSTALLED"`
 </context>
 
 <process>
@@ -53,6 +54,7 @@ GitHub CLI: ! `which gh >/dev/null 2>&1 && echo "available" || echo "NOT INSTALL
    - Check for related code, tests, and documentation
 
 4. **Create implementation plan**:
+   - **Build vs Reuse check**: Before designing implementation, ask "What existing stdlib or library functionality can be leveraged? What is truly domain-specific and must be built?" Document findings in the Build vs Reuse output section.
    - Break down into discrete, ordered steps
    - Identify files to create/modify
    - Consider edge cases and error handling
@@ -79,6 +81,14 @@ GitHub CLI: ! `which gh >/dev/null 2>&1 && echo "available" || echo "NOT INSTALL
 
 - `path/to/file.ext` - [what changes]
 - `path/to/other.ext` - [what changes]
+
+## Build vs Reuse
+
+**Leveraging existing functionality:**
+- [stdlib/library feature] - [what it handles]
+
+**Must be built (domain-specific):**
+- [custom component] - [why it can't be reused]
 
 ## Implementation Plan
 
@@ -127,14 +137,14 @@ Check which documentation may need updates:
 - Implementation plan is concrete and actionable
 - Plan presented for user approval before any implementation
 - User given clear options to proceed, modify, discuss, or generate prompts
-- If prompt generation selected: prompts saved and execution options presented
+- If prompt generation selected: prompts saved with all required XML tags (objective, context, requirements, implementation, output, verification, success_criteria) and execution options presented
 </success_criteria>
 
 <prompt_generation>
 When user selects "🚀 Generate prompts", create execution-ready prompts from the implementation plan.
 
 **Pre-generation steps:**
-1. Use Glob on `./prompts/*.md` to find existing prompts and determine next sequence number
+1. Use Glob on `./prompts/*.md` to find existing prompts and determine next sequence number (create `./prompts/` if missing, start with 001)
 2. Analyze implementation plan steps for dependencies
 3. Determine execution strategy:
    - **Parallel**: Independent steps, no shared file modifications

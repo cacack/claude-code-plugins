@@ -115,6 +115,20 @@ NEVER include in plans:
 If it sounds like corporate PM theater, delete it.
 </principle>
 
+<principle name="build_vs_reuse">
+Before planning implementation, always ask:
+> "What existing stdlib or library functionality can be leveraged? What is truly domain-specific?"
+
+Detailed requirements can lead to detailed implementations that skip this question.
+Pattern: research doc describes *what* → plan describes *how to build* → misses "already exists."
+
+**Every phase plan should explicitly identify:**
+- What existing libraries/stdlib handles (don't rebuild)
+- What is truly domain-specific (must build)
+
+This prevents over-engineering and keeps implementations simple.
+</principle>
+
 <principle name="context_awareness">
 Monitor token usage via system warnings.
 
