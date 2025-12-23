@@ -29,17 +29,26 @@ Use Glob and Bash to discover available work sources:
 
 ### GitHub Issue Priority Discovery
 
-Fetch issues in priority order and deduplicate.
+Fetch issues in priority order and deduplicate. The priority ladder is: `priority:high` > `priority:medium` > `priority:low` > `priority:future` > unlabeled.
 
 **IMPORTANT**: Run these commands exactly as shown - do NOT add `2>/dev/null`, `|| echo "[]"`, or other error suppression. Let errors surface so issues can be diagnosed. If a command fails, report the error to the user.
 
 1. **Assigned to you** (most actionable):
    `gh issue list --assignee @me --limit=3 --json number,title,labels`
 
-2. **High priority** (if priority labels used):
+2. **High priority**:
    `gh issue list --label "priority:high" --limit=3 --json number,title,labels`
 
-3. **Recently updated** (fallback):
+3. **Medium priority**:
+   `gh issue list --label "priority:medium" --limit=3 --json number,title,labels`
+
+4. **Low priority**:
+   `gh issue list --label "priority:low" --limit=3 --json number,title,labels`
+
+5. **Future priority** (backlog):
+   `gh issue list --label "priority:future" --limit=3 --json number,title,labels`
+
+6. **Unlabeled/other** (fallback):
    `gh issue list --limit=5 --json number,title,labels`
 
 Combine results, removing duplicates (keep first occurrence). Present up to 5 unique issues in priority order.
@@ -117,8 +126,11 @@ Based on selection, read and present the work:
 
    Priority indicators:
    - `[assigned to you]` - Issues assigned to current user
-   - `[priority:high]` - Issues with priority label
-   - `[recently updated]` - Active issues from fallback query
+   - `[priority:high]` - High priority issues
+   - `[priority:medium]` - Medium priority issues
+   - `[priority:low]` - Low priority issues
+   - `[priority:future]` - Future/backlog issues
+   - `[other]` - Issues without priority labels
 
 2. Run `/play {issue-number}` for selected issue
 
