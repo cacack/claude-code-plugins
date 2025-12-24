@@ -1,5 +1,5 @@
 ---
-description: Execute work with selectable rigor level - vibe, delegate, or speckit
+description: Execute work with selectable rigor level - vibe, meta-prompting, or speckit
 argument-hint: <issue-number-or-task-description>
 ---
 # Note: No allowed-tools restriction - this is an orchestration command
@@ -43,9 +43,9 @@ Task: [issue title or task description]
 
 Choose your approach:
 
-1. Vibe it    - Implement now, iterate as we go
-2. Delegate  - Create prompts for /run-prompt execution
-3. Speckit   - Full spec, plan, and task breakdown
+1. Vibe it         - Implement now, iterate as we go
+2. Meta-prompting  - Create prompts using /create-prompt
+3. Speckit         - Full spec, plan, and task breakdown
 
 Pick (1-3): _
 ```
@@ -68,37 +68,29 @@ Light, iterative implementation in current session.
 - Good for well-understood changes
 - Good for small-to-medium tasks
 
-### Option 2: Delegate
+### Option 2: Meta-prompting
 
-Create structured prompts for parallel/sequential execution.
+Present sub-choice with decision signals to help user select:
 
-1. Analyze task and break into discrete steps
-2. Identify dependencies between steps:
-   - **Parallel**: Steps touch different files, no shared state
-   - **Sequential**: Steps depend on prior step output
-3. Create prompt files in `./prompts/` directory
-4. Each prompt is self-contained with context
-5. Present execution options
-
-**Prompt structure:**
-```xml
-<objective>
-[Clear goal for this step]
-</objective>
-
-<context>
-[Relevant files and background]
-@[file references]
-</context>
-
-<requirements>
-[Specific requirements]
-</requirements>
-
-<verification>
-[How to confirm success]
-</verification>
 ```
+Meta-prompting selected. What style?
+
+1. Simple prompts  - Flat files in ./prompts/
+   → Best for: Single feature, clear scope, 1-3 prompts
+   → Example: "add input validation", "refactor API client"
+
+2. Full pipeline   - Chained stages with summaries in .prompts/
+   → Best for: Multi-phase work, research-first, architectural changes
+   → Example: "implement auth system", "build new microservice"
+
+Pick (1-2): _
+```
+
+**If Simple prompts (1):**
+Invoke `/create-prompt` via SlashCommand tool with task context.
+
+**If Full pipeline (2):**
+Invoke `/create-prompt-pipeline` via SlashCommand tool with task context.
 
 ### Option 3: Speckit
 
@@ -139,9 +131,9 @@ Maximum rigor with full specification workflow.
 - Completed implementation
 - Updated todo list showing progress
 
-**Delegate option produces:**
-- `./prompts/NNN-[task]-[step].md` files
-- Execution recommendation (parallel/sequential)
+**Meta-prompting option produces:**
+- Simple: Delegates to `/create-prompt` for flat prompt files
+- Pipeline: Delegates to `/create-prompt-pipeline` for chained stages with summaries
 
 **Speckit option produces:**
 - `SPEC-[task].md` specification document
@@ -150,12 +142,10 @@ Maximum rigor with full specification workflow.
 </output>
 
 <verification>
-**Before completing Delegate option, verify:**
-- [ ] All prompt files created in `./prompts/`
-- [ ] Each prompt has objective, context, requirements, verification sections
-- [ ] File references (@paths) point to existing files
-- [ ] Dependencies between steps are correctly identified
-- [ ] Execution strategy (parallel/sequential) is appropriate
+**Before completing Meta-prompting option, verify:**
+- [ ] Sub-choice presented with decision signals
+- [ ] Appropriate command invoked (`/create-prompt` or `/create-prompt-pipeline`)
+- [ ] User completed the selected workflow
 
 **Before completing Speckit option, verify:**
 - [ ] SPEC file captures all requirements
@@ -171,8 +161,8 @@ When to suggest each approach:
 |--------|-------------------|
 | "quick", "simple", "small" in task | Vibe it |
 | Familiar codebase, clear requirements | Vibe it |
-| Multi-step task, wants delegation | Delegate |
-| Complex task, multiple files | Delegate or Speckit |
+| Multi-step task, wants delegation | Meta-prompting |
+| Complex task, multiple files | Meta-prompting or Speckit |
 | "careful", "thorough", "spec" in task | Speckit |
 | Unfamiliar codebase, unclear scope | Speckit |
 | Breaking changes, architectural | Speckit |
@@ -181,7 +171,7 @@ When to suggest each approach:
 
 1. `/do "fix typo in README"` → Suggest **Vibe** (simple, single file)
 2. `/do 42` (issue: "Add user authentication") → Suggest **Speckit** (complex, architectural)
-3. `/do "refactor API client into separate modules"` → Suggest **Delegate** (multi-step, parallelizable)
+3. `/do "refactor API client into separate modules"` → Suggest **Meta-prompting** (multi-step, parallelizable)
 4. `/do "update dependencies and fix breaking changes"` → Suggest **Speckit** (risky, needs analysis)
 
 </decision_help>
@@ -190,7 +180,7 @@ When to suggest each approach:
 - User clearly understands the three options
 - Selected approach is executed appropriately:
   - **Vibe**: Implementation starts within 2-3 messages
-  - **Delegate**: All prompts created, validated, and ready to run
+  - **Meta-prompting**: Sub-choice presented, appropriate command invoked, workflow completed
   - **Speckit**: Specification and plan approved before any implementation
 - Error cases handled gracefully (missing gh CLI, invalid issue, network failure)
 </success_criteria>

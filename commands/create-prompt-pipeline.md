@@ -1,5 +1,5 @@
 ---
-description: Create optimized prompts for Claude-to-Claude pipelines (research -> plan -> implement)
+description: Create multi-stage prompt pipelines with chaining, summaries, and execution (research → plan → implement)
 argument-hint: [task description]
 allowed-tools: Skill(create-meta-prompts)
 ---
