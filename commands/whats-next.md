@@ -29,29 +29,42 @@ Use Glob and Bash to discover available work sources:
 
 ### GitHub Issue Priority Discovery
 
-Fetch issues in priority order and deduplicate. The priority ladder is: `priority:high` > `priority:medium` > `priority:low` > `priority:future` > unlabeled.
+Issues with effort/value labels are prioritized first using a value/effort matrix. Issues without effort/value labels fall back to the priority ladder.
+
+**Effort/Value Matrix** (best to worst):
+1. `value:high` + `effort:low` - Quick wins, do first
+2. `value:high` + `effort:medium` - High impact
+3. `value:medium` + `effort:low` - Easy improvements
+4. `value:high` + `effort:high` - Major projects
+5. `value:medium` + `effort:medium` - Standard work
+6. `value:low` + `effort:low` - Fill-in tasks
+7. `value:medium` + `effort:high` - Consider carefully
+8. `value:low` + `effort:medium` - Low priority
+9. `value:low` + `effort:high` - Avoid if possible
+
+**Priority Ladder** (fallback when no effort/value labels):
+`priority:high` > `priority:medium` > `priority:low` > `priority:future` > unlabeled
 
 **IMPORTANT**: Run these commands exactly as shown - do NOT add `2>/dev/null`, `|| echo "[]"`, or other error suppression. Let errors surface so issues can be diagnosed. If a command fails, report the error to the user.
 
 1. **Assigned to you** (most actionable):
-   `gh issue list --assignee @me --limit=3 --json number,title,labels`
+   `gh issue list --assignee @me --limit=5 --json number,title,labels`
 
-2. **High priority**:
+2. **Value-labeled issues** (for matrix sorting):
+   `gh issue list --label "value:high" --limit=5 --json number,title,labels`
+   `gh issue list --label "value:medium" --limit=3 --json number,title,labels`
+   `gh issue list --label "value:low" --limit=2 --json number,title,labels`
+
+3. **Priority-labeled issues** (fallback):
    `gh issue list --label "priority:high" --limit=3 --json number,title,labels`
-
-3. **Medium priority**:
    `gh issue list --label "priority:medium" --limit=3 --json number,title,labels`
+   `gh issue list --label "priority:low" --limit=2 --json number,title,labels`
+   `gh issue list --label "priority:future" --limit=2 --json number,title,labels`
 
-4. **Low priority**:
-   `gh issue list --label "priority:low" --limit=3 --json number,title,labels`
-
-5. **Future priority** (backlog):
-   `gh issue list --label "priority:future" --limit=3 --json number,title,labels`
-
-6. **Unlabeled/other** (fallback):
+4. **Unlabeled/other** (fallback):
    `gh issue list --limit=5 --json number,title,labels`
 
-Combine results, removing duplicates (keep first occurrence). Present up to 5 unique issues in priority order.
+Combine results, removing duplicates. Sort issues with effort/value labels using the matrix above, then append priority-labeled issues, then unlabeled. Present up to 5 unique issues.
 
 ## Presentation
 
@@ -117,20 +130,19 @@ Based on selection, read and present the work:
 1. Delegate to `/play` skill with issue selection, showing priority context:
    ```
    Found issues (prioritized):
-   1. #42 - Add retry logic to API [assigned to you]
-   2. #38 - Fix auth token refresh [priority:high]
-   3. #35 - Update documentation [recently updated]
+   1. #42 - Add retry logic to API [assigned] [value:high] [effort:low]
+   2. #38 - Fix auth token refresh [value:high] [effort:medium]
+   3. #35 - Update documentation [priority:medium]
 
    Pick an issue (1-3): _
    ```
 
-   Priority indicators:
-   - `[assigned to you]` - Issues assigned to current user
-   - `[priority:high]` - High priority issues
-   - `[priority:medium]` - Medium priority issues
-   - `[priority:low]` - Low priority issues
-   - `[priority:future]` - Future/backlog issues
-   - `[other]` - Issues without priority labels
+   Priority indicators (show all applicable):
+   - `[assigned]` - Issues assigned to current user
+   - `[value:high]` `[value:medium]` `[value:low]` - Value labels
+   - `[effort:low]` `[effort:medium]` `[effort:high]` - Effort labels
+   - `[priority:high]` `[priority:medium]` `[priority:low]` `[priority:future]` - Priority labels (fallback)
+   - `[other]` - Issues without any of the above labels
 
 2. Run `/play {issue-number}` for selected issue
 
