@@ -4,7 +4,7 @@ argument-hint: <prompt-number(s)-or-name> [--parallel|--sequential]
 ---
 
 <objective>
-Execute one or more prompts from `./prompts/` as delegated sub-tasks with fresh context. Supports single prompt execution, parallel execution of multiple independent prompts, and sequential execution of dependent prompts.
+Execute one or more prompts from `.prompts/` as delegated sub-tasks with fresh context. Supports single prompt execution, parallel execution of multiple independent prompts, and sequential execution of dependent prompts.
 </objective>
 
 <input>
@@ -31,16 +31,51 @@ Parse $ARGUMENTS to extract:
 
 <examples>
 - "005" → Single prompt: 005
-- "005 006 007" → Multiple prompts: [005, 006, 007], strategy: sequential (default)
-- "005 006 007 --parallel" → Multiple prompts: [005, 006, 007], strategy: parallel
-- "005 006 007 --sequential" → Multiple prompts: [005, 006, 007], strategy: sequential
+- "005 006 007" → Multiple prompts: [005, 006, 007], strategy: from .batch.json or sequential (default)
+- "005 006 007 --parallel" → Multiple prompts: [005, 006, 007], strategy: parallel (explicit)
+- "005 006 007 --sequential" → Multiple prompts: [005, 006, 007], strategy: sequential (explicit)
 </examples>
 </step1_parse_arguments>
+
+<step1_5_check_batch_metadata>
+If no explicit strategy flag provided, check for `.prompts/.batch.json`:
+
+1. Read `.prompts/.batch.json` if it exists
+2. Determine format type:
+   - **Simple format**: Has `strategy` field → use as default execution strategy
+   - **Execution groups format**: Has `execution` array → use layered execution
+3. If not found, default to `sequential` for safety
+
+**Simple format:**
+```json
+{
+  "created": "2025-01-02T10:30:00Z",
+  "strategy": "sequential",
+  "source": "/do #42",
+  "prompts": ["001-setup-database.md", "002-create-api.md", "003-add-tests.md"],
+  "completed": ["001-setup-database.md"]
+}
+```
+
+**Execution groups format:**
+```json
+{
+  "created": "2025-01-02T10:30:00Z",
+  "source": "/do #42",
+  "execution": [
+    {"strategy": "parallel", "prompts": ["001-api-research.md", "002-db-research.md"]},
+    {"strategy": "sequential", "prompts": ["003-architecture-plan.md"]},
+    {"strategy": "parallel", "prompts": ["004-implement-api.md", "005-implement-db.md"]}
+  ],
+  "completed": ["001-api-research.md", "002-db-research.md"]
+}
+```
+</step1_5_check_batch_metadata>
 
 <step2_resolve_files>
 For each prompt number/name:
 
-- If empty or "last": Find with `!ls -t ./prompts/*.md | head -1`
+- If empty or "last": Find with `!ls -t .prompts/*.md | head -1`
 - If a number: Find file matching that zero-padded number (e.g., "5" matches "005-_.md", "42" matches "042-_.md")
 - If text: Find files containing that string in the filename
 
@@ -58,8 +93,10 @@ For each prompt number/name:
 1. Read the complete contents of the prompt file
 2. Delegate as sub-task using Task tool with subagent_type="general-purpose"
 3. Wait for completion
-4. Archive prompt to `./prompts/completed/` with metadata
-5. Return results
+4. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
+5. Archive prompt to `.prompts/completed/`
+6. Update `.prompts/.batch.json` if it exists (add prompt filename to `completed` array)
+7. Return results
    </single_prompt>
 
 <parallel_execution>
@@ -73,23 +110,65 @@ For each prompt number/name:
    (All in one message with multiple tool calls)
    </example>
 3. Wait for ALL to complete
-4. Archive all prompts with metadata
-5. Return consolidated results
+4. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
+5. Archive all prompts
+6. Update `.prompts/.batch.json` if it exists (add all prompt filenames to `completed` array)
+7. Return consolidated results
    </parallel_execution>
 
 <sequential_execution>
 
-1. Read first prompt file
-2. Spawn Task tool for first prompt
-3. Wait for completion
-4. Archive first prompt
-5. Read second prompt file
-6. Spawn Task tool for second prompt
-7. Wait for completion
-8. Archive second prompt
-9. Repeat for remaining prompts
-10. Return consolidated results
+1. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
+2. For each prompt in order:
+   a. Read prompt file
+   b. Spawn Task tool for prompt
+   c. Wait for completion
+   d. Archive prompt to `.prompts/completed/`
+   e. **Update `.prompts/.batch.json`** - add prompt filename to `completed` array
+   f. If prompt failed, stop and report error (batch progress is preserved)
+3. Return consolidated results
     </sequential_execution>
+
+<execution_groups>
+When `.batch.json` contains an `execution` array, execute layer by layer:
+
+1. Ensure `.prompts/completed/` directory exists
+2. Identify current layer (first layer with incomplete prompts)
+3. For each layer in order:
+   a. Get prompts in this layer that aren't in `completed` array
+   b. If layer strategy is "parallel":
+      - **Spawn all Task tools in a SINGLE MESSAGE**
+      - Wait for ALL to complete
+   c. If layer strategy is "sequential":
+      - Execute prompts one at a time, waiting for each
+   d. After each prompt completes:
+      - Archive to `.prompts/completed/`
+      - Update `completed` array in `.batch.json`
+   e. If any prompt fails, stop and report error (progress preserved)
+   f. Once layer complete, proceed to next layer
+4. Return consolidated results showing layer-by-layer progress
+
+**Example execution flow for groups:**
+```
+Layer 1 [parallel]: 001-api-research.md, 002-db-research.md
+  → Spawn both Task tools in single message
+  → Wait for both to complete
+  → Archive both, update completed array
+
+Layer 2 [sequential]: 003-architecture-plan.md
+  → Execute single prompt
+  → Archive, update completed array
+
+Layer 3 [parallel]: 004-implement-api.md, 005-implement-db.md
+  → Spawn both Task tools in single message
+  → Wait for both to complete
+  → Archive both, update completed array
+```
+</execution_groups>
+
+<batch_metadata_update>
+When updating `.prompts/.batch.json`, read the current file, add the completed prompt filename to the `completed` array, and write it back. This enables `/whats-next` to show accurate progress and resume from the correct point if interrupted.
+</batch_metadata_update>
     </step3_execute>
     </process>
 
@@ -99,8 +178,8 @@ By delegating to a sub-task, the actual implementation work happens in fresh con
 
 <output>
 <single_prompt_output>
-✓ Executed: ./prompts/005-implement-feature.md
-✓ Archived to: ./prompts/completed/005-implement-feature.md
+✓ Executed: .prompts/005-implement-feature.md
+✓ Archived to: .prompts/completed/005-implement-feature.md
 
 <results>
 [Summary of what the sub-task accomplished]
@@ -110,11 +189,11 @@ By delegating to a sub-task, the actual implementation work happens in fresh con
 <parallel_output>
 ✓ Executed in PARALLEL:
 
-- ./prompts/005-implement-auth.md
-- ./prompts/006-implement-api.md
-- ./prompts/007-implement-ui.md
+- .prompts/005-implement-auth.md
+- .prompts/006-implement-api.md
+- .prompts/007-implement-ui.md
 
-✓ All archived to ./prompts/completed/
+✓ All archived to .prompts/completed/
 
 <results>
 [Consolidated summary of all sub-task results]
@@ -124,23 +203,49 @@ By delegating to a sub-task, the actual implementation work happens in fresh con
 <sequential_output>
 ✓ Executed SEQUENTIALLY:
 
-1. ./prompts/005-setup-database.md → Success
-2. ./prompts/006-create-migrations.md → Success
-3. ./prompts/007-seed-data.md → Success
+1. .prompts/005-setup-database.md → Success
+2. .prompts/006-create-migrations.md → Success
+3. .prompts/007-seed-data.md → Success
 
-✓ All archived to ./prompts/completed/
+✓ All archived to .prompts/completed/
 
 <results>
 [Consolidated summary showing progression through each step]
 </results>
 </sequential_output>
+
+<layered_output>
+✓ Executed in LAYERS:
+
+Layer 1 [parallel]:
+  ✓ .prompts/001-api-research.md → Success
+  ✓ .prompts/002-db-research.md → Success
+
+Layer 2 [sequential]:
+  ✓ .prompts/003-architecture-plan.md → Success
+
+Layer 3 [parallel]:
+  ✓ .prompts/004-implement-api.md → Success
+  ✓ .prompts/005-implement-db.md → Success
+
+✓ All 5 prompts completed, archived to .prompts/completed/
+
+<results>
+[Consolidated summary showing layer-by-layer results]
+</results>
+</layered_output>
 </output>
 
 <critical_notes>
 
 - For parallel execution: ALL Task tool calls MUST be in a single message
 - For sequential execution: Wait for each Task to complete before starting next
+- For layered execution: Complete each layer before starting the next; within each layer, respect its strategy
 - Archive prompts only after successful completion
-- If any prompt fails, stop sequential execution and report error
+- If any prompt fails, stop execution and report error (progress is preserved in `.batch.json`)
 - Provide clear, consolidated results for multiple prompt execution
+- **Batch metadata**: Update `.prompts/.batch.json` after each prompt completes to enable resume via `/whats-next`
+- **Format detection**: Check for `execution` array (layered) vs `strategy` field (simple)
+- **Strategy precedence**: Explicit flag (--parallel/--sequential) > .batch.json > sequential default
+  - Note: Explicit flags override simple format only; execution groups always use their defined layers
   </critical_notes>

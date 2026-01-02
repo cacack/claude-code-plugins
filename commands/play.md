@@ -144,7 +144,7 @@ Check which documentation may need updates:
 When user selects "🚀 Generate prompts", create execution-ready prompts from the implementation plan.
 
 **Pre-generation steps:**
-1. Use Glob on `./prompts/*.md` to find existing prompts and determine next sequence number (create `./prompts/` if missing, start with 001)
+1. Use Glob on `.prompts/*.md` to find existing prompts and determine next sequence number (create `.prompts/` if missing, start with 001)
 2. Analyze implementation plan steps for dependencies
 3. Determine execution strategy:
    - **Parallel**: Independent steps, no shared file modifications
@@ -191,15 +191,15 @@ Before completing:
 </success_criteria>
 ```
 
-**File naming**: `./prompts/[NNN]-[issue-number]-[step-name].md`
-- Example: `./prompts/001-42-setup-database.md`, `./prompts/002-42-create-api.md`
+**File naming**: `.prompts/[NNN]-[issue-number]-[step-name].md`
+- Example: `.prompts/001-42-setup-database.md`, `.prompts/002-42-create-api.md`
 
 **After saving prompts, present:**
 
 ```
 ✓ Generated prompts from issue #$ARGUMENTS implementation plan:
-  - ./prompts/NNN-$ARGUMENTS-[step1].md
-  - ./prompts/NNN-$ARGUMENTS-[step2].md
+  - .prompts/NNN-$ARGUMENTS-[step1].md
+  - .prompts/NNN-$ARGUMENTS-[step2].md
   [...]
 
 Execution strategy: [PARALLEL/SEQUENTIAL] - [brief reason]

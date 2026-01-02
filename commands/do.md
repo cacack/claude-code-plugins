@@ -75,7 +75,7 @@ Present sub-choice with decision signals to help user select:
 ```
 Meta-prompting selected. What style?
 
-1. Simple prompts  - Flat files in ./prompts/
+1. Simple prompts  - Flat files in .prompts/
    → Best for: Single feature, clear scope, 1-3 prompts
    → Example: "add input validation", "refactor API client"
 
