@@ -1,5 +1,5 @@
 ---
-description: Add todo item to TO-DOS.md with context from conversation
+description: Add todo item to TODO.md with context from conversation
 argument-hint: <todo-description> (optional - infers from conversation if omitted)
 allowed-tools:
   - Read
@@ -15,7 +15,7 @@ allowed-tools:
 
 ## Instructions
 
-1. Read TO-DOS.md in the working directory (create with Write tool if it doesn't exist)
+1. Read TODO.md in the working directory (create with Write tool if it doesn't exist)
 
 2. Check for duplicates:
    - Extract key concept/action from the new todo
@@ -52,5 +52,5 @@ allowed-tools:
 
 - **Add structured format to add-to-todos** - Standardize todo entries with Problem/Files/Solution pattern. **Problem:** Current todos lack consistent structure, making it hard for Claude to have enough context when revisiting tasks later. **Files:** `commands/add-to-todos.md:22-29`. **Solution:** Use inline bold labels with required Problem and Files fields, optional Solution field.
 
-- **Create check-todos command** - Build companion command to list and select todos. **Problem:** Need workflow to review outstanding todos and load context for selected item. **Files:** `commands/check-todos.md` (new), `TO-DOS.md` (reads from). **Solution:** Parse markdown list, display numbered list, accept selection to load full context and remove item.
+- **Create check-todos command** - Build companion command to list and select todos. **Problem:** Need workflow to review outstanding todos and load context for selected item. **Files:** `commands/check-todos.md` (new), `TODO.md` (reads from). **Solution:** Parse markdown list, display numbered list, accept selection to load full context and remove item.
 ```

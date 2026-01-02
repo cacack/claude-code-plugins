@@ -26,7 +26,7 @@ Use Glob and Bash to discover available work sources:
 1. Pending prompts in `.prompts/` (use prompt discovery below)
 2. `Glob("HANDOFF-*.md")` - handoff files
 3. `Glob("whats-next.md")` - legacy whats-next
-4. `Glob("TO-DOS.md")` - local todos
+4. `Glob("TODO.md")` - local todos
 5. GitHub issues (use prioritized discovery below)
 6. `Glob("IDEAS.md")` - ideas backlog
 
@@ -125,7 +125,7 @@ What's next? Found these work sources:
 1. .prompts/: 2 of 3 prompts remaining [sequential] (from /do #42)
 2. HANDOFF-do-command-enhancement.md (handoff)
 3. HANDOFF-session-auth-work.md (handoff)
-4. TO-DOS.md (local todos)
+4. TODO.md (local todos)
 5. GitHub: 3 open issues
 6. IDEAS.md (ideas backlog)
 
@@ -260,9 +260,9 @@ No execution strategy recorded. How to proceed?
 3. If continuing: Keep handoff context loaded, begin work
 4. If deleting: `rm {handoff-file}` and return to discovery
 
-### For TO-DOS.md
+### For TODO.md
 
-1. Read TO-DOS.md
+1. Read TODO.md
 2. Present items grouped by priority/section
 3. Let user pick specific item to work on
 4. Selected item becomes the focus
