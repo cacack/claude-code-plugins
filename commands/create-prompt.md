@@ -380,7 +380,7 @@ Choose (1-4): \_
 </presentation>
 
 <action>
-If user chooses #1, invoke via SlashCommand tool: `/run-prompt 005`
+If user chooses #1, invoke via SlashCommand tool: `/cacack:run-prompt 005`
 </action>
 </single_prompt_scenario>
 
@@ -406,8 +406,8 @@ Choose (1-4): \_
 </presentation>
 
 <actions>
-If user chooses #1, invoke via SlashCommand tool: `/run-prompt 005 006 007 --parallel`
-If user chooses #2, invoke via SlashCommand tool: `/run-prompt 005 006 007 --sequential`
+If user chooses #1, invoke via SlashCommand tool: `/cacack:run-prompt 005 006 007 --parallel`
+If user chooses #2, invoke via SlashCommand tool: `/cacack:run-prompt 005 006 007 --sequential`
 </actions>
 </parallel_scenario>
 
@@ -433,8 +433,8 @@ Choose (1-4): \_
 </presentation>
 
 <actions>
-If user chooses #1, invoke via SlashCommand tool: `/run-prompt 005 006 007 --sequential`
-If user chooses #2, invoke via SlashCommand tool: `/run-prompt 005`
+If user chooses #1, invoke via SlashCommand tool: `/cacack:run-prompt 005 006 007 --sequential`
+If user chooses #2, invoke via SlashCommand tool: `/cacack:run-prompt 005`
 </actions>
 </sequential_scenario>
 
@@ -464,5 +464,5 @@ If user chooses #2, invoke via SlashCommand tool: `/run-prompt 005`
 - Consider the user's working directory as the root for all relative paths
 - Each prompt file should contain ONLY the prompt content, no preamble or explanation
 - After saving, present the decision tree as inline text (not AskUserQuestion)
-- Use the SlashCommand tool to invoke /run-prompt when user makes their choice
+- Use the SlashCommand tool to invoke /cacack:run-prompt when user makes their choice
 </meta_instructions>

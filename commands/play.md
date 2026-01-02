@@ -124,7 +124,7 @@ Check which documentation may need updates:
 
 **Ready to proceed?** Let me know if you'd like to:
 - ✅ Proceed manually - I'll implement step by step in this session
-- 🚀 Generate prompts - Create execution prompts for delegation via /run-prompt
+- 🚀 Generate prompts - Create execution prompts for delegation via /cacack:run-prompt
 - ✏️ Modify the approach
 - ❓ Discuss specific aspects
 
@@ -214,9 +214,9 @@ Choose (1-4): _
 ```
 
 **Execute user choice:**
-- Option 1 (parallel): `/run-prompt NNN NNN+1 ... --parallel`
-- Option 1 (sequential): `/run-prompt NNN NNN+1 ... --sequential`
-- Option 2: `/run-prompt NNN`
+- Option 1 (parallel): `/cacack:run-prompt NNN NNN+1 ... --parallel`
+- Option 1 (sequential): `/cacack:run-prompt NNN NNN+1 ... --sequential`
+- Option 2: `/cacack:run-prompt NNN`
 - Option 3: List files for user to review
 - Option 4: Return to plan presentation
 </prompt_generation>
