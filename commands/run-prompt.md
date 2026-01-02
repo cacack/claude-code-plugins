@@ -88,13 +88,25 @@ For each prompt number/name:
   </step2_resolve_files>
 
 <step3_execute>
+<archiving_logic>
+Before archiving, determine the prompt structure:
+- **Flat file**: Prompt is directly in `.prompts/` (e.g., `.prompts/005-feature.md`)
+  - Archive: Move file to `.prompts/completed/005-feature.md`
+- **Subdirectory (pipeline)**: Prompt is in a subdirectory (e.g., `.prompts/001-auth-research/001-auth-research.md`)
+  - Archive: Move entire subdirectory to `.prompts/completed/001-auth-research/`
+
+Detection: If the prompt file's parent directory is NOT `.prompts/` itself, it's a pipeline subdirectory.
+</archiving_logic>
+
 <single_prompt>
 
 1. Read the complete contents of the prompt file
 2. Delegate as sub-task using Task tool with subagent_type="general-purpose"
 3. Wait for completion
 4. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
-5. Archive prompt to `.prompts/completed/`
+5. Archive using appropriate method:
+   - Flat file: `mv .prompts/005-feature.md .prompts/completed/`
+   - Subdirectory: `mv .prompts/001-auth-research/ .prompts/completed/`
 6. Update `.prompts/.batch.json` if it exists (add prompt filename to `completed` array)
 7. Return results
    </single_prompt>
@@ -111,7 +123,7 @@ For each prompt number/name:
    </example>
 3. Wait for ALL to complete
 4. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
-5. Archive all prompts
+5. Archive all prompts using appropriate method for each (flat file vs subdirectory)
 6. Update `.prompts/.batch.json` if it exists (add all prompt filenames to `completed` array)
 7. Return consolidated results
    </parallel_execution>
@@ -123,7 +135,7 @@ For each prompt number/name:
    a. Read prompt file
    b. Spawn Task tool for prompt
    c. Wait for completion
-   d. Archive prompt to `.prompts/completed/`
+   d. Archive using appropriate method (flat file vs subdirectory)
    e. **Update `.prompts/.batch.json`** - add prompt filename to `completed` array
    f. If prompt failed, stop and report error (batch progress is preserved)
 3. Return consolidated results
@@ -142,7 +154,7 @@ When `.batch.json` contains an `execution` array, execute layer by layer:
    c. If layer strategy is "sequential":
       - Execute prompts one at a time, waiting for each
    d. After each prompt completes:
-      - Archive to `.prompts/completed/`
+      - Archive using appropriate method (flat file vs subdirectory)
       - Update `completed` array in `.batch.json`
    e. If any prompt fails, stop and report error (progress preserved)
    f. Once layer complete, proceed to next layer
@@ -177,14 +189,23 @@ By delegating to a sub-task, the actual implementation work happens in fresh con
 </context_strategy>
 
 <output>
-<single_prompt_output>
+<single_prompt_flat_file>
 ✓ Executed: .prompts/005-implement-feature.md
 ✓ Archived to: .prompts/completed/005-implement-feature.md
 
 <results>
 [Summary of what the sub-task accomplished]
 </results>
-</single_prompt_output>
+</single_prompt_flat_file>
+
+<single_prompt_subdirectory>
+✓ Executed: .prompts/001-auth-research/001-auth-research.md
+✓ Archived directory to: .prompts/completed/001-auth-research/
+
+<results>
+[Summary of what the sub-task accomplished]
+</results>
+</single_prompt_subdirectory>
 
 <parallel_output>
 ✓ Executed in PARALLEL:
@@ -214,26 +235,26 @@ By delegating to a sub-task, the actual implementation work happens in fresh con
 </results>
 </sequential_output>
 
-<layered_output>
+<layered_output_subdirectories>
 ✓ Executed in LAYERS:
 
 Layer 1 [parallel]:
-  ✓ .prompts/001-api-research.md → Success
-  ✓ .prompts/002-db-research.md → Success
+  ✓ .prompts/001-api-research/ → Success
+  ✓ .prompts/002-db-research/ → Success
 
 Layer 2 [sequential]:
-  ✓ .prompts/003-architecture-plan.md → Success
+  ✓ .prompts/003-architecture-plan/ → Success
 
 Layer 3 [parallel]:
-  ✓ .prompts/004-implement-api.md → Success
-  ✓ .prompts/005-implement-db.md → Success
+  ✓ .prompts/004-implement-api/ → Success
+  ✓ .prompts/005-implement-db/ → Success
 
-✓ All 5 prompts completed, archived to .prompts/completed/
+✓ All 5 prompt directories archived to .prompts/completed/
 
 <results>
 [Consolidated summary showing layer-by-layer results]
 </results>
-</layered_output>
+</layered_output_subdirectories>
 </output>
 
 <critical_notes>

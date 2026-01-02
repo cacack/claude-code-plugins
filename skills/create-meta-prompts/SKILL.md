@@ -25,26 +25,23 @@ Each prompt gets its own folder in `.prompts/` with its output artifacts, enabli
 <folder_structure>
 ```
 .prompts/
-├── 001-auth-research/
-│   ├── completed/
-│   │   └── 001-auth-research.md    # Prompt (archived after run)
+├── 001-auth-research/              # Pending - still in .prompts/
+│   ├── 001-auth-research.md        # Prompt file
 │   ├── auth-research.md            # Full output (XML for Claude)
 │   └── SUMMARY.md                  # Executive summary (markdown for human)
-├── 002-auth-plan/
-│   ├── completed/
-│   │   └── 002-auth-plan.md
+├── 002-auth-plan/                  # Pending
+│   ├── 002-auth-plan.md
 │   ├── auth-plan.md
 │   └── SUMMARY.md
-├── 003-auth-implement/
-│   ├── completed/
-│   │   └── 003-auth-implement.md
-│   └── SUMMARY.md                  # Do prompts create code elsewhere
-├── 004-auth-research-refine/
-│   ├── completed/
-│   │   └── 004-auth-research-refine.md
-│   ├── archive/
-│   │   └── auth-research-v1.md     # Previous version
-│   └── SUMMARY.md
+├── completed/                      # Entire directories move here after execution
+│   ├── 003-auth-implement/         # Completed - whole directory archived
+│   │   ├── 003-auth-implement.md
+│   │   └── SUMMARY.md
+│   └── 004-auth-research-refine/
+│       ├── 004-auth-research-refine.md
+│       ├── archive/
+│       │   └── auth-research-v1.md # Previous version
+│       └── SUMMARY.md
 ```
 </folder_structure>
 </quick_start>
@@ -195,9 +192,9 @@ All prompts must create `SUMMARY.md` with:
 
 <file_creation>
 1. Create folder: `.prompts/{number}-{topic}-{purpose}/`
-2. Create `completed/` subfolder
-3. Write prompt to: `.prompts/{number}-{topic}-{purpose}/{number}-{topic}-{purpose}.md`
-4. Prompt instructs output to: `.prompts/{number}-{topic}-{purpose}/{topic}-{purpose}.md`
+2. Write prompt to: `.prompts/{number}-{topic}-{purpose}/{number}-{topic}-{purpose}.md`
+3. Prompt instructs output to: `.prompts/{number}-{topic}-{purpose}/{topic}-{purpose}.md`
+4. After execution, entire directory moves to `.prompts/completed/{number}-{topic}-{purpose}/`
 </file_creation>
 </step_1_generate>
 
@@ -426,19 +423,19 @@ What's next?
 
 <archiving>
 <archive_timing>
-- **Sequential**: Archive each prompt immediately after successful completion
+- **Sequential**: Archive each prompt directory immediately after successful completion
   - Provides clear state if execution stops mid-chain
 - **Parallel**: Archive all at end after collecting results
   - Keeps prompts available for potential retry
 
 <archive_operation>
-Move prompt file to completed subfolder:
+Move entire prompt directory to `.prompts/completed/`:
 ```bash
-mv .prompts/{number}-{topic}-{purpose}/{number}-{topic}-{purpose}.md \
-   .prompts/{number}-{topic}-{purpose}/completed/
+mkdir -p .prompts/completed
+mv .prompts/{number}-{topic}-{purpose}/ .prompts/completed/
 ```
 
-Output file stays in place (not moved).
+This keeps all artifacts together (prompt, output, SUMMARY.md) and makes it immediately clear which prompts are pending vs completed by listing `.prompts/` contents.
 </archive_operation>
 </archiving>
 
@@ -446,7 +443,7 @@ Output file stays in place (not moved).
 <single_result>
 ```
 ✓ Executed: 001-auth-research
-✓ Created: .prompts/001-auth-research/SUMMARY.md
+✓ Archived to: .prompts/completed/001-auth-research/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Auth Research Summary
@@ -497,7 +494,8 @@ Decisions: Approve 15-min token expiry • Blockers: None
 Decisions: Review before Phase 2 • Blockers: None
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-All prompts archived. Full summaries in .prompts/*/SUMMARY.md
+All directories archived to .prompts/completed/
+Full summaries in .prompts/completed/*/SUMMARY.md
 
 What's next?
 1. Review implementation
@@ -514,8 +512,8 @@ For chains, show condensed one-liner from each SUMMARY.md with decisions/blocker
 <re_running_completed>
 If user wants to re-run an already-completed prompt:
 
-1. Check if prompt is in `completed/` subfolder
-2. Move it back to parent folder
+1. Check if prompt directory is in `.prompts/completed/`
+2. Move entire directory back to `.prompts/`
 3. Optionally backup existing output: `{output}.bak`
 4. Execute normally
 </re_running_completed>
@@ -588,7 +586,7 @@ If a prompt's output includes instructions to create more prompts:
 - SUMMARY.md created with all required sections
 - One-liner is substantive (not generic)
 - Failed prompts handled gracefully with recovery options
-- Successful prompts archived to `completed/` subfolder
+- Successful prompt directories archived to `.prompts/completed/`
 - SUMMARY.md displayed inline in results
 - Results presented with decisions/blockers flagged
 </success_criteria>
