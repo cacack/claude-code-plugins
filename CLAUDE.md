@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal Claude Code plugin marketplace following the official multi-plugin pattern.
 
+## Design Principles
+
+Resources follow the [Handyman Principle](./plugins/cacack/docs/handyman-principle.md): context is scarce.
+
+Key guidelines (see [design-guidelines.md](./plugins/cacack/docs/design-guidelines.md)):
+- **Specialization over generalization** - focused agents/commands that do one thing well
+- **Skills as programs** - invoke real tools, produce verifiable output
+- **External memory** - externalize state to files, don't assume context persists
+
 ## Repository Structure (Canonical - Do Not Deviate)
 
 This structure follows Claude Code's official plugin marketplace standards (matching `anthropics/claude-plugins-official`):
@@ -20,6 +29,7 @@ repo-root/
 │       │   └── plugin.json    # Plugin metadata
 │       ├── agents/            # Agent definitions (*.md)
 │       ├── commands/          # Slash commands (*.md)
+│       ├── docs/              # Design principles and guidelines
 │       ├── hooks/             # Hook configurations (hooks.json)
 │       └── skills/            # Autonomous workflows (SKILL.md dirs)
 └── README.md
