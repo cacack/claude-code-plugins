@@ -1,17 +1,19 @@
 ---
-description: Intelligently commit and ship changes with optional version bumping
-argument-hint: [commit message] [--no-bump] [--no-docs-check] [--no-issue-link]
+description: Intelligently commit and ship changes with preflight checks, issue compliance, and documentation review
+argument-hint: [commit message] [--quick] [--no-bump]
 allowed-tools:
   - Read
   - Edit
   - Glob
   - Grep
+  - Task
   - AskUserQuestion
+  - TodoWrite
+  - Bash(make:*)
   - Bash(git add:*)
   - Bash(git commit:*)
   - Bash(git push -u:*)
   - Bash(git push origin:*)
-  - Bash(git push --force-with-lease:*)
   - Bash(git checkout:*)
   - Bash(git branch:*)
   - Bash(git status:*)
@@ -20,262 +22,298 @@ allowed-tools:
   - Bash(git tag:*)
   - Bash(git log:*)
   - Bash(gh pr:*)
+  - Bash(gh issue:*)
   - Bash(glab mr:*)
+  - Bash(glab issue:*)
 ---
 
 <objective>
-Analyze current repository state and intelligently commit and ship changes using basic or advanced workflow.
-Handles version bumping, documentation checks, and PR/MR creation as appropriate.
+Ship code changes with appropriate rigor. By default, runs preflight checks, verifies issue compliance, and reviews documentation needs. Use `--quick` for simple direct shipping when rigor isn't needed.
 </objective>
 
 <context>
-Git status: ! `git status`
+Git status: ! `git status --short`
 Current branch: ! `git branch --show-current`
-Remote info: ! `git remote -v | head -1`
-Changes summary: ! `git diff --stat HEAD`
-Recent commits: ! `git log --oneline -5`
+Remote: ! `git remote get-url origin 2>/dev/null | head -1`
+Changes: ! `git diff --stat HEAD 2>/dev/null | tail -5`
+Recent commits: ! `git log --oneline -3 2>/dev/null`
+Make targets: ! `make -qp 2>/dev/null | awk -F: '/^[a-z][a-z0-9_-]*:/ && !/^\./ {print $1}' | grep -E '^(lint|test|check|security|audit)' | tr '\n' ' ' || echo "none"`
 </context>
 
-<process>
+<routing>
+Parse `$ARGUMENTS` for flags and commit message:
 
-## 1. Parse Arguments
+**Flags:**
+- `--quick` - Skip all checks, direct commit/push (10-20% of cases)
+- `--no-bump` - Skip version bumping
 
-From `$ARGUMENTS`, extract:
-- **Commit message**: Free text in quotes (if provided)
-- **Flags** (can appear before or after commit message):
-  - `--no-bump` - Skip version bumping
-  - `--no-docs-check` - Skip documentation check
-  - `--no-issue-link` - Skip issue detection and linking prompts
+**Commit message:** Free text, optionally in quotes
 
-**Valid orderings**: `/ship "message" --flag` or `/ship --flag "message"` or `/ship --flag`
-
-## 2. Analyze Repository State
-
-Using context above, determine:
-- Current branch (main/master vs feature branch)
-- Platform (GitHub vs GitLab from remote URL)
-- Change complexity (file count, diff size)
-- Repository ownership (personal vs organizational)
-
-## 3. Select Workflow
-
-**Basic workflow** when:
-- Already on feature branch (not main/master)
-- Personal repository
-- Simple changes (1-2 files)
-
-**Advanced workflow** when:
-- On main/master branch
-- Organizational/collaborative repo
-- Complex changes (3+ files)
-- User explicitly wants PR/MR
-
-Inform user which workflow will be used and why.
-
-## 4. Version Bump (if applicable)
-
-Skip if `--no-bump` flag or conditions below.
-
-### Detection Priority
-1. `.claude-plugin/plugin.json` - Claude Code plugins
-2. `package.json` - Node.js
-3. `pyproject.toml` - Python
-4. `Cargo.toml` - Rust
-5. `VERSION` or `VERSION.txt` - Plain text
-
-### Bump Rules
-| Commit Type | Bump |
-|-------------|------|
-| `feat:` | minor (1.2.3 → 1.3.0) |
-| `fix:`, `perf:` | patch (1.2.3 → 1.2.4) |
-| `BREAKING CHANGE` | major (1.2.3 → 2.0.0) |
-| `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `ci:` | patch |
-
-### Skip When
-- No version file detected
-- Only documentation changes
-- Already on version bump commit
-
-## 5. Documentation Check (if applicable)
-
-Skip if `--no-docs-check` flag or commit type is `docs:`, `test:`, `ci:`, `style:`.
-
-Check for: `README.md`, `FEATURES.md`, `CHANGELOG.md`, `IDEAS.md`
-
-For `feat:` commits:
+<decision>
 ```
-Documentation check for new feature:
-- [ ] README.md - Update if major user-facing change
-- [ ] FEATURES.md - Document new capability
+IF --quick flag present:
+  → Execute QUICK WORKFLOW (direct, minimal)
+ELSE:
+  → Execute RIGOROUS WORKFLOW (default, full checks)
+```
+</decision>
+</routing>
 
-Update docs? (y/n/skip): _
+<quick_workflow>
+Fast path for trivial changes. No preflight, no compliance, no docs review.
+
+**When to use:**
+- Typo fixes
+- Comment updates
+- Trivial config changes
+- When you're confident and in a hurry
+
+**Process:**
+
+1. Stage all changes:
+   ```bash
+   git add .
+   ```
+
+2. Generate or use provided commit message:
+   - Format: `type(scope): description`
+   - Include footer:
+     ```
+     🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+     Co-Authored-By: Claude <noreply@anthropic.com>
+     ```
+
+3. Commit and push:
+   ```bash
+   git commit -m "..."
+   git push
+   ```
+
+4. Report completion:
+   ```
+   ✓ Shipped (quick mode)
+     Commit: abc1234
+     Branch: main
+   ```
+</quick_workflow>
+
+<rigorous_workflow>
+Default path with full discipline. Runs preflight, checks compliance, reviews docs.
+
+**Phases:**
+
+<phase name="1_preflight">
+Run project-defined code quality checks.
+
+```bash
+# Detect and run available targets
+make lint 2>&1 || true
+make test 2>&1 || true
+make security 2>&1 || true
 ```
 
-## 6. Issue Detection and Linking
+**Gate:** If any check fails, stop and report. User must fix or explicitly bypass.
 
-Skip if `--no-issue-link` flag or using basic workflow.
+**Report format:**
+```
+Preflight
+─────────
+✓ make lint     : passed
+✓ make test     : 47/47 passed
+- make security : not configured
+```
+</phase>
 
-For advanced workflow (PR/MR creation), detect and link related issues.
+<phase name="2_issue_compliance">
+If issue reference detected, verify changes satisfy requirements.
 
-### Detection Sources (in priority order)
-1. **Branch name** - e.g., `feature/123-add-auth`, `fix/GH-456`, `issue-789-bug`
-2. **Commit messages** - run `git log --oneline main..HEAD` (or master) to scan commits
-3. **User-provided message** - from `$ARGUMENTS`
+**Detection:**
+```bash
+# From branch
+git branch --show-current | grep -oE '([0-9]+|[A-Z]+-[0-9]+)'
 
-### Patterns to Detect
-| Pattern | Example | Platform |
-|---------|---------|----------|
-| `#N` | `#123` | GitHub/GitLab |
-| `GH-N` or `gh-N` | `GH-456` | GitHub |
-| `PROJ-N` | `JIRA-789`, `ABC-123` | Jira/external |
-| `issue-N` or `issue/N` | `issue-42` | Generic |
-
-### Linking Process
-
-1. **Collect all detected issues** from sources above
-2. **Deduplicate** and present to user:
-   ```
-   Detected issue references:
-   - #123 (from branch name)
-   - #456 (from commit message)
-
-   Link these issues? Options:
-   1. Close all (adds "Closes #123, Closes #456")
-   2. Reference only (adds "Related to #123, #456")
-   3. Select which to close vs reference
-   4. Add different issues
-   5. Skip issue linking
-   ```
-
-3. **If no issues detected**, prompt:
-   ```
-   No issue references detected.
-   Link to an issue? (enter issue number, URL, or skip): _
-   ```
-
-4. **Generate appropriate keywords**:
-   - Closing: `Closes #N`, `Fixes #N`, or `Resolves #N`
-   - Reference only: `Related to #N` or `See #N`
-   - GitLab also supports: `Closes namespace/project#N` for cross-project
-
-### PR/MR Body Format
-```markdown
-## Summary
-[Auto-generated or user-provided description]
-
-## Changes
-[Brief list from commit messages or diff summary]
-
-## Issues
-Closes #123
-Related to #456
-
----
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+# From commits
+git log --oneline $(git merge-base HEAD main 2>/dev/null || echo HEAD~10)..HEAD | grep -oE '#[0-9]+'
 ```
 
-## 7. Execute Workflow
+**If issue found:**
+1. Fetch issue: `gh issue view <N> --json title,body,labels`
+2. Extract requirements from issue body
+3. Compare staged diff against requirements
+4. Score: COMPLETE, PARTIAL, MISSING for each
 
-### Basic Workflow
+**Gate:** If PARTIAL or MISSING, present options:
+```
+Issue #42 compliance: 2/4 complete, 1/4 partial, 1/4 missing
+
+Options:
+1. Proceed anyway (PR references but doesn't close issue)
+2. Review and address missing items
+3. Mark as intentional partial implementation
+```
+
+**Skip if:** No issue detected (proceed to next phase)
+</phase>
+
+<phase name="3_documentation">
+Analyze if documentation needs updates.
+
+**Skip if:** Commit type is `docs:`, `test:`, `ci:`, `style:`
+
+**Check:**
+```bash
+ls README.md FEATURES.md CHANGELOG.md IDEAS.md 2>/dev/null
+```
+
+**For feat: commits, analyze:**
+- New exports → API docs needed?
+- New features → README/FEATURES update?
+- Implementing from IDEAS → Remove from backlog?
+
+**Report specific suggestions:**
+```
+Documentation
+─────────────
+README.md (line 45): Add OAuth section
+  Suggested: "## OAuth Login\n..."
+
+FEATURES.md: Add entry
+  Suggested: "- OAuth Login: ..."
+
+Update now? (y/n/proceed): _
+```
+</phase>
+
+<phase name="4_version_bump">
+Handle version bumping if applicable.
+
+**Skip if:** `--no-bump` flag or no version file detected
+
+**Detection priority:**
+1. `.claude-plugin/plugin.json` + `marketplace.json`
+2. `package.json`
+3. `pyproject.toml`
+4. `Cargo.toml`
+
+**Bump rules:**
+| Type | Bump |
+|------|------|
+| `feat:` | minor |
+| `fix:`, `perf:` | patch |
+| `BREAKING CHANGE` | major |
+| other | patch |
+</phase>
+
+<phase name="5_ship">
+Execute the actual shipping.
+
+**For feature branches:**
 ```bash
 git add .
-git commit -m "[conventional commit message]"
+git commit -m "[message]"
+git push -u origin [branch]
+gh pr create --title "..." --body "..."
+```
+
+**For main branch:**
+```bash
+git add .
+git commit -m "[message]"
 git push
 ```
 
-### Advanced Workflow
-```bash
-git checkout -b feature/descriptive-name  # if on main
-git add .
-git commit -m "[conventional commit message]"
-git push -u origin [branch-name]
-gh pr create --title "..." --body "..."  # or glab mr create
+**Issue linking in PR:**
+- 100% compliance → `Closes #N`
+- Partial compliance → `Related to #N`
+- User override → As specified
+
+**Commit message format:**
 ```
+type(scope): description
 
-Include issue references in the PR/MR body using the format above.
+[Optional body with details]
 
-## 8. Commit Message
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-If user provided message, use it. Otherwise generate:
-- Format: `type(scope): description`
-- Scope from changed files/directories
-- Include Claude Code footer:
-  ```
-  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+</phase>
+</rigorous_workflow>
 
-  Co-Authored-By: Claude <noreply@anthropic.com>
-  ```
+<output_format>
+<template name="shipping_report">
+```
+Shipping Report
+═══════════════
 
-</process>
+Branch: [branch-name]
+Commit: [type(scope): message]
 
-<success_criteria>
-**Basic workflow complete when:**
-- All changes staged
-- Commit created with conventional message
-- Changes pushed to remote
-- No pre-commit hook failures
+Preflight
+─────────
+[✓/✗/-] lint     : [status]
+[✓/✗/-] test     : [status]
+[✓/✗/-] security : [status]
 
-**Advanced workflow complete when:**
-- Feature branch created (if needed)
-- All changes staged and committed
-- Branch pushed with upstream tracking
-- Issue references detected and user prompted for linking preference
-- PR/MR created with clear title, description, and issue links
-- PR/MR URL returned to user
+[If issue linked:]
+Issue Compliance (#N)
+─────────────────────
+Coverage: N/N complete
+Recommendation: [Closes/References]
 
-**Version bump complete when:**
-- Version file updated
-- Separate bump commit created
-- Tag created (if project requires)
+[If docs needed:]
+Documentation
+─────────────
+[Suggestions made and user response]
 
-**All workflows:**
-- User informed of actions taken
-- No force pushes to main/master
-- Pre-commit hooks respected
-</success_criteria>
+Result
+──────
+✓ Shipped successfully
+  Commit: [hash]
+  [PR: URL if created]
+```
+</template>
+</output_format>
 
 <safety>
 - NEVER skip pre-commit hooks
 - NEVER force push to main/master
-- NEVER commit secrets (.env, credentials, keys)
-- Always verify changes with `git status` before committing
-- Ask user for clarification if workflow choice is ambiguous
+- NEVER commit secrets (.env, credentials, API keys)
+- ALWAYS verify with `git status` before committing
+- ALWAYS respect hook failures
 </safety>
 
-<verification>
-Before completing each workflow:
-1. Run `git status` to confirm expected files are staged
-2. Check for potential secrets in diff (patterns: password, secret, api_key, token, credentials)
-3. Verify commit message follows conventional commit format
-4. Confirm pre-commit hooks passed (if commit succeeds)
-5. For PR/MR: verify URL is returned and accessible
-</verification>
-
 <examples>
-
 ```bash
-# Auto-generate commit message, full workflow
+# Full rigorous workflow (default)
 /ship
 
-# Use provided commit message
-/ship "feat: add user authentication"
+# With commit message
+/ship "feat: add OAuth login"
 
-# Skip version bump
-/ship --no-bump
+# Quick mode - skip all checks
+/ship --quick "fix: typo in README"
 
-# Skip docs check
-/ship "fix: resolve null pointer" --no-docs-check
+# Skip version bump only
+/ship --no-bump "refactor: reorganize utils"
 
-# Skip issue linking prompts
-/ship --no-issue-link
-
-# Skip all optional steps
-/ship --no-bump --no-docs-check --no-issue-link
-
-# Explicitly close an issue (detected from branch or commits)
-/ship "feat: add OAuth support"
-# → Detects #42 from branch name "feature/42-oauth"
-# → Prompts: "Close #42 with this PR?"
+# Quick with message
+/ship --quick "chore: update dependencies"
 ```
-
 </examples>
+
+<success_criteria>
+**Quick workflow:**
+- Changes committed and pushed
+- No pre-commit failures
+
+**Rigorous workflow:**
+- All preflight checks pass (or explicitly bypassed)
+- Issue compliance verified (if issue linked)
+- Documentation reviewed (updates made or deferred)
+- Version bumped (if applicable)
+- Commit created with conventional format
+- PR/MR created (if feature branch)
+- Clear report of all actions taken
+</success_criteria>

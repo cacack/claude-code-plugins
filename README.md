@@ -34,7 +34,7 @@ This marketplace contains a curated collection of:
 - `do` - Execute work with selectable rigor level (vibe, delegate, or speckit)
 - `play` - Review a GitHub/GitLab issue, plan the work, and present for approval before implementation
 - `security-review` - Comprehensive security analysis of changes, context, or entire repository
-- `ship` - Intelligently commit and ship changes using basic or advanced workflow
+- `ship` - Ship changes with preflight checks, issue compliance verification, and documentation review (`--quick` for fast path)
 
 #### Extension Creation
 - `create-agent-skill` - Create new agent skills with structured references and workflows
@@ -63,6 +63,7 @@ This marketplace contains a curated collection of:
 - `consider:via-negativa` - Improve by removing rather than adding
 
 ### Agents
+- `shipper` - Expert shipping orchestrator for rigorous code delivery (preflight, issue compliance, docs review)
 - `skill-auditor` - Specialized agent for auditing skill quality and structure
 - `slash-command-auditor` - Specialized agent for auditing slash command implementations
 - `subagent-auditor` - Specialized agent for auditing subagent definitions
@@ -79,6 +80,11 @@ This marketplace contains a curated collection of:
 - `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
 - `create-slash-commands` - Build slash commands with argument handling and tool restrictions
 - `create-subagents` - Design and implement specialized subagents with orchestration patterns
+
+#### Shipping & Quality
+- `preflight-checks` - Run project-defined code quality checks (make lint/test/security) before shipping
+- `issue-compliance` - Verify staged changes satisfy linked issue requirements with coverage scoring
+- `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 
 #### Core Skills
 - `create-meta-prompts` - Autonomous workflow for creating optimized meta-prompts with reference patterns
