@@ -10,13 +10,13 @@
   "plugins": [
     {
       "name": "cacack",
-      "version": "1.14.0",
+      "version": "1.15.0",
       "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
       "author": {
         "name": "Chris Clonch",
         "email": "chris@theclonchs.com"
       },
-      "source": "./",
+      "source": "./plugins/cacack",
       "strict": true
     }
   ]

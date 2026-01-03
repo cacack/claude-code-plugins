@@ -4,44 +4,48 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-Personal Claude Code plugin collection organized as a single-plugin marketplace.
+Personal Claude Code plugin marketplace following the official multi-plugin pattern.
 
 ## Repository Structure (Canonical - Do Not Deviate)
 
-This structure follows Claude Code's documented plugin marketplace standards:
+This structure follows Claude Code's official plugin marketplace standards (matching `anthropics/claude-plugins-official`):
 
 ```
 repo-root/
 ├── .claude-plugin/
-│   ├── marketplace.json   # Marketplace catalog (source: "./")
-│   └── plugin.json        # Plugin metadata (version, hooks, etc.)
-├── agents/                # Agent definitions (*.md)
-├── commands/              # Slash commands (*.md)
-├── hooks/                 # Hook configurations (hooks.json)
-└── skills/                # Autonomous workflows (SKILL.md dirs)
+│   └── marketplace.json   # Marketplace catalog only
+├── plugins/
+│   └── cacack/            # Plugin in subdirectory
+│       ├── .claude-plugin/
+│       │   └── plugin.json    # Plugin metadata
+│       ├── agents/            # Agent definitions (*.md)
+│       ├── commands/          # Slash commands (*.md)
+│       ├── hooks/             # Hook configurations (hooks.json)
+│       └── skills/            # Autonomous workflows (SKILL.md dirs)
+└── README.md
 ```
 
 ### Structure Rules
 
-1. **marketplace.json** lives at `.claude-plugin/marketplace.json`
-2. **plugin.json** lives at `.claude-plugin/plugin.json`
-3. **source: "./"** in marketplace.json points to plugin root (repo root)
-4. **Resource directories** (commands/, agents/, skills/, hooks/) are at repo root
-5. **Paths in plugin.json** are relative to **plugin root** (repo root), so hooks uses `./hooks/hooks.json`
+1. **marketplace.json** lives at `.claude-plugin/marketplace.json` (marketplace root)
+2. **plugin.json** lives at `plugins/cacack/.claude-plugin/plugin.json` (each plugin has its own)
+3. **source** in marketplace.json points to plugin directory: `"./plugins/cacack"`
+4. **Resource directories** (commands/, agents/, skills/, hooks/) are inside the plugin directory
+5. **Paths in plugin.json** are relative to **plugin root** (`plugins/cacack/`)
 
 ### Path Resolution
 
 ```
 marketplace.json location: .claude-plugin/marketplace.json
-source: "./"             → plugin root = repo root
-plugin.json location:    → .claude-plugin/plugin.json
-hooks in plugin.json:    → ./hooks/hooks.json (relative to plugin root, NOT to plugin.json)
+source: "./plugins/cacack" → plugin root = plugins/cacack/
+plugin.json location:      → plugins/cacack/.claude-plugin/plugin.json
+hooks in plugin.json:      → ./hooks/hooks.json (relative to plugin root)
 ```
 
 ## Resource Types
 
 ### Commands
-Slash commands in `commands/` directory as `.md` files with frontmatter:
+Slash commands in `plugins/cacack/commands/` directory as `.md` files with frontmatter:
 ```yaml
 ---
 description: Brief description
@@ -51,20 +55,20 @@ allowed-tools: [optional]
 ```
 
 ### Agents
-Agent definitions in `agents/` directory as `.md` files.
+Agent definitions in `plugins/cacack/agents/` directory as `.md` files.
 
 ### Skills
-Autonomous workflows in `skills/` directory. Each skill is a directory with `SKILL.md`.
+Autonomous workflows in `plugins/cacack/skills/` directory. Each skill is a directory with `SKILL.md`.
 
 ### Hooks
-Hook configurations in `hooks/hooks.json`, referenced from plugin.json as `./hooks/hooks.json`.
+Hook configurations in `plugins/cacack/hooks/hooks.json`, referenced from plugin.json as `./hooks/hooks.json`.
 
 ## Adding Resources
 
-- Commands: Add `.md` files to `commands/`
-- Agents: Add `.md` files to `agents/`
-- Skills: Create directory in `skills/` with `SKILL.md`
-- Hooks: Add to `hooks/hooks.json`
+- Commands: Add `.md` files to `plugins/cacack/commands/`
+- Agents: Add `.md` files to `plugins/cacack/agents/`
+- Skills: Create directory in `plugins/cacack/skills/` with `SKILL.md`
+- Hooks: Add to `plugins/cacack/hooks/hooks.json`
 - Update README.md after adding resources
 
 Use kebab-case for all file and directory names.
@@ -72,7 +76,7 @@ Use kebab-case for all file and directory names.
 ## Version Management
 
 Plugin version must be maintained in BOTH files and kept in sync:
-- `.claude-plugin/plugin.json` - canonical source, also contains hooks
+- `plugins/cacack/.claude-plugin/plugin.json` - canonical source, also contains hooks
 - `.claude-plugin/marketplace.json` - in the plugin entry's `version` field
 
 ### marketplace.json Plugin Entry
@@ -84,7 +88,7 @@ Each plugin entry in marketplace.json MUST include these fields (matching offici
   "version": "1.0.0",
   "description": "...",
   "author": { "name": "...", "email": "..." },
-  "source": "./",
+  "source": "./plugins/plugin-name",
   "strict": true
 }
 ```
@@ -99,7 +103,7 @@ Each plugin entry in marketplace.json MUST include these fields (matching offici
 
 ### Commit and Tag Format
 
-After bumping version in BOTH `.claude-plugin/plugin.json` AND `.claude-plugin/marketplace.json`:
+After bumping version in BOTH `plugins/cacack/.claude-plugin/plugin.json` AND `.claude-plugin/marketplace.json`:
 
 1. Commit: `chore: bump version to X.Y.Z`
 2. Tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
@@ -112,7 +116,7 @@ After bumping version in BOTH `.claude-plugin/plugin.json` AND `.claude-plugin/m
 ### Before Committing
 Always validate the plugin structure:
 ```bash
-claude plugin validate .
+claude plugin validate ./plugins/cacack
 ```
 
 ### Local Testing (before pushing)
