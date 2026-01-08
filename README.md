@@ -72,6 +72,12 @@ This marketplace contains a curated collection of:
 
 - `ship-version-validation` - Enforces version bump checking before `/ship` by prompting Claude to read CLAUDE.md for project-specific versioning requirements
 
+### Scripts
+
+Standalone utilities in `scripts/` directory (not plugin resources):
+
+- `ccstatusline-usage.sh` - Claude Code usage monitor for [ccstatusline](https://github.com/sirmalloc/ccstatusline). Displays 5-hour session and 7-day weekly utilization as progress bars. Run `make install` to symlink to `~/.local/bin/`, then configure as a custom-command widget.
+
 ### Skills
 
 #### Meta Skills (Creating Extensions)
