@@ -49,7 +49,7 @@ repo-root/
 marketplace.json location: .claude-plugin/marketplace.json
 source: "./plugins/cacack" → plugin root = plugins/cacack/
 plugin.json location:      → plugins/cacack/.claude-plugin/plugin.json
-hooks in plugin.json:      → ./hooks/hooks.json (relative to plugin root)
+hooks (auto-loaded):       → plugins/cacack/hooks/hooks.json
 ```
 
 ## Resource Types
@@ -71,7 +71,47 @@ Agent definitions in `plugins/cacack/agents/` directory as `.md` files.
 Autonomous workflows in `plugins/cacack/skills/` directory. Each skill is a directory with `SKILL.md`.
 
 ### Hooks
-Hook configurations in `plugins/cacack/hooks/hooks.json`, referenced from plugin.json as `./hooks/hooks.json`.
+Hook configurations in `plugins/cacack/hooks/hooks.json`. The standard `hooks/hooks.json` is auto-loaded by Claude Code 2.1.4+; do NOT reference it in plugin.json (causes duplicate error).
+
+## Claude Code 2.1+ Features
+
+Features available in Claude Code 2.1.0 and later:
+
+### Skill Frontmatter Options
+```yaml
+---
+name: skill-name
+description: What this skill does
+user-invocable: false    # Hide from slash command menu (for internal/support skills)
+context: fork            # Run in isolated sub-agent context
+agent: explore           # Specify agent type for execution
+---
+```
+
+### Hooks in Frontmatter
+Skills and commands can define hooks directly in frontmatter instead of hooks.json:
+```yaml
+---
+description: ...
+hooks:
+  PreToolUse:
+    - type: command
+      command: "echo $TOOL_NAME"
+      once: true         # Run only once per session
+---
+```
+
+### Hook Types
+- `PreToolUse` / `PostToolUse` - Tool execution events
+- `Stop` - Main conversation stop
+- `SubagentStop` - Sub-agent completion (separate from Stop since v2.0.41)
+- `SessionStart` - Session initialization
+- `UserPromptSubmit` - User input events
+
+### Auto-Loading Behavior
+- `hooks/hooks.json` is auto-loaded from plugin directory (don't reference in plugin.json)
+- Skills hot-reload without session restart
+- MCP servers support dynamic tool/resource updates via `list_changed` notifications
 
 ## Adding Resources
 
@@ -86,7 +126,7 @@ Use kebab-case for all file and directory names.
 ## Version Management
 
 Plugin version must be maintained in BOTH files and kept in sync:
-- `plugins/cacack/.claude-plugin/plugin.json` - canonical source, also contains hooks
+- `plugins/cacack/.claude-plugin/plugin.json` - canonical source
 - `.claude-plugin/marketplace.json` - in the plugin entry's `version` field
 
 ### marketplace.json Plugin Entry

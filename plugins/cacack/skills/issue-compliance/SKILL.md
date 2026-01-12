@@ -1,6 +1,7 @@
 ---
 name: issue-compliance
 description: Verify staged changes satisfy linked issue requirements. Extracts acceptance criteria from GitHub/GitLab issues, compares against diff, and scores coverage to determine if PR should close or reference the issue.
+user-invocable: false
 ---
 
 <objective>

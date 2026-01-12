@@ -1,6 +1,7 @@
 ---
 name: docs-analyzer
 description: Analyze code changes semantically to identify documentation that needs updating. Maps new features, API changes, and breaking changes to specific doc sections with draft update suggestions.
+user-invocable: false
 ---
 
 <objective>

@@ -1,6 +1,7 @@
 ---
 name: preflight-checks
 description: Run project-defined code quality checks (lint, test, security) via Make targets before shipping. Detects available targets automatically and reports pass/fail status for each.
+user-invocable: false
 ---
 
 <objective>
