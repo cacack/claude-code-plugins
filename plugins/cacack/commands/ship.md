@@ -103,6 +103,26 @@ Default path with full discipline. Runs preflight, checks compliance, reviews do
 
 **Phases:**
 
+<phase name="0_version_requirements">
+**CRITICAL: Check project versioning requirements before proceeding.**
+
+1. Read the project's `CLAUDE.md` file (if it exists)
+2. Look for versioning/release sections that specify:
+   - Version file locations
+   - Version bump rules
+   - Tagging requirements
+   - Any files that must be kept in sync (e.g., plugin.json + marketplace.json)
+
+3. If versioning requirements found:
+   - Note the version file(s) and current version
+   - Determine appropriate bump based on commit type
+   - Ensure `--no-bump` wasn't accidentally used when bump is required
+
+**Gate:** If CLAUDE.md specifies mandatory versioning but `--no-bump` flag was used with a `feat:` or `fix:` commit, warn user and confirm intent.
+
+**Skip if:** No CLAUDE.md or no versioning requirements specified.
+</phase>
+
 <phase name="1_preflight">
 Run project-defined code quality checks.
 

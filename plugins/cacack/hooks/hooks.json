@@ -1,15 +1,3 @@
 {
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "^/ship|^/cacack:ship",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "CRITICAL PRE-SHIP VALIDATION:\n\nBefore executing the /ship workflow, you MUST:\n\n1. READ the project's CLAUDE.md file to check for versioning requirements\n2. If CLAUDE.md specifies version management (version file location, bump rules, tagging):\n   - Identify the version file and current version\n   - Determine the appropriate version bump based on commit type (feat=minor, fix=patch, BREAKING=major)\n   - Ensure version will be bumped as part of the ship workflow\n3. If CLAUDE.md has no versioning requirements, proceed normally\n\nDO NOT proceed with committing until you have verified versioning requirements. If version bump is required but would be missed, STOP and inform the user.\n\nThis check is mandatory and cannot be skipped."
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }
