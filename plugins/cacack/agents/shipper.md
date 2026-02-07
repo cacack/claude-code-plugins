@@ -13,6 +13,8 @@ tools:
   - Bash(glab:*)
   - TodoWrite
 model: sonnet
+maxTurns: 30
+permissionMode: default
 ---
 
 <role>

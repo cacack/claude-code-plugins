@@ -3,6 +3,10 @@ name: slash-command-auditor
 description: Expert slash command auditor for Claude Code slash commands. Use when auditing, reviewing, or evaluating slash command .md files for best practices compliance. MUST BE USED when user asks to audit a slash command.
 tools: Read, Grep, Glob  # Grep for finding anti-patterns, Glob for validating referenced file patterns exist
 model: sonnet
+maxTurns: 15
+permissionMode: plan
+skills:
+  - create-slash-commands
 ---
 
 <role>

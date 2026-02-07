@@ -5,13 +5,13 @@
     "email": "chris@theclonchs.com"
   },
   "metadata": {
-    "description": "Chris Clonch's personal Claude Code plugin collection with agents, commands, and skills"
+    "description": "Chris Clonch's personal Claude Code plugin collection with agents and skills"
   },
   "plugins": [
     {
       "name": "cacack",
-      "version": "1.16.2",
-      "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
+      "version": "1.17.0",
+      "description": "Personal collection of Claude Code agents and skills for productivity and automation",
       "author": {
         "name": "Chris Clonch",
         "email": "chris@theclonchs.com"

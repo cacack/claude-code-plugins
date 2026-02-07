@@ -11,7 +11,7 @@ Personal Claude Code plugin marketplace following the official multi-plugin patt
 Resources follow the [Handyman Principle](./plugins/cacack/docs/handyman-principle.md): context is scarce.
 
 Key guidelines (see [design-guidelines.md](./plugins/cacack/docs/design-guidelines.md)):
-- **Specialization over generalization** - focused agents/commands that do one thing well
+- **Specialization over generalization** - focused agents/skills that do one thing well
 - **Skills as programs** - invoke real tools, produce verifiable output
 - **External memory** - externalize state to files, don't assume context persists
 
@@ -28,10 +28,9 @@ repo-root/
 │       ├── .claude-plugin/
 │       │   └── plugin.json    # Plugin metadata
 │       ├── agents/            # Agent definitions (*.md)
-│       ├── commands/          # Slash commands (*.md)
 │       ├── docs/              # Design principles and guidelines
 │       ├── hooks/             # Hook configurations (hooks.json)
-│       └── skills/            # Autonomous workflows (SKILL.md dirs)
+│       └── skills/            # Skills (SKILL.md dirs) - primary resource type
 └── README.md
 ```
 
@@ -40,8 +39,9 @@ repo-root/
 1. **marketplace.json** lives at `.claude-plugin/marketplace.json` (marketplace root)
 2. **plugin.json** lives at `plugins/cacack/.claude-plugin/plugin.json` (each plugin has its own)
 3. **source** in marketplace.json points to plugin directory: `"./plugins/cacack"`
-4. **Resource directories** (commands/, agents/, skills/, hooks/) are inside the plugin directory
+4. **Resource directories** (agents/, skills/, hooks/) are inside the plugin directory
 5. **Paths in plugin.json** are relative to **plugin root** (`plugins/cacack/`)
+6. **Do NOT put** resource directories inside `.claude-plugin/` - only `plugin.json` goes there
 
 ### Path Resolution
 
@@ -54,59 +54,77 @@ hooks (auto-loaded):       → plugins/cacack/hooks/hooks.json
 
 ## Resource Types
 
-### Commands
-Slash commands in `plugins/cacack/commands/` directory as `.md` files with frontmatter:
+### Skills (Primary)
+
+Skills are the primary resource type. Each skill is a directory with `SKILL.md` in `plugins/cacack/skills/`. Commands and skills are unified - both create slash commands.
+
+Skill frontmatter:
 ```yaml
 ---
-description: Brief description
-argument-hint: [optional]
-allowed-tools: [optional]
----
-```
-
-### Agents
-Agent definitions in `plugins/cacack/agents/` directory as `.md` files.
-
-### Skills
-Autonomous workflows in `plugins/cacack/skills/` directory. Each skill is a directory with `SKILL.md`.
-
-### Hooks
-Hook configurations in `plugins/cacack/hooks/hooks.json`. The standard `hooks/hooks.json` is auto-loaded by Claude Code 2.1.4+; do NOT reference it in plugin.json (causes duplicate error).
-
-## Claude Code 2.1+ Features
-
-Features available in Claude Code 2.1.0 and later:
-
-### Skill Frontmatter Options
-```yaml
----
-name: skill-name
-description: What this skill does
-user-invocable: false    # Hide from slash command menu (for internal/support skills)
-context: fork            # Run in isolated sub-agent context
-agent: explore           # Specify agent type for execution
----
-```
-
-### Hooks in Frontmatter
-Skills and commands can define hooks directly in frontmatter instead of hooks.json:
-```yaml
----
-description: ...
-hooks:
+name: skill-name                     # Optional; defaults to directory name
+description: What this does          # Recommended - Claude uses for auto-invocation
+allowed-tools: Read, Grep            # Restrict tool access
+argument-hint: <args>                # Show in slash command menu
+disable-model-invocation: true       # Manual /slash only, prevent auto-invocation
+user-invocable: false                # Hide from menu (Claude-only, background knowledge)
+model: sonnet                        # Override model (sonnet, opus, haiku, inherit)
+context: fork                        # Run in isolated sub-agent context
+agent: explore                       # Sub-agent type for fork context
+hooks:                               # Scoped to this skill's lifecycle
   PreToolUse:
     - type: command
       command: "echo $TOOL_NAME"
-      once: true         # Run only once per session
 ---
 ```
 
-### Hook Types
-- `PreToolUse` / `PostToolUse` - Tool execution events
-- `Stop` - Main conversation stop
-- `SubagentStop` - Sub-agent completion (separate from Stop since v2.0.41)
-- `SessionStart` - Session initialization
-- `UserPromptSubmit` - User input events
+String substitutions: `$ARGUMENTS`, `$0`/`$1`/`$2` (positional), `${CLAUDE_SESSION_ID}`
+
+Dynamic context: `` !`shell-command` `` runs as preprocessing before skill content is sent.
+
+### Agents
+
+Agent definitions in `plugins/cacack/agents/` directory as `.md` files.
+
+Agent frontmatter:
+```yaml
+---
+name: agent-name
+description: What this agent does and when to use it
+tools: Read, Glob, Grep              # Tool allowlist
+disallowedTools: Write, Edit         # Tool denylist
+model: sonnet                        # sonnet, opus, haiku, inherit
+permissionMode: default              # default, acceptEdits, dontAsk, delegate, plan
+maxTurns: 20                         # Limit agentic iterations
+skills:                              # Preload full skill content at startup
+  - skill-name
+memory: user                         # Persistent cross-session memory (user, project, local)
+hooks: {}                            # Scoped to this agent
+---
+```
+
+### Hooks
+
+Hook configurations in `plugins/cacack/hooks/hooks.json`. Auto-loaded by Claude Code 2.1.4+; do NOT reference in plugin.json.
+
+Hook event types:
+- `SessionStart` - Session begins/resumes (matcher: `startup`, `resume`, `clear`, `compact`)
+- `UserPromptSubmit` - User submits prompt
+- `PreToolUse` - Before tool executes (can block; matcher: tool name)
+- `PostToolUse` - After tool succeeds (matcher: tool name)
+- `PostToolUseFailure` - After tool fails (matcher: tool name)
+- `PermissionRequest` - Permission dialog appears (matcher: tool name)
+- `Notification` - Notification sent (matcher: `permission_prompt`, `idle_prompt`, etc.)
+- `SubagentStart` / `SubagentStop` - Sub-agent lifecycle (matcher: agent type)
+- `Stop` - Claude finishes responding
+- `TeammateIdle` - Agent team teammate going idle
+- `TaskCompleted` - Task being marked complete
+- `PreCompact` - Before context compaction (matcher: `manual`, `auto`)
+- `SessionEnd` - Session terminates
+
+Hook execution types:
+- `type: "command"` - Run shell command (default)
+- `type: "prompt"` - Single-turn LLM evaluation (returns `ok: true/false`)
+- `type: "agent"` - Multi-turn sub-agent with tool access (returns `ok: true/false`)
 
 ### Auto-Loading Behavior
 - `hooks/hooks.json` is auto-loaded from plugin directory (don't reference in plugin.json)
@@ -115,9 +133,8 @@ hooks:
 
 ## Adding Resources
 
-- Commands: Add `.md` files to `plugins/cacack/commands/`
+- Skills: Create directory in `plugins/cacack/skills/<name>/` with `SKILL.md`
 - Agents: Add `.md` files to `plugins/cacack/agents/`
-- Skills: Create directory in `plugins/cacack/skills/` with `SKILL.md`
 - Hooks: Add to `plugins/cacack/hooks/hooks.json`
 - Update README.md after adding resources
 

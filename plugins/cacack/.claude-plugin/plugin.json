@@ -1,7 +1,7 @@
 {
   "name": "cacack",
-  "description": "Personal collection of Claude Code agents, commands, and skills for productivity and automation",
-  "version": "1.16.2",
+  "description": "Personal collection of Claude Code agents and skills for productivity and automation",
+  "version": "1.17.0",
   "author": {
     "name": "Chris Clonch",
     "email": "chris@theclonchs.com"
@@ -12,8 +12,7 @@
   "keywords": [
     "productivity",
     "automation",
-    "slash-commands",
-    "agents",
-    "skills"
+    "skills",
+    "agents"
   ]
 }
