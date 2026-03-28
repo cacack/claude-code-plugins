@@ -11,7 +11,7 @@ All hooks receive these fields:
   session_id: string           // Unique session identifier
   transcript_path: string      // Path to session transcript (.jsonl file)
   cwd: string                  // Current working directory
-  permission_mode: string      // "default" | "plan" | "acceptEdits" | "bypassPermissions"
+  permission_mode: string      // "default" | "plan" | "acceptEdits" | "dontAsk" | "bypassPermissions"
   hook_event_name: string      // Name of the hook event
 }
 ```
@@ -467,3 +467,124 @@ fi
 ```
 
 Default: 60000ms (60s)
+
+---
+
+## New Event Schemas
+
+### ConfigChange
+
+**Input**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/Users/username/project",
+  "permission_mode": "default",
+  "hook_event_name": "ConfigChange"
+}
+```
+
+**Matcher values**: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`
+
+### FileChanged
+
+**Input**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/Users/username/project",
+  "permission_mode": "default",
+  "hook_event_name": "FileChanged"
+}
+```
+
+**Matcher**: Filename basename (e.g., `.env`, `package.json`)
+
+### CwdChanged
+
+**Input**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/new/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "CwdChanged"
+}
+```
+
+### PostCompact
+
+**Input**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/Users/username/project",
+  "permission_mode": "default",
+  "hook_event_name": "PostCompact",
+  "trigger": "manual"
+}
+```
+
+**Output**: None (informational only)
+
+### InstructionsLoaded
+
+**Input**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/Users/username/project",
+  "permission_mode": "default",
+  "hook_event_name": "InstructionsLoaded"
+}
+```
+
+**Matcher values**: `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
+
+### HTTP Hook Type
+
+HTTP hooks POST the full event JSON to a URL:
+```json
+{
+  "type": "http",
+  "url": "https://hooks.example.com/events",
+  "timeout": 10,
+  "async": true
+}
+```
+
+### Agent Hook Type
+
+Agent hooks launch a multi-turn sub-agent with tool access:
+```json
+{
+  "type": "agent",
+  "prompt": "Verify test coverage for changed files",
+  "tools": ["Read", "Grep", "Glob", "Bash"],
+  "model": "haiku"
+}
+```
+
+Returns `ok: true/false` to approve/block.
+
+### Common Hook Fields
+
+All hook types support:
+```json
+{
+  "type": "command",
+  "command": "script.sh",
+  "timeout": 10,
+  "if": "Bash(git *)",
+  "async": false
+}
+```
+
+- `timeout` (number): Seconds before timeout (default: 600)
+- `if` (string): Permission rule syntax to filter execution
+- `async` (boolean): Run in background (default: false)

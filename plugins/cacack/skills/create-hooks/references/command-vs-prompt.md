@@ -1,6 +1,6 @@
-# Command vs Prompt Hooks
+# Hook Execution Types
 
-Decision guide for choosing between command-based and prompt-based hooks.
+Decision guide for choosing between command, http, prompt, and agent hook types.
 
 ## Decision Tree
 
@@ -11,16 +11,22 @@ Need to execute a hook?
 │  └─ Use COMMAND (faster, cheaper)
 │
 ├─ Need natural language understanding?
-│  └─ Use PROMPT (LLM evaluation)
+│  └─ Use PROMPT (single LLM evaluation)
+│
+├─ Need multi-step reasoning with tool access?
+│  └─ Use AGENT (multi-turn sub-agent)
+│
+├─ External service notification/audit?
+│  └─ Use HTTP (POST event JSON to URL)
 │
 ├─ External tool interaction?
 │  └─ Use COMMAND (formatters, linters, git)
 │
 ├─ Complex decision logic?
-│  └─ Use PROMPT (reasoning required)
+│  └─ Use PROMPT or AGENT (reasoning required)
 │
 └─ Logging/notification only?
-   └─ Use COMMAND (no decision needed)
+   └─ Use COMMAND or HTTP (no decision needed)
 ```
 
 ---
@@ -252,18 +258,135 @@ Hooks execute in order. If any hook blocks, execution stops.
 
 ---
 
+---
+
+## HTTP Hooks
+
+### Characteristics
+
+- **Execution**: POST event JSON to URL
+- **Input**: Full event JSON sent as request body
+- **Output**: Response JSON (optional)
+- **Speed**: Depends on endpoint latency
+- **Cost**: Free (no API usage)
+- **Complexity**: External service integration
+
+### When to use
+
+Use http hooks for:
+- Audit logging to external services
+- Webhook integrations (Slack, PagerDuty)
+- External validation services
+- Centralized event tracking
+
+Don't use http hooks for:
+- Local operations (use command)
+- Natural language analysis (use prompt)
+- Fast-path validation (network latency)
+
+### Example
+
+```json
+{
+  "type": "http",
+  "url": "https://hooks.example.com/claude-events",
+  "timeout": 10
+}
+```
+
+---
+
+## Agent Hooks
+
+### Characteristics
+
+- **Execution**: Multi-turn sub-agent with tool access
+- **Input**: Event context provided to agent
+- **Output**: Agent returns `ok: true/false`
+- **Speed**: Slowest (multiple LLM calls + tool use)
+- **Cost**: Highest (multiple API calls)
+- **Complexity**: Can reason, read files, run commands
+
+### When to use
+
+Use agent hooks for:
+- Complex verification requiring file access
+- Multi-step validation (check code, run tests, verify docs)
+- Context-aware decisions that need to read project state
+- Sophisticated quality gates
+
+Don't use agent hooks for:
+- Simple pattern matching (use command)
+- Single-question decisions (use prompt)
+- High-frequency events (too slow/expensive)
+- Non-decision tasks (use command or http)
+
+### Example
+
+```json
+{
+  "type": "agent",
+  "prompt": "Verify that all modified files have corresponding test coverage. Check each changed file and ensure tests exist.",
+  "tools": ["Read", "Grep", "Glob", "Bash"],
+  "model": "haiku"
+}
+```
+
+---
+
+## Common Hook Fields
+
+All hook types support these additional fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timeout` | number | Seconds before timeout (default: 600) |
+| `if` | string | Permission rule syntax to filter execution |
+| `async` | boolean | Run in background (default: false) |
+
+### The `if` field
+
+Conditionally execute hooks based on permission rule syntax:
+```json
+{
+  "type": "command",
+  "command": "validate.sh",
+  "if": "Bash(git *)"
+}
+```
+Only runs when the tool call matches the `if` pattern.
+
+### The `async` field
+
+Run hooks in the background without blocking:
+```json
+{
+  "type": "http",
+  "url": "https://audit.example.com/events",
+  "async": true
+}
+```
+
+---
+
 ## Recommendations
 
 **High-frequency events** (PreToolUse, PostToolUse):
 - Prefer command hooks
-- Use prompt hooks sparingly
-- Cache LLM decisions when possible
+- Use prompt/agent hooks sparingly
+- Use async http for logging
 
 **Low-frequency events** (Stop, UserPromptSubmit):
-- Prompt hooks are fine
+- Prompt or agent hooks are fine
 - Cost/latency less critical
+
+**External integrations**:
+- Use http for webhooks and audit trails
+- Use async to avoid blocking
 
 **Balance**:
 - Command hooks for simple checks
-- Prompt hooks for complex validation
+- HTTP hooks for external logging/webhooks
+- Prompt hooks for single-question validation
+- Agent hooks for complex multi-step verification
 - Combine when appropriate

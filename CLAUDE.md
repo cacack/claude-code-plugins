@@ -68,8 +68,11 @@ argument-hint: <args>                # Show in slash command menu
 disable-model-invocation: true       # Manual /slash only, prevent auto-invocation
 user-invocable: false                # Hide from menu (Claude-only, background knowledge)
 model: sonnet                        # Override model (sonnet, opus, haiku, inherit)
+effort: medium                       # Effort level (low, medium, high, max)
 context: fork                        # Run in isolated sub-agent context
 agent: explore                       # Sub-agent type for fork context
+paths: "src/**,tests/**"             # Glob patterns for auto-activation
+shell: bash                          # Shell for !`cmd` blocks (bash, powershell)
 hooks:                               # Scoped to this skill's lifecycle
   PreToolUse:
     - type: command
@@ -77,7 +80,7 @@ hooks:                               # Scoped to this skill's lifecycle
 ---
 ```
 
-String substitutions: `$ARGUMENTS`, `$0`/`$1`/`$2` (positional), `${CLAUDE_SESSION_ID}`
+String substitutions: `$ARGUMENTS`, `$0`/`$1`/`$2` (positional), `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}`
 
 Dynamic context: `` !`shell-command` `` runs as preprocessing before skill content is sent.
 
@@ -93,11 +96,18 @@ description: What this agent does and when to use it
 tools: Read, Glob, Grep              # Tool allowlist
 disallowedTools: Write, Edit         # Tool denylist
 model: sonnet                        # sonnet, opus, haiku, inherit
-permissionMode: default              # default, acceptEdits, dontAsk, delegate, plan
+effort: medium                       # Effort level (low, medium, high, max)
+permissionMode: default              # default, acceptEdits, dontAsk, bypassPermissions, plan
 maxTurns: 20                         # Limit agentic iterations
 skills:                              # Preload full skill content at startup
   - skill-name
+mcpServers:                          # MCP servers scoped to this agent
+  slack: slack
 memory: user                         # Persistent cross-session memory (user, project, local)
+background: false                    # Run as background task by default
+initialPrompt: |                     # Auto-submitted first user turn
+  Review recent commits
+isolation: worktree                  # Run in isolated git worktree
 hooks: {}                            # Scoped to this agent
 ---
 ```
@@ -108,23 +118,35 @@ Hook configurations in `plugins/cacack/hooks/hooks.json`. Auto-loaded by Claude 
 
 Hook event types:
 - `SessionStart` - Session begins/resumes (matcher: `startup`, `resume`, `clear`, `compact`)
+- `InstructionsLoaded` - CLAUDE.md/rules loaded (matcher: `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`)
 - `UserPromptSubmit` - User submits prompt
-- `PreToolUse` - Before tool executes (can block; matcher: tool name)
-- `PostToolUse` - After tool succeeds (matcher: tool name)
-- `PostToolUseFailure` - After tool fails (matcher: tool name)
-- `PermissionRequest` - Permission dialog appears (matcher: tool name)
-- `Notification` - Notification sent (matcher: `permission_prompt`, `idle_prompt`, etc.)
+- `PreToolUse` - Before tool executes (can block; matcher: tool name regex)
+- `PostToolUse` - After tool succeeds (matcher: tool name regex)
+- `PostToolUseFailure` - After tool fails (matcher: tool name regex)
+- `PermissionRequest` - Permission dialog appears (matcher: tool name regex)
+- `Notification` - Notification sent (matcher: `permission_prompt`, `idle_prompt`, `auth_success`)
 - `SubagentStart` / `SubagentStop` - Sub-agent lifecycle (matcher: agent type)
-- `Stop` - Claude finishes responding
-- `TeammateIdle` - Agent team teammate going idle
+- `TaskCreated` - Task created via TaskCreate
 - `TaskCompleted` - Task being marked complete
+- `Stop` - Claude finishes responding
+- `StopFailure` - API error at turn end
+- `TeammateIdle` - Agent team teammate going idle
+- `ConfigChange` - Config file changes (matcher: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`)
+- `CwdChanged` - Working directory changes
+- `FileChanged` - Watched file changes (matcher: filename basename)
+- `WorktreeCreate` / `WorktreeRemove` - Git worktree lifecycle
 - `PreCompact` - Before context compaction (matcher: `manual`, `auto`)
-- `SessionEnd` - Session terminates
+- `PostCompact` - After context compaction (matcher: `manual`, `auto`)
+- `Elicitation` / `ElicitationResult` - MCP user input lifecycle (matcher: MCP server name)
+- `SessionEnd` - Session terminates (matcher: `clear`, `resume`, `logout`, `other`)
 
 Hook execution types:
 - `type: "command"` - Run shell command (default)
+- `type: "http"` - POST event JSON to URL (external services, audit logging)
 - `type: "prompt"` - Single-turn LLM evaluation (returns `ok: true/false`)
 - `type: "agent"` - Multi-turn sub-agent with tool access (returns `ok: true/false`)
+
+Hook common fields: `timeout` (seconds), `if` (permission rule syntax filter), `async` (run in background)
 
 ### Auto-Loading Behavior
 - `hooks/hooks.json` is auto-loaded from plugin directory (don't reference in plugin.json)

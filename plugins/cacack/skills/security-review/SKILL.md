@@ -3,6 +3,7 @@ name: security-review
 description: Comprehensive security analysis of changes, context, or entire repository
 argument-hint: [changes|context|repo]
 allowed-tools: [Read, Grep, Glob, Bash(git status:*), Bash(git diff:*), Bash(git branch:*)]
+effort: high
 ---
 
 <objective>

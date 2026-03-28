@@ -444,6 +444,28 @@ Do this:
 
 ---
 
+## Matchers by Event Type
+
+Different events use matchers for different purposes:
+
+| Event | Matcher matches against | Examples |
+|-------|------------------------|----------|
+| `PreToolUse`, `PostToolUse`, `PostToolUseFailure` | Tool name (regex) | `"Bash"`, `"Write\|Edit"`, `"mcp__github__.*"` |
+| `PermissionRequest` | Tool name (regex) | `"Bash"`, `"Write"` |
+| `SessionStart` | Session source | `"startup"`, `"resume"`, `"clear"`, `"compact"` |
+| `InstructionsLoaded` | Load source | `"session_start"`, `"nested_traversal"`, `"path_glob_match"`, `"include"`, `"compact"` |
+| `SubagentStart`, `SubagentStop` | Agent type name | `"Explore"`, `"Plan"` |
+| `ConfigChange` | Config source | `"user_settings"`, `"project_settings"`, `"local_settings"`, `"policy_settings"`, `"skills"` |
+| `FileChanged` | Filename basename | `".env"`, `".envrc"`, `"package.json"` |
+| `PreCompact`, `PostCompact` | Compaction trigger | `"manual"`, `"auto"` |
+| `Notification` | Notification type | `"permission_prompt"`, `"idle_prompt"`, `"auth_success"` |
+| `Elicitation`, `ElicitationResult` | MCP server name | `"github"`, `"slack"` |
+| `SessionEnd` | End reason | `"clear"`, `"resume"`, `"logout"`, `"other"` |
+
+Events without matchers: `UserPromptSubmit`, `Stop`, `StopFailure`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `CwdChanged`, `WorktreeCreate`, `WorktreeRemove`
+
+---
+
 ## Tool Name Reference
 
 Common Claude Code tool names:
@@ -460,10 +482,19 @@ Common Claude Code tool names:
 - `WebFetch`
 - `WebSearch`
 - `Task`
+- `TaskCreate`
+- `TaskUpdate`
 - `Skill`
-- `SlashCommand`
+- `Agent`
 - `AskUserQuestion`
 - `ExitPlanMode`
+- `EnterPlanMode`
+- `EnterWorktree`
+- `ExitWorktree`
+- `CronCreate`
+- `CronDelete`
+- `CronList`
+- `RemoteTrigger`
 
 MCP tools: `mcp__{server}__{tool}` (varies by installed servers)
 

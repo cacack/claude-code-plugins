@@ -5,8 +5,22 @@ Subagent file structure:
 ---
 name: your-subagent-name
 description: Description of when this subagent should be invoked
-tools: tool1, tool2, tool3 # Optional - inherits all tools if omitted
-model: sonnet # Optional - specify model alias or 'inherit'
+tools: tool1, tool2, tool3       # Optional - inherits all tools if omitted
+disallowedTools: tool4, tool5    # Optional - deny specific tools
+model: sonnet                    # Optional - sonnet, opus, haiku, inherit
+effort: medium                   # Optional - low, medium, high, max
+permissionMode: default          # Optional - default, acceptEdits, dontAsk, bypassPermissions, plan
+maxTurns: 20                     # Optional - limit iterations
+skills:                          # Optional - preload skill content
+  - skill-name
+mcpServers:                      # Optional - scoped MCP servers
+  slack: slack
+memory: user                     # Optional - persistent memory (user, project, local)
+background: false                # Optional - run as background task
+initialPrompt: |                 # Optional - auto-submit first turn
+  Review recent commits
+isolation: worktree              # Optional - isolated git worktree
+hooks: {}                        # Optional - lifecycle hooks
 ---
 
 <role>
@@ -30,7 +44,18 @@ Step-by-step process for consistency.
 | `name` | Yes | Unique identifier using lowercase letters and hyphens |
 | `description` | Yes | Natural language description of purpose. Include when Claude should invoke this. |
 | `tools` | No | Comma-separated list. If omitted, inherits all tools from main thread |
-| `model` | No | `sonnet`, `opus`, `haiku`, or `inherit`. If omitted, uses default subagent model |
+| `disallowedTools` | No | Comma-separated list of tools to deny (denylist approach) |
+| `model` | No | `sonnet`, `opus`, `haiku`, `inherit`, or full model ID. If omitted, uses default subagent model |
+| `effort` | No | Effort level: `low`, `medium`, `high`, `max` |
+| `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `maxTurns` | No | Maximum agentic iterations before stopping |
+| `skills` | No | Array of skill names to preload (full content injected at startup) |
+| `mcpServers` | No | MCP servers scoped to this agent (name references or inline configs) |
+| `memory` | No | Persistent cross-session memory scope: `user`, `project`, `local` |
+| `background` | No | `true` to run as background task by default |
+| `initialPrompt` | No | Auto-submitted as first user turn (for autonomous startup) |
+| `isolation` | No | Set to `worktree` to run in an isolated git worktree copy |
+| `hooks` | No | Lifecycle hooks scoped to this agent (same format as settings.json) |
 </configuration_fields>
 </file_format>
 
@@ -122,19 +147,17 @@ Use `/agents` command to see full list of available tools.
 
 <model_selection>
 <model_capabilities>
-**Sonnet 4.5** (`sonnet`):
-- "Best model in the world for agents" (Anthropic)
-- Exceptional at agentic tasks: 64% problem-solving on coding benchmarks
-- SWE-bench Verified: 49.0%
+**Sonnet 4.6** (`sonnet`):
+- Exceptional at agentic tasks and coding
+- Strong balance of capability, speed, and cost
 - **Use for**: Planning, complex reasoning, validation, critical decisions
 
 **Haiku 4.5** (`haiku`):
-- "Near-frontier performance" - 90% of Sonnet 4.5's capabilities
-- SWE-bench Verified: 73.3% (one of world's best coding models)
+- Near-frontier performance at lowest cost
 - Fastest and most cost-efficient
 - **Use for**: Task execution, simple transformations, high-volume processing
 
-**Opus** (`opus`):
+**Opus 4.6** (`opus`):
 - Highest performance on evaluation benchmarks
 - Most capable but slowest and most expensive
 - **Use for**: Highest-stakes decisions, most complex reasoning

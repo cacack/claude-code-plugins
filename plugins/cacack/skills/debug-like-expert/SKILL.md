@@ -1,6 +1,7 @@
 ---
 name: debug-like-expert
 description: Deep analysis debugging mode for complex issues. Activates methodical investigation protocol with evidence gathering, hypothesis testing, and rigorous verification. Use when standard troubleshooting fails or when issues require systematic root cause analysis.
+effort: high
 ---
 
 <objective>

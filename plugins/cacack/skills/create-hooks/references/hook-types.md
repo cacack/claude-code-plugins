@@ -425,6 +425,8 @@ Complete reference for all Claude Code hook events.
 
 **Can block**: No
 
+**Matcher values**: `permission_prompt`, `idle_prompt`, `auth_success`
+
 **Input schema**:
 ```json
 {
@@ -461,3 +463,230 @@ Complete reference for all Claude Code hook events.
   }
 }
 ```
+
+---
+
+## InstructionsLoaded
+
+**When it fires**: CLAUDE.md or rules files are loaded
+
+**Can block**: Yes
+
+**Matcher values**: `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "InstructionsLoaded"
+}
+```
+
+**Use cases**:
+- Validate instruction files
+- Inject additional context based on loaded rules
+- Log which instructions were loaded
+
+---
+
+## TaskCreated
+
+**When it fires**: A task is created via TaskCreate
+
+**Can block**: Yes
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "TaskCreated"
+}
+```
+
+**Use cases**:
+- Validate task creation
+- Log task assignments
+- Inject additional context for new tasks
+
+---
+
+## StopFailure
+
+**When it fires**: API error occurs at the end of a turn
+
+**Can block**: No
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "StopFailure"
+}
+```
+
+**Use cases**:
+- Error logging and monitoring
+- Send alerts on API failures
+- Track error patterns
+
+---
+
+## ConfigChange
+
+**When it fires**: A configuration file changes
+
+**Can block**: Yes
+
+**Matcher values**: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "ConfigChange"
+}
+```
+
+**Use cases**:
+- Validate configuration changes
+- Auto-reload when skills are updated
+- Log settings modifications
+
+---
+
+## CwdChanged
+
+**When it fires**: The working directory changes
+
+**Can block**: Yes
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/new/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "CwdChanged"
+}
+```
+
+**Use cases**:
+- Load project-specific context on directory change
+- Validate directory permissions
+- Update environment variables
+
+---
+
+## FileChanged
+
+**When it fires**: A watched file changes on disk
+
+**Can block**: Yes
+
+**Matcher**: Filename basename (e.g., `.env`, `.envrc`, `package.json`)
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "FileChanged"
+}
+```
+
+**Use cases**:
+- React to .env file changes
+- Auto-reload when config files update
+- Trigger rebuilds on file changes
+
+---
+
+## WorktreeCreate / WorktreeRemove
+
+**When they fire**: Git worktree is created or removed
+
+**Can block**: WorktreeCreate: Yes, WorktreeRemove: No
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "WorktreeCreate"
+}
+```
+
+**Use cases**:
+- Initialize worktree environment
+- Clean up worktree resources
+- Log worktree lifecycle
+
+---
+
+## PostCompact
+
+**When it fires**: After context window compaction completes
+
+**Can block**: No
+
+**Matcher values**: `manual`, `auto`
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "PostCompact",
+  "trigger": "manual"
+}
+```
+
+**Use cases**:
+- Re-inject critical context after compaction
+- Log compaction events
+- Restore state that may have been lost
+
+---
+
+## Elicitation / ElicitationResult
+
+**When they fire**: MCP server requests user input / user responds
+
+**Can block**: No
+
+**Matcher**: MCP server name
+
+**Input schema**:
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "~/.claude/projects/.../session.jsonl",
+  "cwd": "/current/working/directory",
+  "permission_mode": "default",
+  "hook_event_name": "Elicitation"
+}
+```
+
+**Use cases**:
+- Log MCP user interactions
+- Track elicitation patterns
+- Notify on MCP input requests

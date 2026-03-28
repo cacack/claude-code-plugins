@@ -86,6 +86,49 @@ description: What it does and when to use it (third person, specific triggers)
 ```
 </required_fields>
 
+<optional_fields>
+```yaml
+---
+name: skill-name-here
+description: What it does and when to use it
+allowed-tools: Read, Grep, Glob         # Restrict tool access
+argument-hint: <args>                    # Show in slash command menu
+disable-model-invocation: true           # Manual /slash only
+user-invocable: false                    # Hide from menu (Claude-only)
+model: sonnet                            # sonnet, opus, haiku, inherit
+effort: medium                           # low, medium, high, max
+context: fork                            # Run in isolated sub-agent context
+agent: Explore                           # Sub-agent type for fork context
+paths: "src/**,tests/**"                 # Glob patterns for auto-activation
+shell: bash                              # Shell for !`cmd` blocks (bash, powershell)
+hooks:                                   # Scoped lifecycle hooks
+  PreToolUse:
+    - matcher: "Write|Edit"
+      hooks:
+        - type: command
+          command: "validate.sh"
+---
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Skill identifier (kebab-case, max 64 chars). Defaults to directory name. |
+| `description` | string | When to use (max 1024 chars, front-load key use case) |
+| `allowed-tools` | string | Comma/space-separated tools Claude can use |
+| `argument-hint` | string | Hint for autocomplete |
+| `disable-model-invocation` | boolean | Only manual invocation via `/name` |
+| `user-invocable` | boolean | Show in `/` menu; default `true` |
+| `model` | string | Model to use (sonnet, opus, haiku, full ID, inherit) |
+| `effort` | string | Effort level (low, medium, high, max) |
+| `context` | string | Set to `fork` for isolated execution |
+| `agent` | string | Subagent type when `context: fork` |
+| `paths` | string/array | Glob patterns for auto-activation |
+| `shell` | string | Shell for `` !`command` `` blocks (bash, powershell) |
+| `hooks` | object | Lifecycle hooks (same format as settings.json) |
+
+**String substitutions**: `$ARGUMENTS`, `$0`/`$1`/`$2` (positional), `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}`
+</optional_fields>
+
 <name_field>
 **Validation rules**:
 - Maximum 64 characters
