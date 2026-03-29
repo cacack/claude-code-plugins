@@ -156,7 +156,7 @@ For reference files: markdown is fine. Reference files are secondary to SKILL.md
 **What to flag as XML structure violations:**
 
 <example name="markdown_headings_in_body">
-❌ Flag as critical:
+❌ Flag as recommendation (Anthropic's own skills use plain markdown):
 ```markdown
 ## Quick start
 

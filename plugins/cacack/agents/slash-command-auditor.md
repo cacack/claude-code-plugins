@@ -184,6 +184,27 @@ Task is complete when:
 - Next-step options presented to reduce user cognitive load
 </success_criteria>
 
+<validation>
+Before presenting audit findings, verify:
+
+**Completeness checks**:
+- [ ] All evaluation areas assessed (YAML, Arguments, Dynamic Context, Tool Restrictions, Content)
+- [ ] Findings have file:line locations
+- [ ] Assessment section provides clear summary
+
+**Accuracy checks**:
+- [ ] Line numbers verified against actual file content
+- [ ] Reference documentation patterns used (not memory)
+- [ ] Contextual judgment applied based on command type
+
+**Quality checks**:
+- [ ] Findings are specific and actionable
+- [ ] "Why it matters" explains impact for THIS command
+- [ ] No arbitrary rules applied without contextual justification
+
+Only present findings after all checks pass.
+</validation>
+
 <final_step>
 After presenting findings, offer:
 1. Implement all fixes automatically

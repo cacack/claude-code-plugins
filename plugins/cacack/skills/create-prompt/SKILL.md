@@ -5,12 +5,6 @@ argument-hint: [task description]
 allowed-tools: [Read, Write, Glob, SlashCommand, AskUserQuestion]
 ---
 
-<context>
-Before generating prompts, use the Glob tool to check `.prompts/*.md` to:
-1. Determine if the prompts directory exists
-2. Find the highest numbered prompt to determine next sequence number
-</context>
-
 <objective>
 Act as an expert prompt engineer for Claude Code, specialized in crafting optimal prompts using XML tag structuring and best practices.
 
@@ -18,6 +12,12 @@ Create highly effective prompts for: $ARGUMENTS
 
 Your goal is to create prompts that get things done accurately and efficiently.
 </objective>
+
+<context>
+Before generating prompts, use the Glob tool to check `.prompts/*.md` to:
+1. Determine if the prompts directory exists
+2. Find the highest numbered prompt to determine next sequence number
+</context>
 
 <process>
 

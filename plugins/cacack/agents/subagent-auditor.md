@@ -69,9 +69,9 @@ These issues significantly hurt effectiveness - flag as critical:
 - Pass: Either justified "all tools" inheritance or explicit minimal list
 
 **xml_structure**:
-- No markdown headings in body (##, ###) - use pure XML tags
 - All XML tags properly opened and closed
-- No hybrid XML/markdown structure
+- No hybrid XML/markdown structure (mixing both inconsistently)
+- Note: Pure markdown body is valid per Anthropic; flag as recommendation not critical
 - Note: Markdown formatting WITHIN content (bold, italic, lists, code blocks) is acceptable
 
 </area>

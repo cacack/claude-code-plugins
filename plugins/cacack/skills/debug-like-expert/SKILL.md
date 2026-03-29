@@ -215,18 +215,14 @@ See [references/verification-patterns.md](references/verification-patterns.md) f
 
 <critical_rules>
 
-1. **NO DRIVE-BY FIXES**: If you can't explain WHY a change works, don't make it
-2. **VERIFY EVERYTHING**: Test your assumptions. Read the actual code. Check the actual behavior
-3. **USE ALL TOOLS**:
-   - MCP servers for external knowledge
-   - Web search for error messages, docs, known issues
-   - Extended thinking ("think deeply") for complex reasoning
-   - File reading for complete context
-4. **THINK OUT LOUD**: Document your reasoning at each step
-5. **ONE VARIABLE**: Change one thing at a time, verify, then proceed
-6. **COMPLETE READS**: Don't skim code. Read entire relevant files
-7. **CHASE DEPENDENCIES**: If the issue involves libraries, configs, or external systems, investigate those too
-8. **QUESTION PREVIOUS WORK**: Maybe the earlier "fix" was wrong. Re-examine with fresh eyes
+1. **No drive-by fixes** — unexplained changes mask root causes and introduce regressions
+2. **Verify everything** — assumptions are the #1 source of debugging dead ends; read actual code and test actual behavior
+3. **Use all tools** — MCP servers for external knowledge, web search for error messages/docs, extended thinking for complex reasoning, file reading for complete context
+4. **Think out loud** — documenting reasoning at each step catches logical errors and creates a trail for review
+5. **One variable at a time** — changing multiple things simultaneously makes it impossible to isolate which change had which effect
+6. **Complete reads** — skimming code misses the subtle interactions that cause most bugs
+7. **Chase dependencies** — bugs in libraries, configs, or external systems present as local issues but can't be fixed locally
+8. **Question previous work** — the earlier "fix" may have been wrong; re-examine with fresh eyes
 
 </critical_rules>
 

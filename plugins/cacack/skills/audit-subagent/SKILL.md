@@ -2,6 +2,7 @@
 name: audit-subagent
 description: Audit subagent configuration for role definition, prompt quality, tool selection, XML structure compliance, and effectiveness
 argument-hint: <subagent-path>
+allowed-tools: Task
 ---
 
 <objective>

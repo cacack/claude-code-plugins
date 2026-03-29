@@ -2,6 +2,7 @@
 name: audit-plugin
 description: Audit plugin structure for directory layout, plugin.json/marketplace.json validity, version sync, and resource integrity
 argument-hint: <plugin-directory-path>
+allowed-tools: Task
 ---
 
 <objective>

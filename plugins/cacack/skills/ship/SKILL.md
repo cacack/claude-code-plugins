@@ -298,11 +298,11 @@ Result
 </output_format>
 
 <safety>
-- NEVER skip pre-commit hooks
-- NEVER force push to main/master
-- NEVER commit secrets (.env, credentials, API keys)
-- ALWAYS verify with `git status` before committing
-- ALWAYS respect hook failures
+- NEVER skip pre-commit hooks — hooks enforce project invariants (formatting, lint, tests) that prevent broken commits
+- NEVER force push to main/master — overwrites shared history and can destroy teammates' work
+- NEVER commit secrets (.env, credentials, API keys) — leaked secrets require rotation and can lead to breaches
+- ALWAYS verify with `git status` before committing — catches unintended staged files and confirms expected changes
+- ALWAYS respect hook failures — a failing hook means the commit violates a project rule; fix the issue rather than bypassing
 </safety>
 
 <examples>

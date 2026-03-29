@@ -2,6 +2,7 @@
 name: audit-slash-command
 description: Audit slash command file for YAML, arguments, dynamic context, tool restrictions, and content quality
 argument-hint: <command-path>
+allowed-tools: Task
 ---
 
 <objective>

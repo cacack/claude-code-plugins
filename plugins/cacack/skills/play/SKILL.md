@@ -69,53 +69,40 @@ GitLab CLI: ! `which glab >/dev/null 2>&1 && echo "available" || echo "NOT INSTA
 </process>
 
 <output_format>
-
-## Issue Summary
+Present the plan using this structure:
 
 **Issue #$ARGUMENTS**: [Title]
 **Labels**: [labels if any]
-**Key Requirements**:
+
+**Key Requirements:**
 - [Requirement 1]
 - [Requirement 2]
 
-## Affected Areas
-
+**Affected Areas:**
 - `path/to/file.ext` - [what changes]
 - `path/to/other.ext` - [what changes]
 
-## Build vs Reuse
+**Build vs Reuse:**
+- Leveraging: [stdlib/library feature] - [what it handles]
+- Must build: [custom component] - [why it can't be reused]
 
-**Leveraging existing functionality:**
-- [stdlib/library feature] - [what it handles]
-
-**Must be built (domain-specific):**
-- [custom component] - [why it can't be reused]
-
-## Implementation Plan
-
+**Implementation Plan:**
 1. **Step one** - [description]
    - Files: `file1.ext`, `file2.ext`
    - Details: [specifics]
-
 2. **Step two** - [description]
    - Files: `file3.ext`
    - Details: [specifics]
 
-[...additional steps...]
-
-## Testing Plan
-
+**Testing Plan:**
 - [ ] [Test requirement 1]
 - [ ] [Test requirement 2]
 
-## Questions/Decisions
-
+**Questions/Decisions:**
 - [Any clarifications needed]
 - [Trade-offs to consider]
 
-## Documentation Impact
-
-Check which documentation may need updates:
+**Documentation Impact:**
 - [ ] README.md - [update if major user-facing feature]
 - [ ] FEATURES.md - [document new capability if file exists]
 - [ ] IDEAS.md - [remove item if implementing from ideas backlog]
@@ -124,11 +111,10 @@ Check which documentation may need updates:
 ---
 
 **Ready to proceed?** Let me know if you'd like to:
-- ✅ Proceed manually - I'll implement step by step in this session
-- 🚀 Generate prompts - Create execution prompts for delegation via /cacack:run-prompt
-- ✏️ Modify the approach
-- ❓ Discuss specific aspects
-
+- Proceed manually - I'll implement step by step in this session
+- Generate prompts - Create execution prompts for delegation via `/run-prompt`
+- Modify the approach
+- Discuss specific aspects
 </output_format>
 
 <success_criteria>

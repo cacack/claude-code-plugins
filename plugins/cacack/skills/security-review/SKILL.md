@@ -40,8 +40,7 @@ Current branch: ! `git branch --show-current`
 </process>
 
 <security_checks>
-
-### OWASP Top 10
+<owasp_top_10>
 - **Injection vulnerabilities**: SQL, Command, XSS, LDAP, XML, OS command injection
 - **Broken authentication**: Weak password policies, session management, credential storage
 - **Sensitive data exposure**: Unencrypted data, weak crypto, exposed secrets
@@ -52,8 +51,9 @@ Current branch: ! `git branch --show-current`
 - **Insecure deserialization**: Unsafe object deserialization, type confusion
 - **Using components with known vulnerabilities**: Outdated dependencies, unpatched libraries
 - **Insufficient logging and monitoring**: Missing security logs, inadequate alerting
+</owasp_top_10>
 
-### Additional Security Concerns
+<additional_concerns>
 - **Hardcoded credentials or secrets**: API keys, passwords, tokens in code
 - **Insecure cryptographic practices**: Weak algorithms, improper key management, predictable randomness
 - **Input validation issues**: Missing validation, insufficient sanitization, type confusion
@@ -67,7 +67,7 @@ Current branch: ! `git branch --show-current`
 - **Open redirects**: Unvalidated redirect targets
 - **Mass assignment**: Unprotected mass parameter assignment
 - **Information disclosure**: Stack traces, debug info, verbose errors in production
-
+</additional_concerns>
 </security_checks>
 
 <output_format>

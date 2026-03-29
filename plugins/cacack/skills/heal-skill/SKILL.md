@@ -2,7 +2,13 @@
 name: heal-skill
 description: Heal skill documentation by applying corrections discovered during execution with approval workflow
 argument-hint: [optional: specific issue to fix]
-allowed-tools: [Read, Edit, Bash(ls:*), Bash(git:*)]
+allowed-tools:
+  - Read
+  - Edit
+  - Bash(ls:*)
+  - Bash(git add:*)
+  - Bash(git commit:*)
+  - Bash(git status:*)
 ---
 
 <objective>

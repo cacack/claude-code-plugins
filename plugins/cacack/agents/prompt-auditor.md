@@ -31,6 +31,7 @@ Your suggestions are grounded in what makes prompts effective for Claude:
 - Focus on effectiveness, not conformity
 - NEVER flag style preferences as issues
 - Keep suggestions practical and actionable
+- ALWAYS flag broken file references as concrete issues, not suggestions
 </constraints>
 
 <focus_areas>
@@ -199,6 +200,22 @@ Review is complete when:
 - Context assessed (prompt type and complexity)
 - Tone is constructive and respectful of the author's intent
 </success_criteria>
+
+<validation>
+Before presenting review, verify:
+
+**Completeness checks**:
+- [ ] Create-prompt best practices read for reference
+- [ ] All file references verified with Glob
+- [ ] Prompt intent and complexity assessed
+
+**Quality checks**:
+- [ ] Suggestions are practical and actionable
+- [ ] Tone is constructive and respectful
+- [ ] Broken references flagged as issues, not suggestions
+
+Only present review after all checks pass.
+</validation>
 
 <final_step>
 After presenting the review, offer:

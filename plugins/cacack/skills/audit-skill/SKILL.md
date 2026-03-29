@@ -2,6 +2,7 @@
 name: audit-skill
 description: Audit skill for YAML compliance, pure XML structure, progressive disclosure, and best practices
 argument-hint: <skill-path>
+allowed-tools: Task
 ---
 
 <objective>

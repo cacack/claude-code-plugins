@@ -3,8 +3,7 @@ name: do
 description: Execute work with selectable rigor level - vibe, meta-prompting, or speckit
 argument-hint: <issue-number-or-task-description>
 ---
-# Note: No allowed-tools restriction - this is an orchestration command
-# that delegates to other workflows requiring varied tool access.
+<!-- No allowed-tools restriction - orchestration command delegating to workflows requiring varied tool access -->
 
 <objective>
 Execute work on `$ARGUMENTS` with user-selected rigor level.
@@ -19,9 +18,7 @@ GitHub CLI: ! `which gh >/dev/null 2>&1 && echo "available" || echo "NOT INSTALL
 </context>
 
 <process>
-
-## 1. Parse Input
-
+<step_parse_input>
 Determine task type from `$ARGUMENTS`:
 - **Issue reference**: `#42`, `42`, or full URL → fetch issue details
 - **Task description**: Free text → use as-is
@@ -36,9 +33,9 @@ If issue reference detected:
    gh issue view [number] --json title,body,labels
    ```
 4. If fetch fails (invalid number, network error, auth issue), present error and ask for task description instead
+</step_parse_input>
 
-## 2. Present Rigor Options
-
+<step_present_options>
 ```
 Task: [issue title or task description]
 
@@ -50,12 +47,12 @@ Choose your approach:
 
 Pick (1-3): _
 ```
+</step_present_options>
 
-## 3. Execute Selected Approach
+<step_execute>
 
-### Option 1: Vibe It
-
-Light, iterative implementation in current session.
+<option_vibe>
+**Option 1: Vibe It** — Light, iterative implementation in current session.
 
 1. Quick codebase scan to understand relevant areas
 2. Create simple todo list with major steps
@@ -63,15 +60,11 @@ Light, iterative implementation in current session.
 4. Iterate based on what we discover
 5. When done, offer `/ship`
 
-**Characteristics:**
-- Minimal upfront planning
-- Learn by doing
-- Good for well-understood changes
-- Good for small-to-medium tasks
+Characteristics: Minimal upfront planning. Learn by doing. Good for well-understood, small-to-medium tasks.
+</option_vibe>
 
-### Option 2: Meta-prompting
-
-Present sub-choice with decision signals to help user select:
+<option_meta_prompting>
+**Option 2: Meta-prompting** — Present sub-choice with decision signals:
 
 ```
 Meta-prompting selected. What style?
@@ -87,44 +80,22 @@ Meta-prompting selected. What style?
 Pick (1-2): _
 ```
 
-**If Simple prompts (1):**
-Invoke `/create-prompt` via SlashCommand tool with task context.
+- **Simple prompts (1):** Invoke `/create-prompt` via SlashCommand tool with task context.
+- **Full pipeline (2):** Invoke `/create-prompt-pipeline` via SlashCommand tool with task context.
+</option_meta_prompting>
 
-**If Full pipeline (2):**
-Invoke `/create-prompt-pipeline` via SlashCommand tool with task context.
+<option_speckit>
+**Option 3: Speckit** — Maximum rigor with full specification workflow.
 
-### Option 3: Speckit
+1. **Specification phase:** Deep requirements analysis, edge case identification, acceptance criteria definition. Create `SPEC-[task].md`
+2. **Planning phase:** Enter plan mode with EnterPlanMode. Detailed implementation design, file-by-file change breakdown, risk assessment.
+3. **Task breakdown:** Create granular todo list. Each task is atomic and testable. Dependencies clearly marked.
+4. **Execution:** Work through tasks systematically, verify each step, document decisions.
 
-Maximum rigor with full specification workflow.
+Characteristics: Maximum upfront investment. Good for complex/risky changes and unfamiliar codebases. Creates documentation as side effect.
+</option_speckit>
 
-1. **Specification phase:**
-   - Deep requirements analysis
-   - Edge case identification
-   - Acceptance criteria definition
-   - Create `SPEC-[task].md`
-
-2. **Planning phase:**
-   - Enter plan mode with EnterPlanMode
-   - Detailed implementation design
-   - File-by-file change breakdown
-   - Risk assessment
-
-3. **Task breakdown:**
-   - Create granular todo list
-   - Each task is atomic and testable
-   - Dependencies clearly marked
-
-4. **Execution:**
-   - Work through tasks systematically
-   - Verify each step before proceeding
-   - Document decisions as we go
-
-**Characteristics:**
-- Maximum upfront investment
-- Good for complex/risky changes
-- Good for unfamiliar codebases
-- Creates documentation as side effect
-
+</step_execute>
 </process>
 
 <output>

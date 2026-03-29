@@ -19,8 +19,7 @@ Help discover the most actionable work available and smoothly hand off to approp
 </objective>
 
 <process>
-## Discovery Phase
-
+<discovery_phase>
 If an argument is provided (prompts, handoff, todos, issues, ideas), skip directly to that source type.
 
 Use Glob and Bash to discover available work sources:
@@ -31,7 +30,7 @@ Use Glob and Bash to discover available work sources:
 5. GitHub issues (use prioritized discovery below)
 6. `Glob("IDEAS.md")` - ideas backlog
 
-### Prompt Discovery
+**Prompt Discovery**
 
 Check for pending prompts that haven't been executed yet:
 
@@ -77,7 +76,7 @@ Check for pending prompts that haven't been executed yet:
    - Current execution layer (for execution groups format)
    - Remaining count
 
-### GitHub Issue Priority Discovery
+**GitHub Issue Priority Discovery**
 
 Issues with effort/value labels are prioritized first using a value/effort matrix. Issues without effort/value labels fall back to the priority ladder.
 
@@ -115,8 +114,9 @@ Issues with effort/value labels are prioritized first using a value/effort matri
    `gh issue list --limit=5 --json number,title,labels`
 
 Combine results, removing duplicates. Sort issues with effort/value labels using the matrix above, then append priority-labeled issues, then unlabeled. Present up to 5 unique issues.
+</discovery_phase>
 
-## Presentation
+<presentation>
 
 Present discovered sources in priority order:
 
@@ -147,12 +147,12 @@ Options:
 - Create a GitHub issue to track new work
 - Start working on something and /park it when done
 ```
+</presentation>
 
-## Pickup Phase
-
+<pickup_phase>
 Based on selection, read and present the work:
 
-### For Pending Prompts
+**For Pending Prompts:**
 
 1. Read batch metadata from `.prompts/.batch.json` (if exists)
 2. List pending prompts with their status:
@@ -238,7 +238,7 @@ No execution strategy recorded. How to proceed?
 5. Back to source list
 ```
 
-### For Handoff Files
+**For Handoff Files:**
 
 1. Read the selected handoff file
 2. Present summary:
@@ -261,14 +261,14 @@ No execution strategy recorded. How to proceed?
 3. If continuing: Keep handoff context loaded, begin work
 4. If deleting: `rm {handoff-file}` and return to discovery
 
-### For TODO.md
+**For TODO.md:**
 
 1. Read TODO.md
 2. Present items grouped by priority/section
 3. Let user pick specific item to work on
 4. Selected item becomes the focus
 
-### For GitHub Issues
+**For GitHub Issues:**
 
 1. Delegate to `/play` skill with issue selection, showing priority context:
    ```
@@ -289,7 +289,7 @@ No execution strategy recorded. How to proceed?
 
 2. Run `/play {issue-number}` for selected issue
 
-### For IDEAS.md
+**For IDEAS.md:**
 
 1. Read IDEAS.md
 2. Present ideas list
@@ -298,7 +298,7 @@ No execution strategy recorded. How to proceed?
    - Start working directly
    - Refine the idea first
 
-## Plugin Feature Delegation
+**Plugin Feature Delegation:**
 
 When picked-up work involves creating new plugin resources, delegate to the appropriate creation skill:
 
@@ -312,14 +312,15 @@ When picked-up work involves creating new plugin resources, delegate to the appr
 | New meta-prompt        | `/create-meta-prompt`    |
 
 These skills ensure best practices are followed and provide guided creation workflows.
+</pickup_phase>
 
-## Priority Rationale
-
+<priority_rationale>
 1. **Prompts first**: Already-created execution prompts, ready to run, may be mid-batch
 2. **Handoffs second**: Already-started work, has context, high value to continue
 3. **TO-DOS**: Committed local tasks, defined scope
 4. **GitHub issues**: Tracked, possibly assigned, team-visible
 5. **IDEAS last**: Vague concepts, need refinement before real work
+</priority_rationale>
 </process>
 
 <success_criteria>

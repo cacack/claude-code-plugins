@@ -2,6 +2,7 @@
 name: audit-claudemd
 description: Audit CLAUDE.md files for conciseness, stale references, clarity, scope, and effectiveness as Claude Code project instructions
 argument-hint: <claudemd-path>
+allowed-tools: Task
 ---
 
 <objective>

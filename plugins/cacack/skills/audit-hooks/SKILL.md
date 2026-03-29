@@ -2,6 +2,7 @@
 name: audit-hooks
 description: Audit hooks.json configuration for correctness, security, event types, matchers, and best practices
 argument-hint: <hooks-json-path>
+allowed-tools: Task
 ---
 
 <objective>

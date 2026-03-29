@@ -5,15 +5,18 @@ argument-hint: [path] [description]
 allowed-tools:
   - Read
   - Write
-  - Bash
+  - Bash(ls:*)
+  - Bash(mkdir:*)
+  - Bash(date:*)
   - Glob
   - AskUserQuestion
 ---
 
+<objective>
 Park work for later pickup with `/whats-next`. Handles both current session handoffs and cross-project idea capture.
+</objective>
 
-## Argument Parsing
-
+<argument_parsing>
 Parse `$ARGUMENTS` to determine mode:
 
 1. **No arguments**: Interactive mode - ask what to park
@@ -24,31 +27,33 @@ Detection logic:
 - If first token starts with `~/`, `/`, or `.` → it's a path, rest is description
 - Otherwise → entire argument is description for current project
 - Empty → interactive mode
+</argument_parsing>
 
-## Interactive Mode (no arguments)
-
+<interactive_mode>
 When invoked without arguments, ask the user:
 
 ```
 What are you parking?
 
-1. 📦 Current session work (continue later in this project)
-2. 💡 An idea for this project (not the current session work)
-3. 🔀 An idea for another project
+1. Current session work (continue later in this project)
+2. An idea for this project (not the current session work)
+3. An idea for another project
 
 Pick (1-3): _
 ```
 
 Based on selection:
-- **Option 1**: Proceed to Mode 1 (Session Handoff)
-- **Option 2**: Ask for brief description, then proceed to Mode 2 (Quick Idea)
-- **Option 3**: Ask for project path and description, then proceed to Mode 3 (Cross-Project)
+- **Option 1**: Proceed to session handoff
+- **Option 2**: Ask for brief description, then proceed to quick idea
+- **Option 3**: Ask for project path and description, then proceed to cross-project
+</interactive_mode>
 
-## Mode 1: Session Handoff (no arguments)
+<mode_session_handoff>
+**Mode 1: Session Handoff (no arguments)**
 
 Create comprehensive handoff capturing all session context. Use filename: `HANDOFF-session-{brief-slug}.md`
 
-**Generate detailed handoff with these sections:**
+Generate detailed handoff with these sections:
 
 ```markdown
 # Handoff: {Brief Title}
@@ -93,8 +98,10 @@ Create comprehensive handoff capturing all session context. Use filename: `HANDO
 ```
 
 After creating, confirm: `Parked session context to HANDOFF-session-{slug}.md`
+</mode_session_handoff>
 
-## Mode 2: Quick Idea Capture (description only)
+<mode_quick_idea>
+**Mode 2: Quick Idea Capture (description only)**
 
 Create lightweight handoff for an idea. Use filename: `HANDOFF-{slug-from-description}.md`
 
@@ -115,27 +122,29 @@ Create lightweight handoff for an idea. Use filename: `HANDOFF-{slug-from-descri
 ```
 
 Confirm: `Parked idea to HANDOFF-{slug}.md`
+</mode_quick_idea>
 
-## Mode 3: Cross-Project Capture (path + description)
+<mode_cross_project>
+**Mode 3: Cross-Project Capture (path + description)**
 
 Create handoff in the target project directory.
 
 1. Validate path exists: `ls -d {path}`
-2. Create `HANDOFF-{slug}.md` in that directory using Mode 2 format
+2. Create `HANDOFF-{slug}.md` in that directory using quick idea format
 3. Include cross-reference: `**From**: {current project} session`
 
 Confirm: `Parked cross-project idea to {path}/HANDOFF-{slug}.md`
+</mode_cross_project>
 
-## Slug Generation
-
+<slug_generation>
 Generate kebab-case slug from description:
 - Take first 3-5 meaningful words
 - Lowercase, replace spaces with hyphens
 - Remove special characters
 - Example: "enhance the /do command workflow" → `do-command-workflow`
+</slug_generation>
 
-## Examples
-
+<examples>
 ```bash
 # Interactive mode - asks what you're parking
 /park
@@ -150,10 +159,11 @@ Generate kebab-case slug from description:
 /park ~/other-project "integrate with this API pattern"
 → Creates ~/other-project/HANDOFF-integrate-api-pattern.md
 ```
+</examples>
 
-## Success Criteria
-
+<success_criteria>
 - Handoff file created in correct location
 - Appropriate detail level for mode (full vs quick)
 - Clear confirmation message with file path
 - File can be picked up by `/whats-next`
+</success_criteria>

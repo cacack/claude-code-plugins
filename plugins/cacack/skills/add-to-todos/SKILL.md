@@ -1,21 +1,22 @@
 ---
 name: add-to-todos
 description: Add todo item to TODO.md with context from conversation
-argument-hint: <todo-description> (optional - infers from conversation if omitted)
+argument-hint: [todo-description]
 allowed-tools:
   - Read
   - Edit
   - Write
 ---
 
-# Add Todo Item
+<objective>
+Add a structured todo item to TODO.md, either from `$ARGUMENTS` or inferred from the current conversation.
+</objective>
 
-## Context
+<context>
+Current timestamp: !`date "+%Y-%m-%d %H:%M"`
+</context>
 
-- Current timestamp: !`date "+%Y-%m-%d %H:%M"`
-
-## Instructions
-
+<process>
 1. Read TODO.md in the working directory (create with Write tool if it doesn't exist)
 
 2. Check for duplicates:
@@ -42,12 +43,12 @@ allowed-tools:
 
 5. Confirm and offer to continue with original work:
    - Identify what the user was working on before `/add-to-todos` was called
-   - Confirm the todo was saved: "✓ Saved to todos."
+   - Confirm the todo was saved: "Saved to todos."
    - Ask if they want to continue with the original work: "Would you like to continue with [original task]?"
    - Wait for user response
+</process>
 
-## Format Example
-
+<format_example>
 ```markdown
 ## Add Todo Command Improvements - 2025-11-15 14:23
 
@@ -55,3 +56,10 @@ allowed-tools:
 
 - **Create check-todos command** - Build companion command to list and select todos. **Problem:** Need workflow to review outstanding todos and load context for selected item. **Files:** `commands/check-todos.md` (new), `TODO.md` (reads from). **Solution:** Parse markdown list, display numbered list, accept selection to load full context and remove item.
 ```
+</format_example>
+
+<success_criteria>
+- Todo added to TODO.md with structured format (Problem, Files, Solution)
+- Duplicates checked before adding
+- User confirmed and offered to continue original work
+</success_criteria>

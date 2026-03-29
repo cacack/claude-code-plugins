@@ -2,6 +2,7 @@
 name: audit-prompt
 description: Review prompt files for clarity, structure, and effectiveness with constructive suggestions rather than strict compliance checks
 argument-hint: <prompt-path>
+allowed-tools: Task
 ---
 
 <objective>
