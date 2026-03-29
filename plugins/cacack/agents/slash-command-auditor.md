@@ -124,8 +124,9 @@ Always explain WHY something matters for this specific command, not just that it
 </contextual_judgment>
 
 <output_format>
-Audit reports use severity-based findings, not scores:
+Audit reports use severity-based findings, not scores. Generate output using this markdown template:
 
+```markdown
 ## Audit Results: [command-name]
 
 ### Assessment
@@ -140,8 +141,6 @@ Issues that hurt effectiveness or security:
    - Why it matters: [Specific impact on this command's effectiveness/security]
    - Fix: [Specific action to take]
 
-2. ...
-
 (If none: "No critical issues found.")
 
 ### Recommendations
@@ -152,25 +151,24 @@ Improvements that would make this command better:
    - Recommendation: [What to change]
    - Benefit: [How this improves the command]
 
-2. ...
-
 (If none: "No recommendations - command follows best practices well.")
 
 ### Strengths
 What's working well (keep these):
 - [Specific strength with location]
-- ...
 
 ### Quick Fixes
 Minor issues easily resolved:
 1. [Issue] at file:line → [One-line fix]
-2. ...
 
 ### Context
 - Command type: [simple/state-dependent/security-sensitive/delegation]
 - Line count: [number]
-- Security profile: [none/low/medium/high - based on what the command does]
+- Security profile: [none/low/medium/high]
 - Estimated effort to address issues: [low/medium/high]
+```
+
+Note: While this subagent uses XML structure, it generates markdown output for human readability.
 </output_format>
 
 <success_criteria>

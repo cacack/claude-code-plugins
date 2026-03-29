@@ -1,5 +1,5 @@
 <overview>
-This reference documents common patterns for skill authoring, including templates, examples, terminology consistency, and anti-patterns. All patterns use pure XML structure.
+This reference documents common patterns for skill authoring, including templates, examples, terminology consistency, and anti-patterns. Patterns shown use our XML structure convention; markdown equivalents are equally valid per Anthropic's standards.
 </overview>
 
 <template_pattern>
@@ -220,11 +220,10 @@ Common mistakes to avoid when authoring skills.
 </description>
 
 <pitfall name="markdown_headings_in_body">
-❌ **BAD**: Using markdown headings in skill body:
+**Our convention** (not an Anthropic requirement): We prefer XML tags over markdown headings for consistency across this plugin collection.
 
+Markdown (valid — Anthropic's default):
 ```markdown
-# PDF Processing
-
 ## Quick start
 Extract text with pdfplumber...
 
@@ -232,13 +231,8 @@ Extract text with pdfplumber...
 Form filling requires additional setup...
 ```
 
-✅ **GOOD**: Using pure XML structure:
-
+XML (our preferred convention):
 ```xml
-<objective>
-PDF processing with text extraction, form filling, and merging capabilities.
-</objective>
-
 <quick_start>
 Extract text with pdfplumber...
 </quick_start>
@@ -248,7 +242,7 @@ Form filling requires additional setup...
 </advanced_features>
 ```
 
-**Why it matters**: XML provides semantic meaning, reliable parsing, and token efficiency.
+**Why we prefer XML**: Semantic meaning, reliable parsing, and token efficiency. But markdown is not wrong.
 </pitfall>
 
 <pitfall name="vague_descriptions">
@@ -276,21 +270,21 @@ description: I can help you process Excel files and generate reports
 description: Processes Excel files and generates reports. Use when analyzing spreadsheets or .xlsx files.
 ```
 
-**Why it matters**: Skills must use third person. First/second person breaks the skill metadata pattern.
+**Why it matters**: Anthropic recommends third person for descriptions (e.g., "This skill should be used when..."). First person is never appropriate. Imperative form ("Process Excel files...") is also acceptable per Anthropic's own practice.
 </pitfall>
 
 <pitfall name="wrong_naming_convention">
-❌ **BAD**: Directory name doesn't match skill name or verb-noun convention:
+❌ **BAD**: Directory name doesn't match skill name:
 - Directory: `facebook-ads`, Name: `facebook-ads-manager`
 - Directory: `stripe-integration`, Name: `stripe`
-- Directory: `helper-scripts`, Name: `helper`
 
-✅ **GOOD**: Consistent verb-noun convention:
+✅ **GOOD**: Consistent naming (directory matches skill name):
 - Directory: `manage-facebook-ads`, Name: `manage-facebook-ads`
 - Directory: `setup-stripe-payments`, Name: `setup-stripe-payments`
-- Directory: `process-pdfs`, Name: `process-pdfs`
 
-**Why it matters**: Consistency in naming makes skills discoverable and predictable.
+**Our convention**: We prefer verb-noun names (create-*, manage-*, setup-*). Namespace prefixes (consider-*, build-*) are also acceptable. Anthropic doesn't enforce a specific naming convention beyond kebab-case.
+
+**Why it matters**: Directory name must match skill name. Consistent patterns improve discoverability.
 </pitfall>
 
 <pitfall name="too_many_options">
@@ -378,15 +372,10 @@ Review dependencies in: @ package.json (remove space after @ in actual usage)
 **Why it matters**: Without the space, these execute during skill load, causing errors or unwanted file reads.
 </pitfall>
 
-<pitfall name="missing_required_tags">
-❌ **BAD**: Missing required tags:
-```xml
-<quick_start>
-Use this tool for processing...
-</quick_start>
-```
+<pitfall name="missing_recommended_tags">
+**Our convention**: We recommend skills include `<objective>`, `<quick_start>`, and `<success_criteria>`. These are not Anthropic requirements but provide clear scope, entry points, and completion criteria.
 
-✅ **GOOD**: All required tags present:
+✅ **Recommended**: All three tags present:
 ```xml
 <objective>
 Process data files with validation and transformation.
@@ -403,11 +392,13 @@ Use this tool for processing...
 </success_criteria>
 ```
 
-**Why it matters**: Every skill must have `<objective>`, `<quick_start>`, and `<success_criteria>` (or `<when_successful>`).
+**Why we recommend this**: Every skill benefits from clear scope (objective), an entry point (quick_start), and done criteria (success_criteria). Simple skills may omit some if the content is self-evident.
 </pitfall>
 
 <pitfall name="hybrid_xml_markdown">
-❌ **BAD**: Mixing XML tags with markdown headings:
+**Our convention**: If using XML tags, be consistent — don't mix XML tags with markdown headings in the same file.
+
+❌ **Inconsistent**: Mixing approaches:
 ```markdown
 <objective>
 PDF processing capabilities
@@ -416,13 +407,9 @@ PDF processing capabilities
 ## Quick start
 
 Extract text with pdfplumber...
-
-## Advanced features
-
-Form filling...
 ```
 
-✅ **GOOD**: Pure XML throughout:
+✅ **Consistent**: Pick one approach and use it throughout:
 ```xml
 <objective>
 PDF processing capabilities
@@ -431,13 +418,9 @@ PDF processing capabilities
 <quick_start>
 Extract text with pdfplumber...
 </quick_start>
-
-<advanced_features>
-Form filling...
-</advanced_features>
 ```
 
-**Why it matters**: Consistency in structure. Either use pure XML or pure markdown (prefer XML).
+**Why it matters**: Consistency in structure within a single file. Either all XML or all markdown — don't mix.
 </pitfall>
 
 <pitfall name="unclosed_xml_tags">

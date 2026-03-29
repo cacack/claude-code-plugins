@@ -234,3 +234,31 @@ The GitHub Actions workflow automatically:
 ```
 /plugin marketplace add https://github.com/cacack/claude-code-plugins
 ```
+
+## References
+
+### Anthropic Documentation (Authoritative)
+- [Plugins reference](https://code.claude.com/docs/en/plugins-reference)
+- [Create plugins](https://code.claude.com/docs/en/plugins.md)
+- [Skills](https://code.claude.com/docs/en/skills)
+- [Subagents](https://code.claude.com/docs/en/sub-agents.md)
+- [Hooks](https://code.claude.com/docs/en/hooks-guide.md)
+- [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces.md)
+- [Best practices](https://code.claude.com/docs/en/best-practices)
+- [Context engineering guide](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+- [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
+- [Complete Guide to Building Skills (PDF)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+
+### Anthropic Official Plugins (Reference Implementations)
+- [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) — skill-creator, plugin-dev, skill-development
+- [anthropics/skills](https://github.com/anthropics/skills) — Public Agent Skills repository
+
+### Community Resources
+- [The Handyman Principle](https://vexjoy.com/posts/the-handyman-principle-why-your-ai-forgets-everything/) — context scarcity, agents/skills/plans model
+- [Claude Skills Deep Dive](https://leehanchung.github.io/blogs/2025/10/26/claude-skills-deep-dive/) — triggering uses pure language understanding
+- [Skills for Claude (blog.fsck.com)](https://blog.fsck.com/2025/10/16/skills-for-claude/) — separate "what" from "when"; hiding detail improves compliance
+
+### Important Distinction
+Our skill conventions (XML structure, required tags, verb-noun naming) go beyond Anthropic's requirements. Anthropic's own skills use plain markdown. Our conventions provide consistency and parseability benefits but are **our recommendations, not Anthropic requirements**. See `create-agent-skills/references/` for details.
+
+Last audited: 2026-03-28 (v1.18.0)

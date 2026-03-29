@@ -1,13 +1,19 @@
 <overview>
-Skills use pure XML structure for consistent parsing, efficient token usage, and improved Claude performance. This reference defines the required and conditional XML tags for skill authoring, along with intelligence rules for tag selection.
+This reference defines our recommended XML tag conventions for skill authoring. These are **our project conventions**, not Anthropic requirements. Anthropic's own skills use plain markdown. We recommend XML structure for its consistency, parseability, and token efficiency benefits, but markdown-based skills are equally valid.
 </overview>
 
-<critical_rule>
-**Remove ALL markdown headings (#, ##, ###) from skill body content.** Replace with semantic XML tags. Keep markdown formatting WITHIN content (bold, italic, lists, code blocks, links).
-</critical_rule>
+<important_distinction>
+**Anthropic requires**: SKILL.md with YAML frontmatter (`name`, `description`). That's it. No body format requirement.
 
-<required_tags>
-Every skill MUST have these three tags:
+**Our convention**: XML tags in skill bodies for consistency across this plugin collection. This is a recommendation with real benefits, not a hard requirement. Skills using markdown headings are not "broken" — they just don't follow our preferred pattern.
+</important_distinction>
+
+<recommendation>
+**Prefer XML tags over markdown headings in skill body content.** XML provides semantic meaning, unambiguous boundaries, and token efficiency. Keep markdown formatting WITHIN content (bold, italic, lists, code blocks, links).
+</recommendation>
+
+<recommended_tags>
+We recommend skills have these three tags:
 
 <tag name="objective">
 **Purpose**: What the skill does and why it matters. Sets context and scope.
@@ -61,7 +67,7 @@ A well-structured skill has:
 </success_criteria>
 ```
 </tag>
-</required_tags>
+</recommended_tags>
 
 <conditional_tags>
 Add these tags based on skill complexity and domain requirements:
@@ -353,13 +359,11 @@ Be consistent within your skill. If you use `<workflow>`, don't also use `<proce
 </tag_naming>
 </nesting_guidelines>
 
-<anti_pattern>
-**DO NOT use markdown headings in skill body content.**
+<style_comparison>
+**We recommend XML tags over markdown headings for consistency across this collection.**
 
-❌ Bad (hybrid approach):
+Markdown (Anthropic's default — perfectly valid):
 ```markdown
-# PDF Processing
-
 ## Quick start
 
 Extract text with pdfplumber...
@@ -369,8 +373,8 @@ Extract text with pdfplumber...
 Form filling...
 ```
 
-✅ Good (pure XML):
-```markdown
+XML (our convention — better parseability and consistency):
+```xml
 <objective>
 PDF processing with text extraction, form filling, and merging.
 </objective>
@@ -383,7 +387,9 @@ Extract text with pdfplumber...
 Form filling...
 </advanced_features>
 ```
-</anti_pattern>
+
+Both approaches work. XML provides the benefits listed below but is not required by Anthropic.
+</style_comparison>
 
 <benefits>
 <benefit type="clarity">

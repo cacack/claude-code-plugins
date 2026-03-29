@@ -148,17 +148,20 @@ hooks:                                   # Scoped lifecycle hooks
 
 <description_field>
 **Validation rules**:
-- Non-empty, maximum 1024 characters
+- Non-empty, maximum 1024 characters (truncated at 250 chars in skill listing)
 - No XML tags
-- Third person (never first or second person)
+- Third person or imperative form (both acceptable per Anthropic's practice). Never first person.
 - Include what it does AND when to use it
+- Front-load the key use case in the first 250 characters
 
-**Critical rule**: Always write in third person.
-- ✅ "Processes Excel files and generates reports"
-- ❌ "I can help you process Excel files"
-- ❌ "You can use this to process Excel files"
+**From Anthropic's skill-creator**: Make descriptions "a little bit pushy" because Claude tends to undertrigger skills. Don't just describe — actively encourage activation.
 
-**Structure**: Include both capabilities and triggers.
+**Acceptable POV styles**:
+- ✅ Third person: "Processes Excel files and generates reports"
+- ✅ Imperative: "Process Excel files and generate reports"
+- ❌ First person: "I can help you process Excel files"
+
+**Structure**: Include both capabilities and trigger phrases.
 
 **Effective examples**:
 ```yaml
@@ -166,11 +169,7 @@ description: Extract text and tables from PDF files, fill forms, merge documents
 ```
 
 ```yaml
-description: Analyze Excel spreadsheets, create pivot tables, generate charts. Use when analyzing Excel files, spreadsheets, tabular data, or .xlsx files.
-```
-
-```yaml
-description: Generate descriptive commit messages by analyzing git diffs. Use when the user asks for help writing commit messages or reviewing staged changes.
+description: This skill should be used when the user asks to 'analyze a spreadsheet', 'create pivot tables', or mentions .xlsx files. Processes Excel files and generates reports.
 ```
 
 **Avoid**:
@@ -395,21 +394,25 @@ Keep references one level deep from SKILL.md. Claude may only partially read nes
 Always use forward slashes: `scripts/helper.py` (not `scripts\helper.py`)
 </pitfall>
 
-<pitfall name="missing_required_tags">
-Every skill must have: `<objective>`, `<quick_start>`, and `<success_criteria>` (or `<when_successful>`).
+<pitfall name="missing_recommended_tags">
+We recommend skills include: `<objective>`, `<quick_start>`, and `<success_criteria>`. These are our convention, not Anthropic requirements. Simple skills may omit some if the content is self-evident.
 </pitfall>
 </anti_patterns>
 
 <validation_checklist>
 Before finalizing a skill, verify:
 
-- ✅ YAML frontmatter valid (name matches directory, description in third person)
-- ✅ No markdown headings in body (pure XML structure)
-- ✅ Required tags present: objective, quick_start, success_criteria
-- ✅ Conditional tags appropriate for complexity level
-- ✅ All XML tags properly closed
-- ✅ Progressive disclosure applied (SKILL.md < 500 lines)
-- ✅ Reference files use pure XML structure
+**Anthropic standards**:
+- ✅ YAML frontmatter valid (name matches directory, description present and specific)
+- ✅ Description includes trigger phrases and is "a little bit pushy"
+- ✅ Progressive disclosure applied (SKILL.md < 500 lines / 1,500-2,000 words ideal)
 - ✅ File paths use forward slashes
+- ✅ References one level deep from SKILL.md
+
+**Our conventions** (recommended):
+- ✅ Consistent body structure (pure XML or pure markdown, not mixed)
+- ✅ Recommended tags present: objective, quick_start, success_criteria
+- ✅ Conditional tags appropriate for complexity level
+- ✅ If using XML: all tags properly closed
 - ✅ Descriptive file names
 </validation_checklist>

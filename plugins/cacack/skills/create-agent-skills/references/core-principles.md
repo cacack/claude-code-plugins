@@ -1,10 +1,10 @@
 <overview>
-Core principles guide skill authoring decisions. These principles ensure skills are efficient, effective, and maintainable across different models and use cases.
+Core principles guide skill authoring decisions. These principles blend Anthropic's official guidance with our project conventions. Where noted, some principles are our recommendations that go beyond Anthropic's requirements.
 </overview>
 
 <xml_structure_principle>
 <description>
-Skills use pure XML structure for consistent parsing, efficient token usage, and improved Claude performance.
+**Our convention** (not an Anthropic requirement): We recommend XML tags in skill bodies for consistent parsing, efficient token usage, and improved Claude performance. Anthropic's own skills use plain markdown, which is equally valid. Anthropic does recommend XML tags for structuring prompts in general (see their prompting best practices).
 </description>
 
 <why_xml>
@@ -59,22 +59,22 @@ Claude performs better with pure XML because:
 - Consistent structure across skills reduces cognitive load
 - Progressive disclosure works more reliably
 
-Pure XML structure is not just a style preference—it's a performance optimization.
+XML structure provides real benefits for consistency and parseability. Note: Anthropic recommends XML tags for prompt structuring in general, but does not require them specifically for SKILL.md files.
 </claude_performance>
 </why_xml>
 
-<critical_rule>
-**Remove ALL markdown headings (#, ##, ###) from skill body content.** Replace with semantic XML tags. Keep markdown formatting WITHIN content (bold, italic, lists, code blocks, links).
-</critical_rule>
+<recommendation>
+**Prefer XML tags over markdown headings in skill body content.** XML provides semantic meaning, unambiguous boundaries, and token efficiency. This is our convention for consistency across this plugin collection.
+</recommendation>
 
-<required_tags>
-Every skill MUST have:
+<recommended_tags>
+We recommend skills include:
 - `<objective>` - What the skill does and why it matters
 - `<quick_start>` - Immediate, actionable guidance
 - `<success_criteria>` or `<when_successful>` - How to know it worked
 
-See [use-xml-tags.md](use-xml-tags.md) for conditional tags and intelligence rules.
-</required_tags>
+These are our conventions, not Anthropic requirements. See [use-xml-tags.md](use-xml-tags.md) for conditional tags and intelligence rules.
+</recommended_tags>
 </xml_structure_principle>
 
 <conciseness_principle>
@@ -410,9 +410,61 @@ See [workflows-and-validation.md](workflows-and-validation.md) for validation pa
 </characteristics>
 </validation_principle>
 
+<description_optimization_principle>
+<description>
+**From Anthropic's skill-creator**: The description field is the #1 lever for skill effectiveness. It controls when Claude activates the skill.
+</description>
+
+<make_descriptions_pushy>
+From Anthropic: "Make descriptions a little bit pushy" because Claude tends to undertrigger skills. Don't just describe what the skill does — actively encourage activation.
+
+❌ Passive: `"Processes Excel files"`
+✅ Pushy: `"Processes Excel files and generates reports. Use when analyzing spreadsheets, .xlsx files, or tabular data. This skill should be used even if the user doesn't explicitly mention Excel."`
+
+Include specific trigger phrases users would say. Front-load the key use case (truncated at 250 chars in the listing).
+</make_descriptions_pushy>
+
+<eval_driven_optimization>
+From Anthropic's skill-creator, for high-value skills:
+1. Create 5-10 test queries (mix of should-trigger and should-not-trigger)
+2. Run Claude with the skill installed
+3. Score trigger accuracy
+4. Iterate on the description until accuracy is high
+5. Generalize from feedback — don't overfit to test cases
+</eval_driven_optimization>
+</description_optimization_principle>
+
+<explain_why_principle>
+<description>
+**From Anthropic's prompting guide and skill-creator**: Explain the *why* behind instructions rather than using heavy-handed constraints.
+</description>
+
+<guidance>
+"If you find yourself writing ALWAYS or NEVER in all caps, that's a yellow flag — reframe and explain the reasoning so that the model understands why." — Anthropic skill-creator
+
+❌ Heavy-handed: `"NEVER use markdown headings. ALWAYS use XML tags."`
+✅ Explain why: `"Prefer XML tags over markdown headings — they provide unambiguous section boundaries and semantic meaning, which improves parsing reliability."`
+
+Tell Claude what to do, not what not to do. Provide reasoning so Claude can handle edge cases intelligently rather than following brittle rules.
+</guidance>
+</explain_why_principle>
+
+<word_count_principle>
+<description>
+**From Anthropic's skill-development guide**: SKILL.md body should be 1,500-2,000 words ideal, under 3,000 words max, under 5,000 words absolute max.
+</description>
+
+<guidance>
+- Under 500 lines (our convention) aligns with Anthropic's guidance
+- 10 skills at 2,000 tokens each ≈ 5% of context (acceptable overhead)
+- For large reference files (>10K words), include grep search patterns in SKILL.md so Claude can search rather than loading everything
+- Keep it lean — "look for repeated work across test runs and bundle common scripts"
+</guidance>
+</word_count_principle>
+
 <principle_summary>
 <xml_structure>
-Use pure XML structure for consistency, parseability, and Claude performance. Required tags: objective, quick_start, success_criteria.
+Prefer XML structure for consistency, parseability, and Claude performance. Recommended tags: objective, quick_start, success_criteria. (Our convention — Anthropic's own skills use markdown.)
 </xml_structure>
 
 <conciseness>
