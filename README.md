@@ -53,7 +53,8 @@ claude plugin install cacack
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 - `panel-review` - Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against a branch, PR, or commit range
 - `panel-engineering` - Multi-persona engineering-health review of the whole repo (quarterly). Spawns 5 senior personas (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured snapshot, produces per-persona reports plus synthesis and proposed-issue drafts, optionally files the issues
-- `charter` - Author or refresh a project's `CONSTITUTION.md` (mission, audience, principles, non-goals, success criteria). Auto-detects bootstrap vs refresh mode; in refresh mode produces a drift report before updating. Required input for the planned `panel-product` skill
+- `charter` - Author or refresh a project's `CONSTITUTION.md` (mission, audience, principles, non-goals, success criteria). Auto-detects bootstrap vs refresh mode; in refresh mode produces a drift report before updating. Required input for `panel-product`
+- `panel-product` - Multi-persona strategic-alignment review against `CONSTITUTION.md` (quarterly). Spawns 5 senior personas (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel; produces per-persona reports plus synthesis and proposed-issue drafts, optionally files the issues. Requires `CONSTITUTION.md` — run `charter` first if absent
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
@@ -97,6 +98,13 @@ Engineering-panel subagents (invoked in parallel by the `panel-engineering` skil
 - `engineering-ops-sre` - Operability: observability, deployability, runbooks, failure modes, CI/CD health
 - `engineering-dx` - Developer experience: onboarding, build/test ergonomics, docs, contributor path
 - `engineering-maintainability` - Long-term carrying cost: test coverage patterns, convention drift, dead code, refactor debt
+
+Product-panel subagents (invoked in parallel by the `panel-product` skill):
+- `product-mission` - Mission alignment: observed activity vs. stated mission, audience-fit, scope discipline, principle adherence
+- `product-market` - Market positioning: differentiation, competitive context, category fit, clarity of value proposition (scale-aware)
+- `product-roadmap` - Roadmap coherence: open issues/milestones vs. stated direction, non-goal discipline, resource alignment
+- `product-audience` - Audience experience: friction at the value moment, unmet needs, surface-level audience-fit (distinct from `engineering-dx`)
+- `product-trust` - Trust signals: promise vs. reality, transparency, expectation-setting, accountability signals
 
 ### Hooks
 
