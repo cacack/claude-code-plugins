@@ -53,6 +53,7 @@ claude plugin install cacack
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 - `panel-review` - Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against a branch, PR, or commit range
 - `panel-engineering` - Multi-persona engineering-health review of the whole repo (quarterly). Spawns 5 senior personas (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured snapshot, produces per-persona reports plus synthesis and proposed-issue drafts, optionally files the issues
+- `charter` - Author or refresh a project's `CONSTITUTION.md` (mission, audience, principles, non-goals, success criteria). Auto-detects bootstrap vs refresh mode; in refresh mode produces a drift report before updating. Required input for the planned `panel-product` skill
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
