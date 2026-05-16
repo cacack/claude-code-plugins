@@ -52,6 +52,7 @@ claude plugin install cacack
 - `issue-compliance` - Verify staged changes satisfy linked issue requirements with coverage scoring
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 - `panel-review` - Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against a branch, PR, or commit range
+- `panel-engineering` - Multi-persona engineering-health review of the whole repo (quarterly). Spawns 5 senior personas (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured snapshot, produces per-persona reports plus synthesis and proposed-issue drafts, optionally files the issues
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
@@ -88,6 +89,13 @@ Reviewer subagents (invoked in parallel by the `panel-review` skill):
 - `reviewer-performance` - Spots hot-path costs: complexity, allocations, lock contention, leaks
 - `reviewer-ergonomics` - Caller-perspective review of public APIs, contracts, error messages, breaking changes
 - `reviewer-security` - Diff-focused security review for injection, auth gaps, secrets, unsafe defaults
+
+Engineering-panel subagents (invoked in parallel by the `panel-engineering` skill):
+- `engineering-architect` - Whole-repo architecture: module boundaries, coupling, layering, scalability shape
+- `engineering-security` - Whole-repo security posture: secrets handling, dependency hygiene, threat surface, SECURITY.md adequacy
+- `engineering-ops-sre` - Operability: observability, deployability, runbooks, failure modes, CI/CD health
+- `engineering-dx` - Developer experience: onboarding, build/test ergonomics, docs, contributor path
+- `engineering-maintainability` - Long-term carrying cost: test coverage patterns, convention drift, dead code, refactor debt
 
 ### Hooks
 
