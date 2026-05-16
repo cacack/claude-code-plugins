@@ -51,6 +51,7 @@ claude plugin install cacack
 - `preflight-checks` - Run project-defined code quality checks (make lint/test/security) before shipping
 - `issue-compliance` - Verify staged changes satisfy linked issue requirements with coverage scoring
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
+- `panel-review` - Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against a branch, PR, or commit range
 
 #### Decision-Making Frameworks (consider/)
 - `consider:10-10-10` - Evaluate decisions across three time horizons (10 minutes, 10 months, 10 years)
@@ -80,6 +81,13 @@ claude plugin install cacack
 - `skill-auditor` - Specialized agent for auditing skill quality and structure
 - `slash-command-auditor` - Specialized agent for auditing slash command implementations
 - `subagent-auditor` - Specialized agent for auditing subagent definitions
+
+Reviewer subagents (invoked in parallel by the `panel-review` skill):
+- `reviewer-skeptic` - Adversarial bug-hunter focused on edge cases and error-handling gaps
+- `reviewer-maintainer` - Reviews internal naming, structure, test adequacy, convention drift
+- `reviewer-performance` - Spots hot-path costs: complexity, allocations, lock contention, leaks
+- `reviewer-ergonomics` - Caller-perspective review of public APIs, contracts, error messages, breaking changes
+- `reviewer-security` - Diff-focused security review for injection, auth gaps, secrets, unsafe defaults
 
 ### Hooks
 
