@@ -1,7 +1,7 @@
 ---
 name: ship
 description: Intelligently commit and ship changes with preflight checks, issue compliance, and documentation review
-argument-hint: [commit message] [--quick] [--no-bump]
+argument-hint: "[commit message] [--quick] [--no-bump]"
 allowed-tools:
   - Read
   - Edit

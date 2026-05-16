@@ -1,7 +1,7 @@
 ---
 name: park
 description: Park current session context or capture cross-project ideas for later pickup
-argument-hint: [path] [description]
+argument-hint: "[path] [description]"
 allowed-tools:
   - Read
   - Write
