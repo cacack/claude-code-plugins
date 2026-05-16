@@ -1,7 +1,7 @@
 ---
 name: panel-review
 description: Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against the current branch diff (default), a GitHub PR, or a commit range. Use whenever the user asks for a code review, panel review, or PR review and you want a structured multi-angle pass without depending on external tools like CodeRabbit.
-argument-hint: [<pr-number> | <commit-range>]
+argument-hint: "[<pr-number> | <commit-range>]"
 allowed-tools: Task, Read, Write, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(mktemp:*)
 effort: high
 ---
