@@ -34,6 +34,7 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
 | `--mode=bootstrap` | Force bootstrap mode; warn if file exists and require confirmation before overwriting |
 | `--mode=refresh` | Force refresh mode; abort if file doesn't exist |
 | `--no-interview` | In bootstrap, skip section-by-section confirmation; present the full draft once for accept/edit/discard |
+| `--allow-principle-changes` | In refresh, skip the extra confirmation gate when proposed updates touch the Principles section. Use after you've deliberately weighed the principle change |
 </arguments>
 
 <workflow>
@@ -98,7 +99,17 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
       - **Pick a subset** — show numbered list of proposed updates; user selects indices
       - **Skip** — leave CONSTITUTION.md unchanged; drift report persists
 
-   4e. **Apply updates.** Use `Edit` to make the selected changes section by section. Update the `*Last refreshed*` footer to today's date. If applying any updates, show the user a diff summary at the end.
+   4e. **Principle-change gate.** Before applying, check whether any selected update has `**Section:** Principles`.
+      - If no principle changes are in the selection → proceed directly to 4f.
+      - If principle changes are selected AND `--allow-principle-changes` was supplied → proceed directly to 4f.
+      - Otherwise, prompt via AskUserQuestion:
+        - **Apply all selected updates** — including the principle change(s); proceed
+        - **Skip just the principle change(s)** — drop the Principles items, apply the rest
+        - **Cancel** — apply nothing
+
+      Rationale: principles are the project's foundational tradeoff choices and should change rarely. Mission/Audience/Non-Goals/Success Criteria can reasonably evolve as context shifts and don't need this gate.
+
+   4f. **Apply updates.** Use `Edit` to make the (possibly-filtered) selected changes section by section. Update the `*Last refreshed*` footer to today's date. If applying any updates, show the user a diff summary at the end.
 
 5. **Final summary.** Print:
    - Mode used (bootstrap or refresh)
@@ -197,6 +208,7 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 - Bootstrap with `--mode=bootstrap` warns before overwriting an existing file
 - `*Last refreshed*` footer updated on any successful write
 - Drift report persisted to `docs/reviews/charter/<date>-drift.md` regardless of whether updates were applied
+- Refresh-mode updates that touch the Principles section trigger an extra confirmation gate unless `--allow-principle-changes` was supplied; users can also choose "skip principle changes only" to apply other selected updates without the principle edit
 </success_criteria>
 
 <examples>
@@ -212,12 +224,16 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 
 # Auto-draft without the interview (fast first pass to iterate on)
 /cacack:charter --no-interview
+
+# Refresh and pre-authorize principle updates (skip the extra gate)
+/cacack:charter --allow-principle-changes
 ```
 </examples>
 
 <notes>
 - The constitution is intentionally small (one screen). If it grows beyond that, the additions probably belong in ARCHITECTURE.md, ROADMAP.md, or a design doc — not here.
 - Principles framed as platitudes ("be excellent", "users first") are noise. Framed as tradeoffs ("simplicity over completeness") they constrain decisions. The bootstrap interview should push toward the tradeoff framing.
+- **Principles are gated, other sections aren't.** Mission, Audience, Non-Goals, and Success Criteria reasonably evolve as context shifts and update under normal confirmation. Principles capture foundational tradeoff choices and trigger an extra confirmation in refresh mode (override with `--allow-principle-changes`). This is convention enforced by the tool, not by file structure — direct `Edit` on `CONSTITUTION.md` bypasses the gate, as does any approach. The friction lives at the most common edit path (the refresh skill).
 - The drift report is more valuable than the update itself in many cases — it surfaces the gap between stated and actual intent. Skipping the update but reading the drift report is a legitimate use mode.
-- Once the planned `panel-product` skill exists, it will read `CONSTITUTION.md` as its scoring rubric. A weak constitution will produce a weak product review; a clear, opinionated constitution will produce a sharp one.
+- `panel-product` reads `CONSTITUTION.md` as its scoring rubric. A weak constitution will produce a weak product review; a clear, opinionated constitution will produce a sharp one.
 </notes>
