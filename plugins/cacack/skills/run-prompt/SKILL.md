@@ -11,11 +11,16 @@ Execute one or more prompts from `.prompts/` as delegated sub-tasks with fresh c
 <input>
 The user will specify which prompt(s) to run via $ARGUMENTS, which can be:
 
+**Empty arguments (most common after /play):**
+
+- If `.prompts/.batch.json` exists and has incomplete prompts → execute the batch's DAG (preferred)
+- Otherwise → fall back to the most recently created prompt (legacy single-prompt mode)
+- If both are absent → report no prompts found
+
 **Single prompt:**
 
-- Empty (no arguments): Run the most recently created prompt (default behavior)
 - A prompt number (e.g., "001", "5", "42")
-- A partial filename (e.g., "user-auth", "dashboard")
+- A partial filename or folder name (e.g., "user-auth", "dashboard")
 
 **Multiple prompts:**
 
@@ -31,6 +36,7 @@ Parse $ARGUMENTS to extract:
 - Execution strategy flag (--parallel or --sequential)
 
 <examples>
+- (empty) → Detect `.batch.json`; if present and has incomplete prompts, dispatch DAG; else fall back to last-single
 - "005" → Single prompt: 005
 - "005 006 007" → Multiple prompts: [005, 006, 007], strategy: from .batch.json or sequential (default)
 - "005 006 007 --parallel" → Multiple prompts: [005, 006, 007], strategy: parallel (explicit)
@@ -47,14 +53,16 @@ If no explicit strategy flag provided, check for `.prompts/.batch.json`:
    - **Execution groups format**: Has `execution` array → use layered execution
 3. If not found, default to `sequential` for safety
 
-**Simple format:**
+**Entry format:** Prompts in the `prompts` and `completed` arrays are referenced by **basename** — either the folder name (subdirectory layout, e.g. `"001-auth-research"`) or the filename without/with `.md` (flat-file layout, e.g. `"005-feature"`). The resolver (`step2_resolve_files`) accepts all three forms. When writing back to `completed`, preserve the form that was used in `prompts`.
+
+**Simple format (subdirectory layout, preferred):**
 ```json
 {
   "created": "2025-01-02T10:30:00Z",
   "strategy": "sequential",
-  "source": "/do #42",
-  "prompts": ["001-setup-database.md", "002-create-api.md", "003-add-tests.md"],
-  "completed": ["001-setup-database.md"]
+  "source": "/play #42",
+  "prompts": ["001-setup-database", "002-create-api", "003-add-tests"],
+  "completed": ["001-setup-database"]
 }
 ```
 
@@ -62,31 +70,36 @@ If no explicit strategy flag provided, check for `.prompts/.batch.json`:
 ```json
 {
   "created": "2025-01-02T10:30:00Z",
-  "source": "/do #42",
+  "source": "/play #42",
   "execution": [
-    {"strategy": "parallel", "prompts": ["001-api-research.md", "002-db-research.md"]},
-    {"strategy": "sequential", "prompts": ["003-architecture-plan.md"]},
-    {"strategy": "parallel", "prompts": ["004-implement-api.md", "005-implement-db.md"]}
+    {"strategy": "parallel", "prompts": ["001-api-research", "002-db-research"]},
+    {"strategy": "sequential", "prompts": ["003-architecture-plan"]},
+    {"strategy": "parallel", "prompts": ["004-implement-api", "005-implement-db"]}
   ],
-  "completed": ["001-api-research.md", "002-db-research.md"]
+  "completed": ["001-api-research", "002-db-research"]
 }
 ```
 </step1_5_check_batch_metadata>
 
 <step2_resolve_files>
-For each prompt number/name:
+**Empty / "last":** First check for `.prompts/.batch.json` per step1_5 (DAG dispatch path). Only if no batch exists, fall back to most-recent single prompt — search both layouts and prefer the more recent:
+- Subdirectory: `ls -td .prompts/*/ 2>/dev/null | grep -v completed | head -1`
+- Flat file: `ls -t .prompts/*.md 2>/dev/null | head -1`
 
-- If empty or "last": Find with `!ls -t .prompts/*.md | head -1`
-- If a number: Find file matching that zero-padded number (e.g., "5" matches "005-_.md", "42" matches "042-_.md")
-- If text: Find files containing that string in the filename
+**Number (e.g., "5", "42"):** Find a matching prompt across both layouts using the zero-padded prefix:
+- Subdirectory match: `.prompts/005-*/` → inner file `.prompts/005-*/005-*.md`
+- Flat-file match: `.prompts/005-*.md`
+
+**Text (e.g., "user-auth"):** Same dual search by substring in folder/file name.
+
+**Basename entry from .batch.json (e.g., "001-auth-research"):** Resolve to either the subdirectory's inner file or a flat `.md` of the same basename.
 
 <matching_rules>
-
 - If exactly one match found: Use that file
 - If multiple matches found: List them and ask user to choose
 - If no matches found: Report error and list available prompts
-  </matching_rules>
-  </step2_resolve_files>
+</matching_rules>
+</step2_resolve_files>
 
 <step3_execute>
 <archiving_logic>
@@ -163,16 +176,16 @@ When `.batch.json` contains an `execution` array, execute layer by layer:
 
 **Example execution flow for groups:**
 ```
-Layer 1 [parallel]: 001-api-research.md, 002-db-research.md
+Layer 1 [parallel]: 001-api-research, 002-db-research
   → Spawn both Task tools in single message
   → Wait for both to complete
   → Archive both, update completed array
 
-Layer 2 [sequential]: 003-architecture-plan.md
+Layer 2 [sequential]: 003-architecture-plan
   → Execute single prompt
   → Archive, update completed array
 
-Layer 3 [parallel]: 004-implement-api.md, 005-implement-db.md
+Layer 3 [parallel]: 004-implement-api, 005-implement-db
   → Spawn both Task tools in single message
   → Wait for both to complete
   → Archive both, update completed array
@@ -180,7 +193,7 @@ Layer 3 [parallel]: 004-implement-api.md, 005-implement-db.md
 </execution_groups>
 
 <batch_metadata_update>
-When updating `.prompts/.batch.json`, read the current file, add the completed prompt filename to the `completed` array, and write it back. This enables `/whats-next` to show accurate progress and resume from the correct point if interrupted.
+When updating `.prompts/.batch.json`, read the current file, add the completed prompt's basename to the `completed` array, and write it back. Use the same form (folder name vs `.md` filename) as the corresponding entry in the `prompts` array — do not mix forms within one batch. This enables `/whats-next` to show accurate progress and resume from the correct point if interrupted.
 </batch_metadata_update>
     </step3_execute>
     </process>
