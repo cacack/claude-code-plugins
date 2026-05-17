@@ -36,6 +36,7 @@ Hunt specifically for:
 - Optional behavior controlled by struct fields that have non-obvious defaults
 - Pointer-vs-value receivers, by-pointer-vs-by-value parameters that imply ownership/mutation differently than reality
 - `error` returns where the error type/wrapping isn't documented (can the caller `errors.Is` against a sentinel?)
+- **Result-set validity.** When a function returns a collection of identifiers, check whether the function's contract guarantees that every element is valid by the same lookup the caller will use. Example: a function returning a `[]string` of XRefs should typically guarantee that each XRef resolves; if it doesn't, the caller has to defensively re-validate every result, and the contract is leaky.
 
 **Error messages:**
 - Errors that say "invalid input" without saying *what* was invalid or how to fix it

@@ -44,6 +44,7 @@ Hunt specifically for:
 - Branches that look unreachable but aren't, or are reachable but don't handle the input
 - Recursion without base case or with stack-growth potential
 - Functions that mutate a parameter they shouldn't, or fail to mutate one they should
+- **Asymmetric guard clauses.** For every input-filtering guard you find (e.g., `if !isShape(x) { skip }`, `if x == ""  { return }`), check whether the same guard fires on *other* input paths in the same function that handle the same kind of value. If one path filters and another doesn't, ask whether the asymmetry is intentional. Filtering at collection time but not at boundary validation is a common shape of bug — e.g., a function that validates seeds at the boundary AND walks transitively from seeds, but applies a shape-filter only to walked refs and not to seeds, will silently drop malformed callers' input.
 
 **Test gaps directly tied to defects:**
 - Code path you suspect is buggy that has no test exercising it
