@@ -131,10 +131,12 @@ Where `panel-engineering` asks "is this project in good shape?", this skill asks
    - Verify the output file was written and ends with `### Summary counts`.
    - If missing, send one SendMessage continuation; if still missing, mark "⚠️ <persona> truncated" for synthesis.
 
-6. **Synthesis pass (inline, no extra subagent).** Read all persona files. Write `<output_folder>/synthesis.md`:
+6. **Synthesis pass (inline, no extra subagent).** Read all persona files that were actually written this run. Write `<output_folder>/synthesis.md`:
 
    ```markdown
    # Strategic Panel Synthesis — <YYYY-MM-DD>
+
+   <If `--personas` was used to run a subset, add a one-line note here naming the personas that ran and noting that themes are based on a partial sample.>
 
    ## Constitution under review
    <one-paragraph excerpt or summary of CONSTITUTION.md so the synthesis is self-contained>
@@ -144,6 +146,8 @@ Where `panel-engineering` asks "is this project in good shape?", this skill asks
    |---------|---------|--------------------|
    | Mission Steward | aligned/drifting/misaligned | ... |
    | ... | ... | ... |
+
+   <Always show all 5 personas in the table; mark skipped ones explicitly as "(not run this pass)" rather than omitting the row.>
 
    ## Cross-cutting themes
    Themes flagged by 2+ personas. Each names the personas and points to relevant findings.
@@ -155,15 +159,19 @@ Where `panel-engineering` asks "is this project in good shape?", this skill asks
    One paragraph: where the project is on-mission, where it's drifting, where it's contradicting itself.
 
    ## Constitution suggestions
-   (Only if personas surface that the constitution itself should be updated — e.g., reality has moved past stated direction in a healthy way. Cross-references the planned `charter --mode=refresh` action.)
+   (Only if personas surface that the constitution itself should be updated — e.g., reality has moved past stated direction in a healthy way. Cross-references the `charter --mode=refresh` action.)
 
    ## Truncated personas
-   (Only if any persona could not produce a complete report after the continuation retry.)
+   (Only if any persona could not produce a complete report after the continuation retry. Distinct from "skipped via --personas", which goes in the header note above.)
    ```
 
 7. **Draft proposed issues.** Skip if `--skip-issues`.
 
-   For each `critical` or `high` finding in `synthesis.md`:
+   Draft an issue for each:
+   - Finding rated `critical` or `high` (single persona is enough)
+   - Cross-flagged `medium` finding (flagged by 2+ personas — strategic-alignment panels rarely surface HIGH, so cross-flagged MEDIUMs are the highest-leverage actionable items in practice)
+
+   For each drafted issue:
    - Title (imperative, scoped)
    - Body: problem statement + which constitution section it relates to + which persona(s) flagged + suggested approach
    - 1–2 suggested labels (e.g., `strategic-alignment`, persona name, or area like `roadmap`)

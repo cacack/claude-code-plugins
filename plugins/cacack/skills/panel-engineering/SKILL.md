@@ -57,8 +57,16 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    - Origin: <origin URL or "none">
    - Generated: <timestamp>
 
-   ## Top-level tree (2 levels deep)
-   <output of: find . -maxdepth 2 -not -path '*/\.*' -not -path '*/node_modules/*' -not -path '*/vendor/*' | sort | head -200>
+   ## Top-level tree (depth 3, with container dirs expanded)
+   <output of: find . -maxdepth 3 -not -path '*/\.*' -not -path '*/node_modules/*' -not -path '*/vendor/*' -not -path '*/.git/*' | sort | head -300>
+
+   <if any of these container dirs appear at top level — `plugins/`, `packages/`, `apps/`, `services/`, `crates/`, `modules/`, `workspaces/` — descend one level deeper for them so the real subsystem layout is visible. Example: `find plugins -maxdepth 3 -type d | sort` appended below the tree.>
+
+   ## Resource counts (where applicable)
+   <if directories like skills/, agents/, packages/, apps/, components/, hooks/ exist anywhere in the tree, count their immediate children. Example:
+   - `plugins/cacack/skills/` — 36 subdirectories
+   - `plugins/cacack/agents/` — 24 .md files
+   This signals scale that a tree listing alone underreports.>
 
    ## Language footprint
    <small table of file counts by extension for top ~10 extensions>
@@ -138,16 +146,20 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
 
    - Apply at most **once per subagent**. If still missing after the retry, record a "⚠️ <persona> truncated" note for the synthesis step rather than dropping the persona.
 
-6. **Synthesis pass (inline, no extra subagent).** Read all persona output files. Produce `<output_folder>/synthesis.md`:
+6. **Synthesis pass (inline, no extra subagent).** Read all persona output files that were actually written this run. Produce `<output_folder>/synthesis.md`:
 
    ```markdown
    # Engineering Panel Synthesis — <YYYY-MM-DD>
+
+   <If `--personas` was used to run a subset, add a one-line note here naming the personas that ran and noting that themes are based on a partial sample.>
 
    ## Per-persona verdicts
    | Persona | Verdict | Findings (C/H/M/L) |
    |---------|---------|--------------------|
    | Architect | healthy/needs-attention/at-risk | ... |
    | ... | ... | ... |
+
+   <Always show all 5 personas in the table; mark skipped ones explicitly as "(not run this pass)" rather than omitting the row.>
 
    ## Cross-cutting themes
    Themes flagged by 2+ personas. Each theme cites the personas and points to the relevant findings.
@@ -159,15 +171,21 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    One paragraph: what's healthy, what's at risk, what to focus on first.
 
    ## Truncated personas
-   (Only if any persona could not produce a complete report after the continuation retry.)
+   (Only if any persona could not produce a complete report after the continuation retry. Distinct from "skipped via --personas", which goes in the header note above.)
    ```
 
    Theme detection is fuzzy and judgment-based: if Architect and Maintainability both flag "test coverage gaps in auth/", that's a cross-cutting theme regardless of exact wording.
 
 7. **Draft proposed issues.** Skip this step if `--skip-issues` was supplied.
 
-   For each finding in `synthesis.md` rated `critical` or `high`:
-   - Draft a one-issue markdown block with title (imperative, scoped, e.g., "Add observability to ingest pipeline"), body (problem + suggested approach + which persona(s) flagged), and 1–2 suggested labels (e.g., `engineering-health`, persona name).
+   Draft an issue for each:
+   - Finding rated `critical` or `high` (single persona is enough — high severity carries the signal alone)
+   - Cross-flagged `medium` finding (flagged by 2+ personas — cross-persona reach promotes signal even at MEDIUM severity; this catches themes that no single persona escalates to HIGH)
+
+   For each drafted issue:
+   - Title (imperative, scoped, e.g., "Add observability to ingest pipeline")
+   - Body: problem + suggested approach + which persona(s) flagged
+   - 1–2 suggested labels (e.g., `engineering-health`, persona name)
    - Check overlap against the open-issue list captured in `snapshot.md` using fuzzy title match (case-insensitive substring or 60%+ word overlap is good enough for v1). If matched, annotate: `**Possibly already tracked:** #<N> — <existing title>`. Do not drop overlapping drafts — the human decides.
    - Write all drafts to `<output_folder>/proposed-issues.md`.
 

@@ -54,7 +54,7 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
 
 2. **Gather context.** Same data for both modes:
    - `README.md` (first ~200 lines)
-   - Project metadata: any of `plugin.json`, `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `setup.cfg` — read what exists for name, description, license
+   - Project metadata: search common locations for `plugin.json`, `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `setup.cfg`, `manifest.json`. Check **both root and common subdirs** (`plugins/*/`, `plugins/*/.claude-plugin/`, `packages/*/`, `apps/*/`, `services/*/`, `crates/*/`). Read what exists at the most-specific location — many real repos nest the manifest several levels deep.
    - Recent activity: `git log --since='6 months ago' -50 --pretty=format:'%h %s'`
    - Tags/releases: `git tag --sort=-creatordate | head -5`
    - Open milestones (if `gh` available: `gh api repos/{owner}/{repo}/milestones --jq '.[] | {title, description, state}'`; if `glab` available: `glab api projects/:id/milestones`)
