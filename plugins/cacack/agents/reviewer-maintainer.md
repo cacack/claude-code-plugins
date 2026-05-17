@@ -47,6 +47,7 @@ Hunt specifically for:
 - Tests that don't actually assert on the meaningful behavior (e.g., assert function returns non-nil but never check the contents)
 - Test names that don't describe the case under test
 - Test fixtures that are unclear (magic strings/numbers without comments)
+- **Assertion falsifiability.** For each test assertion you read, mentally construct a *wrong* implementation that would still pass the assertion. If you can construct one, the assertion is too loose — flag it. Common shapes: `len(got) == N && every element of got is in want` (passes when one expected is missing and one other is duplicated); `result != nil` (passes for any non-nil regardless of contents); count-only assertions on collections whose ordering matters.
 
 **Documentation and conventions:**
 - Exported function/type/const without a doc comment when surrounding code follows that convention
