@@ -1,8 +1,9 @@
 ---
 name: do
 description: Execute the work stage of play → do → ship. Invoke after /play to dispatch the emitted prompt batch, or directly with a task description for trivial work. Triggers include "do it", "execute the plan", "run the batch", "run the prompts", "dispatch them", "do <task>", or "do <prompt-numbers>".
-argument-hint: [prompt-numbers | task-description | empty for latest batch]
+argument-hint: <prompt-numbers | "task description"> — empty runs the latest /play batch
 ---
+<!-- No allowed-tools restriction: /do is an orchestration command. Batch/prompts mode delegates to /cacack:run-prompt (which uses Task internally to spawn subagents). Direct mode uses TodoWrite + the full file-edit surface (Read/Edit/Write/Glob/Grep/Bash). Tightening this would require auditing both code paths together. -->
 
 <objective>
 Execute the work stage of the play → do → ship pipeline.
@@ -18,7 +19,7 @@ Repository: !`git remote -v | head -1`
 Branch: !`git branch --show-current`
 Status: !`git status --short`
 Latest batch: !`[ -f .prompts/.batch.json ] && echo "found" || echo "none"`
-Pending prompts: !`ls -d .prompts/*/ 2>/dev/null | grep -v completed | wc -l | awk '{print $1}'`
+Pending prompts: !`ls -d .prompts/*/ 2>/dev/null | grep -vc completed`
 </context>
 
 <process>
@@ -33,6 +34,13 @@ Classify `$ARGUMENTS` and route:
 | anything else (free text) | **direct** — execute task in current context |
 
 If pattern is ambiguous (single word that could be a partial filename), prefer **prompts** mode and let `/run-prompt`'s name matching resolve it.
+
+**Migration hint for bare integers:** If a bare integer is given but `.prompts/` doesn't exist (or contains no matching prompt for that number), suggest the user likely meant an issue number and point them at `/play <N>` — the old `/do <issue-number>` workflow moved to `/play`. Print:
+
+```
+No prompt 0NN/NN found in .prompts/. If you meant issue #NN,
+run `/cacack:play NN` first to plan, then `/cacack:do` to execute.
+```
 </step_dispatch>
 
 <step_batch_or_prompts>
@@ -40,7 +48,7 @@ For **batch** and **prompts** modes, invoke `/cacack:run-prompt` via the Skill t
 
 `/run-prompt` handles DAG execution: parallel groups dispatch all `Agent` calls in a single message; sequential groups run in order; archives completed prompts to `.prompts/completed/`; updates `.batch.json` progress so interrupted runs can resume.
 
-When the user's plan involves parallel prompts that may touch overlapping files, suggest the user re-run with `isolation: worktree` — or use it implicitly if the batch metadata flags conflicts.
+**Terminal-state batch:** If `.batch.json` exists but every entry is already in `completed`, `/run-prompt` will report "no prompts to run." If you see this from a bare `/do`, surface to the user: "Latest batch is already complete — start a new `/play` or pass a free-text task to run something."
 </step_batch_or_prompts>
 
 <step_direct>
@@ -50,6 +58,8 @@ For **direct** mode (free-text task), execute in current context:
 2. Create a TodoWrite list with the major steps
 3. Implement, marking todos complete as you go
 4. Verify with whatever check the project supports (lint, tests, type-check)
+
+> Note: this step uses `TodoWrite`, `Glob`, `Grep`, `Read`, `Edit`, `Write`, and `Bash`. They aren't listed in `allowed-tools` because the skill intentionally has no tool restriction — see the comment at the top of this file. If `allowed-tools` is ever added, include all of the above.
 
 This path skips planning because the task is small enough to not need it. If the task turns out to be larger than expected, stop and suggest the user re-run via `/play` for proper planning.
 </step_direct>
