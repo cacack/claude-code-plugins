@@ -20,6 +20,7 @@ allowed-tools:
   - ExitPlanMode
   - AskUserQuestion
   - TodoWrite
+  - Skill
 ---
 
 <objective>
@@ -88,6 +89,23 @@ Enter plan mode with `EnterPlanMode`. The plan file should follow the structure 
 
 If the user rejects or asks for changes, iterate in plan mode until approved.
 </step_5_plan_mode>
+
+<step_5_5_execution_choice>
+After plan approval, ask the user how to execute via `AskUserQuestion`:
+
+- **Inline (this session)** — skip prompt emission and run `/cacack:do "<task description>"` via the `Skill` tool. The implementation happens in the current conversation context, keeping planning and execution together. Best for: small plans, single-step work, when planning context is still useful during implementation.
+- **Emit prompts (subagent batch)** — proceed to step 6 and materialize `.prompts/` for `/do` to dispatch via `/run-prompt`. Best for: multi-step plans, parallelizable work, large tasks where fresh subagent context is cleaner.
+
+**Recommendation logic:**
+- Plan has 1 implementation step → recommend **Inline**
+- Plan has 2+ steps OR any parallel-safe groups → recommend **Emit prompts**
+
+Present the recommendation as the first option (labeled "(Recommended)") so the user can accept with one keystroke.
+
+**If user picks Inline:** Invoke `/cacack:do` via the `Skill` tool with a concise task description derived from the plan (1-2 sentences capturing the goal). Do NOT emit `.prompts/` or `.batch.json`. Stop after the handoff — `/do` takes over.
+
+**If user picks Emit prompts:** Continue to step 6.
+</step_5_5_execution_choice>
 
 <step_6_emit_prompts>
 After plan approval, materialize the plan as a DAG of prompts under `.prompts/`:
@@ -187,11 +205,17 @@ Issue/task: [reference]
 Files to create/modify:
 - `path` — what changes
 
+Prompts MAY include git commit, push, and PR/MR creation if the work
+completes naturally there (e.g. small fixes, isolated config changes).
+`/ship` will no-op cleanly when there's nothing left to ship. For
+larger or higher-risk work, stop at implementation and let `/ship`
+handle delivery so the user can inspect first.
+
 Must also write SUMMARY.md in this prompt's folder with:
 - One-liner outcome
 - Files changed
 - Decisions made / open questions
-- Next step
+- Next step (e.g. "ready for /ship" or "shipped as MR !N")
 </output>
 
 <verification>
@@ -233,9 +257,11 @@ Notes:
 - Codebase exploration produced concrete affected-area list before planning
 - Build-vs-Reuse check happened explicitly
 - Plan approved via `ExitPlanMode`, not via inline markdown + "ready?"
-- Prompts emitted as subdirectories matching the create-meta-prompts format
-- `.batch.json` written with execution_groups reflecting actual step dependencies
-- Final message points the user to `/cacack:do` to execute
+- After approval, user offered the inline-vs-emit choice with a sensible default recommendation
+- Inline path hands off to `/cacack:do` via `Skill` tool with no `.prompts/` artifacts
+- Emit path produces prompts as subdirectories matching the create-meta-prompts format
+- `.batch.json` written with execution_groups reflecting actual step dependencies (emit path only)
+- Final message points the user to `/cacack:do` to execute (emit path) or hands off directly (inline path)
 - No implementation happens in this skill — that's `/do`'s job
 </success_criteria>
 

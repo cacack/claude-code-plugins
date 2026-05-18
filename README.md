@@ -17,7 +17,7 @@ claude plugin install cacack
 ### Skills
 
 #### Development Workflow (play → do → ship)
-- `play` - Plan the work: fetch a GitHub/GitLab issue (or take a free-text task), explore, design, approve via plan mode, then emit a DAG of execution prompts to `.prompts/`
+- `play` - Plan the work: fetch a GitHub/GitLab issue (or take a free-text task), explore, design, approve via plan mode, then either execute inline or emit a DAG of execution prompts to `.prompts/` for `/do`
 - `do` - Execute the work: run the latest `/play` batch (no args), run specific prompts by number, or execute a free-text task directly
 - `ship` - Ship the work: preflight checks, issue compliance verification, documentation review, and PR/MR creation (`--quick` for fast path)
 - `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols

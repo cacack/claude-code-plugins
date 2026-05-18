@@ -44,11 +44,23 @@ run `/cacack:play NN` first to plan, then `/cacack:do` to execute.
 </step_dispatch>
 
 <step_batch_or_prompts>
-For **batch** and **prompts** modes, invoke `/cacack:run-prompt` via the Skill tool, passing `$ARGUMENTS` through.
+For **batch** and **prompts** modes, before delegating, offer the user a dispatch choice via `AskUserQuestion`:
 
-`/run-prompt` handles DAG execution: parallel groups dispatch all `Agent` calls in a single message; sequential groups run in order; archives completed prompts to `.prompts/completed/`; updates `.batch.json` progress so interrupted runs can resume.
+- **Subagent dispatch (default)** — invoke `/cacack:run-prompt` via the Skill tool. Each prompt runs in fresh context via `Agent`/Task. Best for: large batches, parallel groups, when current context is already loaded.
+- **Inline execution** — read each prompt's content and execute it in the current session context (no `Task` calls). Best for: small batches (1-3 prompts), when the user wants to watch the work happen live, or when keeping planning + implementation in one context is valuable.
 
-**Terminal-state batch:** If `.batch.json` exists but every entry is already in `completed`, `/run-prompt` will report "no prompts to run." If you see this from a bare `/do`, surface to the user: "Latest batch is already complete — start a new `/play` or pass a free-text task to run something."
+Present subagent dispatch as the first option (labeled "(Recommended)"). If the batch contains parallel groups, always recommend subagent dispatch (inline can't run prompts in parallel within a single message in a useful way).
+
+**If user picks subagent dispatch:** Invoke `/cacack:run-prompt` via the Skill tool, passing `$ARGUMENTS` through. `/run-prompt` handles DAG execution: parallel groups dispatch all `Agent` calls in a single message; sequential groups run in order; archives completed prompts to `.prompts/completed/`; updates `.batch.json` progress so interrupted runs can resume.
+
+**If user picks inline execution:** For each prompt in the batch (respecting batch ordering — sequential groups stay sequential; parallel groups degrade to sequential since the current context can't truly run prompts in parallel):
+1. Read the prompt file from `.prompts/{folder}/{folder}.md`
+2. Execute its `<objective>`, `<requirements>`, `<implementation>`, and `<output>` instructions directly in this context
+3. Write the prompt's required `SUMMARY.md` in its folder
+4. Archive the folder to `.prompts/completed/` and update `.batch.json`'s `completed` array
+5. Stop if any prompt fails — progress is preserved
+
+**Terminal-state batch:** If `.batch.json` exists but every entry is already in `completed`, skip the dispatch choice and surface to the user: "Latest batch is already complete — start a new `/play` or pass a free-text task to run something."
 </step_batch_or_prompts>
 
 <step_direct>
@@ -77,7 +89,8 @@ Do not invoke `/ship` automatically — the user should inspect changes first.
 </process>
 
 <output>
-- **batch / prompts mode**: per-prompt SUMMARY.md displayed inline; `.prompts/completed/` updated; `.batch.json` progress recorded
+- **batch / prompts mode (subagent dispatch)**: per-prompt SUMMARY.md displayed inline; `.prompts/completed/` updated; `.batch.json` progress recorded
+- **batch / prompts mode (inline execution)**: same artifacts as subagent dispatch (SUMMARY.md, archive, batch metadata), produced by current-context work instead of `Task` calls
 - **direct mode**: implementation complete; todos marked done; suggested verification run
 - **all modes**: explicit offer to run `/cacack:ship`
 </output>
@@ -120,7 +133,9 @@ When in doubt, use `/play` — the planning cost is small and the DAG enables pa
 
 <success_criteria>
 - Mode correctly inferred from `$ARGUMENTS`
-- Batch/prompts mode delegates to `/run-prompt` (no duplicated execution logic)
+- Batch/prompts mode offers dispatch choice (subagent vs inline) with a sensible default
+- Subagent dispatch delegates to `/run-prompt` (no duplicated execution logic)
+- Inline dispatch produces the same artifacts (SUMMARY.md, archive, batch metadata) without `Task` calls
 - Direct mode produces implementation + verification, not just a plan
 - `/ship` offered but not auto-invoked
 - If task expands beyond the chosen mode's fit, redirect rather than push through

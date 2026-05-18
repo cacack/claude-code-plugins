@@ -283,4 +283,5 @@ Layer 3 [parallel]:
 - **Format detection**: Check for `execution` array (layered) vs `strategy` field (simple)
 - **Strategy precedence**: Explicit flag (--parallel/--sequential) > .batch.json > sequential default
   - Note: Explicit flags override simple format only; execution groups always use their defined layers
+- **Task completion is authoritative**: When a `Task`/`Agent` tool call returns with a `Done (N tool uses · T tokens · S)` line, the subagent has finished. Do NOT describe it as "in progress", "in the background", "still running", or "finalizing" after that line appears. Treat the returned summary as final state. The only exception is when you explicitly invoked the tool with `run_in_background: true` — `/run-prompt` never does this, so synchronous completion is always the case here.
   </critical_notes>
