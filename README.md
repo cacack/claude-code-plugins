@@ -32,7 +32,7 @@ claude plugin install cacack
 - `add-to-todos` - Add items to your todo list with context from conversation
 - `check-todos` - Review and manage your todo list
 - `park` - Park current session context or capture cross-project ideas for later pickup
-- `whats-next` - Discover and pick up work from handoffs, todos, issues, or ideas (prioritized by readiness)
+- `whats-next` - Discover and pick up work from handoffs, todos, GitHub/GitLab issues, or ideas (prioritized by readiness, with milestone-scoped issues ranked above general ones)
 - `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
 
 #### Extension Creation
