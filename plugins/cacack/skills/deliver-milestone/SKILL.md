@@ -45,13 +45,13 @@ unless you pass flags. Add `--agency=auto` for a hands-off background workflow, 
 </quick_start>
 
 <context>
-Repository: !`git remote get-url origin 2>/dev/null | head -1`
-Branch: !`git branch --show-current`
-Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@refs/remotes/origin/@@' || echo main`
-Working tree clean: !`git status --short | head -3 || true`
-GitHub CLI: !`which gh >/dev/null 2>&1 && echo available || echo missing`
-GitLab CLI: !`which glab >/dev/null 2>&1 && echo available || echo missing`
-Existing milestone ledgers: !`ls -d .milestone/*/ 2>/dev/null | sed 's#.milestone/##;s#/##' || echo none`
+Repository: !`git remote get-url origin 2>/dev/null`
+Current branch: !`git branch --show-current`
+Default branch ref (strip the `origin/` prefix to get the bare name): !`git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null`
+Working tree status: !`git status --short`
+GitHub CLI: !`command -v gh`
+GitLab CLI: !`command -v glab`
+Milestone ledger dirs: !`ls .milestone 2>/dev/null`
 </context>
 
 <process>
@@ -103,7 +103,7 @@ State plainly that this is non-interactive (steered via `/workflows`), then conf
 
 ```
 args: {
-  milestone: "<title>", forge: "github"|"gitlab", defaultBranch: "<from context>",
+  milestone: "<title>", forge: "github"|"gitlab", defaultBranch: "<bare name, e.g. main — strip origin/ from the context's default-branch ref>",
   stopAfter: "review"|"ship"|"merge", coderabbit: true|false,
   issues: [ {"number": 42, "title": "…"}, … ]   // ordered list from step 1
 }
