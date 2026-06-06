@@ -20,7 +20,7 @@ claude plugin install cacack
 - `play` - Plan the work: fetch a GitHub/GitLab issue (or take a free-text task), explore, design, approve via plan mode, then either execute inline or emit a DAG of execution prompts to `.prompts/` for `/do`
 - `do` - Execute the work: run the latest `/play` batch (no args), run specific prompts by number, or execute a free-text task directly
 - `ship` - Ship the work: preflight checks, issue compliance verification, documentation review, and PR/MR creation (`--quick` for fast path)
-- `deliver-milestone` - Drive a whole milestone/epic to done across every open issue (implement → panel review → address findings → ship → optional CodeRabbit → merge). Routes by agency: a fully-autonomous run launches a dynamic Workflow; a checkpointed run uses an interactive orchestrator that calls `/play`, `/do`, `/panel-review`, `/ship` with approval pauses
+- `deliver-milestone` - Drive a whole milestone/epic to done across every open issue (implement → panel review → address findings → ship → optional CodeRabbit → merge). Routes by agency: a fully-autonomous run has Claude author and launch a built-in dynamic Workflow; a checkpointed run uses an interactive orchestrator that calls `/play`, `/do`, `/panel-review`, `/ship` with approval pauses
 - `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols
 - `security-review` - Comprehensive security analysis of changes, context, or entire repository
 
