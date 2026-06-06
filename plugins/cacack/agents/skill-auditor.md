@@ -106,6 +106,9 @@ Flag as **critical** (Anthropic standards):
 - **deeply_nested_references**: References more than one level deep from SKILL.md
 - **windows_paths**: Backslash paths instead of forward slashes
 
+Flag as **critical** (functional break — skill fails to load):
+- **unsafe_dynamic_context_commands**: A dynamic `` !`cmd` `` preprocessing command (in a `<context>` block or anywhere in the body) that uses compound shell operators — a pipe `|`, `&&`, `||`, a command-substitution chain, or a tool like `sed`/`awk`/`head` chained with `||`. These run as skill *preprocessing*, which CANNOT show an interactive permission prompt, so the permission checker hard-rejects compound commands ("This Bash command contains multiple operations… requires approval") and the **entire skill fails to load** — it does not degrade gracefully. Each `!` command must be a SINGLE command (a lone `2>/dev/null` redirect is acceptable). Flag every compound `!` command and give a single-command rewrite. Same rule applies to slash commands.
+
 Flag as **recommendation** (our conventions):
 - **markdown_headings_in_body**: Using markdown headings instead of XML (our preference, not Anthropic's)
 - **missing_recommended_tags**: Missing objective, quick_start, or success_criteria (our convention)
@@ -269,6 +272,28 @@ Use pdfplumber...
 ```
 
 **Why**: Unclosed tags break parsing and create ambiguous boundaries.
+</example>
+
+<example name="unsafe_dynamic_context_commands">
+❌ Flag as critical (compound `!` commands fail the permission checker during preprocessing):
+```
+<context>
+Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@refs/remotes/origin/@@' || echo main`
+GitHub CLI: !`which gh >/dev/null 2>&1 && echo available || echo missing`
+Working tree: !`git status --short | head -3 || true`
+</context>
+```
+
+✅ Should be single commands (a lone `2>/dev/null` redirect is fine):
+```
+<context>
+Default branch ref: !`git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null`
+GitHub CLI: !`command -v gh`
+Working tree: !`git status --short`
+</context>
+```
+
+**Why**: `!` commands run as skill preprocessing, which cannot prompt for permission. A compound command (pipe, `&&`, `||`, `sed`) is hard-rejected ("contains multiple operations") and the whole skill fails to load. Keep each command atomic; push any prefix-stripping or fallback logic into the skill's instructions instead.
 </example>
 
 <example name="inappropriate_conditional_tags">
