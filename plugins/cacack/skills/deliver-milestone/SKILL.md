@@ -49,9 +49,6 @@ Repository: !`git remote get-url origin 2>/dev/null`
 Current branch: !`git branch --show-current`
 Default branch ref (strip the `origin/` prefix to get the bare name): !`git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null`
 Working tree status: !`git status --short`
-GitHub CLI: !`command -v gh`
-GitLab CLI: !`command -v glab`
-Milestone ledger dirs: !`ls .milestone 2>/dev/null`
 </context>
 
 <process>

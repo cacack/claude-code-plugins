@@ -1,7 +1,7 @@
 {
   "name": "cacack",
   "description": "Personal collection of Claude Code agents and skills for productivity and automation",
-  "version": "1.29.0",
+  "version": "1.29.1",
   "author": {
     "name": "Chris Clonch",
     "email": "chris@theclonchs.com"

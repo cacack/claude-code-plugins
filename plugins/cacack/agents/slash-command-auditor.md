@@ -72,6 +72,7 @@ Check for:
 Check for:
 - **Context loading**: Uses exclamation mark + backtick syntax for state-dependent tasks (git status, environment info)
 - **Context relevance**: Loaded context is directly relevant to command purpose
+- **Safe preprocessing (critical)**: Each `` !`cmd` `` runs as preprocessing that CANNOT prompt for permission or tolerate a nonzero exit, so any violation makes the whole command fail to load. Every `!` command must be (1) a SINGLE command — no `|`, `&&`, `||`, or `sed`/`awk`/`head` chains (a lone `2>/dev/null` redirect is fine); (2) auto-approved by default — `git …` is normally allowed, but shell builtins like `command -v`/`which` and arbitrary binaries are NOT ("requires approval"); (3) exit-0 — `2>/dev/null` hides stderr but not the exit code (`ls foo 2>/dev/null` still exits 1 when `foo` is absent). Move CLI-presence checks and optional-path probes into the command body via real Bash calls instead.
 </area>
 
 <area name="tool_restrictions">

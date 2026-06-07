@@ -17,13 +17,14 @@ Update a skill's SKILL.md and related files based on corrections discovered duri
 Analyze the conversation to detect which skill is running, reflect on what went wrong, propose specific fixes, get user approval, then apply changes with optional commit.
 </objective>
 
-<context>
-Skill detection: !`ls -1 ./skills/*/SKILL.md | head -5`
-</context>
+<!-- No `<context>` block: skill detection happens in the body (step 1) from conversation context.
+Listing SKILL.md files would need a glob/pipe, but `!` preprocessing cannot prompt for permission
+or tolerate a nonzero exit (an empty glob exits nonzero), so it would make the skill fail to load.
+If a file listing helps, run it in the body via the Bash tool. -->
 
 <quick_start>
 <workflow>
-1. **Detect skill** from conversation context (invocation messages, recent SKILL.md references)
+1. **Detect skill** from conversation context (invocation messages, recent SKILL.md references); if needed, locate candidate skills by running `find . -name SKILL.md` via the Bash tool
 2. **Reflect** on what went wrong and how you discovered the fix
 3. **Present** proposed changes with before/after diffs
 4. **Get approval** before making any edits

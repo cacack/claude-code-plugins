@@ -372,6 +372,29 @@ Review dependencies in: @ package.json (remove space after @ in actual usage)
 **Why it matters**: Without the space, these execute during skill load, causing errors or unwanted file reads.
 </pitfall>
 
+<pitfall name="unsafe_dynamic_context_commands">
+**Problem**: A `` !`cmd` `` runs as skill *preprocessing*, which CANNOT show a permission prompt or tolerate a nonzero exit. If any `!` command would prompt or error, the **entire skill fails to load** — no graceful degradation. Three rules must all hold:
+
+1. **Single command** — no `|`, `&&`, `||`, or `sed`/`awk`/`head` chains. Compound commands are hard-rejected ("contains multiple operations… requires approval"). A lone `2>/dev/null` redirect is fine.
+2. **Auto-approved by default** — `git …` is normally allowlisted; shell builtins like `command -v` / `which` and arbitrary binaries are NOT (they raise "requires approval").
+3. **Exit 0** — `2>/dev/null` silences stderr but does NOT change the exit code; `ls foo 2>/dev/null` still exits 1 when `foo` is absent.
+
+❌ **BAD**:
+```
+Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@.*/@@' || echo main`   # compound
+GitHub CLI: !`command -v gh`                                                                            # not auto-approved
+Ledger dirs: !`ls .milestone 2>/dev/null`                                                               # exits nonzero when absent
+```
+
+✅ **GOOD** — keep `<context>` to single, auto-approved, exit-0 commands; do CLI-presence and optional-path checks in the skill body via real Bash calls (which CAN prompt and handle failures):
+```
+Default branch ref: !`git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null`
+Working tree: !`git status --short`
+```
+
+**When this applies**: Any skill or slash command using `!` dynamic context — especially for forge-CLI detection, optional ledger/state dirs, or anything that can be absent.
+</pitfall>
+
 <pitfall name="missing_recommended_tags">
 **Our convention**: We recommend skills include `<objective>`, `<quick_start>`, and `<success_criteria>`. These are not Anthropic requirements but provide clear scope, entry points, and completion criteria.
 
