@@ -15,12 +15,15 @@ Three modes, auto-detected from `$ARGUMENTS`:
 </objective>
 
 <context>
-Repository: !`git remote -v | head -1`
+Repository: !`git remote get-url origin 2>/dev/null`
 Branch: !`git branch --show-current`
 Status: !`git status --short`
-Latest batch: !`[ -f .prompts/.batch.json ] && echo "found" || echo "none"`
-Pending prompts: !`ls -d .prompts/*/ 2>/dev/null | grep -vc completed`
 </context>
+
+<!-- `.prompts/.batch.json` presence and pending-prompt counts are read in the body (step_dispatch)
+via real Bash/Read calls, NOT in `<context>`: `!` preprocessing cannot prompt for permission or
+tolerate a nonzero exit, so `[ -f ]`/`ls`/pipes would make the skill fail to load. -->
+
 
 <process>
 

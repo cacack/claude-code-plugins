@@ -32,15 +32,16 @@ This separation lets planning happen in this conversation while execution happen
 </objective>
 
 <context>
-Repository: !`git remote -v | head -1`
+Repository: !`git remote get-url origin 2>/dev/null`
 Branch: !`git branch --show-current`
 Working dir: !`git status --short`
 Recent commits: !`git log --oneline -5`
-GitHub CLI: !`which gh >/dev/null 2>&1 && echo "available" || echo "missing"`
-GitLab CLI: !`which glab >/dev/null 2>&1 && echo "available" || echo "missing"`
-Prompts dir: !`[ -d .prompts ] && echo "exists" || echo "missing"`
-Highest existing prompt number (pending + completed, "none" if first batch): !`ls -d .prompts/*/ .prompts/completed/*/ 2>/dev/null | grep -oE '/[0-9]+-' | grep -oE '[0-9]+' | sort -rn | head -1 | grep . || echo "none"`
 </context>
+
+<!-- Forge-CLI presence and `.prompts/` numbering are detected in the body via real Bash calls
+(step 1 and step 6), NOT in `<context>`: `!` preprocessing cannot prompt for permission or
+tolerate a nonzero exit, so `which`/`ls`/`[ -d ]`/pipes would make the skill fail to load. -->
+
 
 <process>
 
@@ -111,7 +112,9 @@ Present the recommendation as the first option (labeled "(Recommended)") so the 
 After plan approval, materialize the plan as a DAG of prompts under `.prompts/`:
 
 1. **Compute topic slug** — kebab-case identifier from the issue title or task (e.g., `42-add-auth`, `bump-deps`)
-2. **Compute next number** — the context block reports the highest existing prompt number across *both* `.prompts/` and `.prompts/completed/`. Add 1 and zero-pad to 3 digits. If "none", start at `001`. Always advance past completed prompts — never reuse a number.
+2. **Compute next number** — find the highest existing prompt number across *both* `.prompts/` and `.prompts/completed/` by running (via the Bash tool):
+   `ls -d .prompts/*/ .prompts/completed/*/ 2>/dev/null | grep -oE '/[0-9]+-' | grep -oE '[0-9]+' | sort -rn | head -1`
+   Add 1 and zero-pad to 3 digits. If the command returns nothing (first batch), start at `001`. Always advance past completed prompts — never reuse a number.
 3. **Partition plan steps into execution groups** — group steps that can run in parallel (independent file sets, no ordering constraint) and serialize between groups that depend on each other
 4. **Create one subdirectory per prompt**: `.prompts/{NNN}-{step-slug}-{purpose}/`
    - `purpose` is one of `research`, `plan`, `do` (most /play prompts are `do`)

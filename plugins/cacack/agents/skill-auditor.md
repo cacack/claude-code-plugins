@@ -107,7 +107,12 @@ Flag as **critical** (Anthropic standards):
 - **windows_paths**: Backslash paths instead of forward slashes
 
 Flag as **critical** (functional break — skill fails to load):
-- **unsafe_dynamic_context_commands**: A dynamic `` !`cmd` `` preprocessing command (in a `<context>` block or anywhere in the body) that uses compound shell operators — a pipe `|`, `&&`, `||`, a command-substitution chain, or a tool like `sed`/`awk`/`head` chained with `||`. These run as skill *preprocessing*, which CANNOT show an interactive permission prompt, so the permission checker hard-rejects compound commands ("This Bash command contains multiple operations… requires approval") and the **entire skill fails to load** — it does not degrade gracefully. Each `!` command must be a SINGLE command (a lone `2>/dev/null` redirect is acceptable). Flag every compound `!` command and give a single-command rewrite. Same rule applies to slash commands.
+- **unsafe_dynamic_context_commands**: A dynamic `` !`cmd` `` preprocessing command (in a `<context>` block or anywhere in the body) that violates ANY of three rules. These run as skill *preprocessing*, which CANNOT show an interactive permission prompt — so anything that would prompt or error makes the **entire skill fail to load**, with no graceful degradation. The three rules:
+  1. **Single command** — no compound operators (pipe `|`, `&&`, `||`, command-substitution chains, or a tool like `sed`/`awk`/`head` chained with `||`). The permission checker hard-rejects compound commands ("This Bash command contains multiple operations… requires approval").
+  2. **Permission-allowed by default** — the command must be one the harness auto-approves without a prompt. `git …` is normally allowed; shell builtins like `command -v` / `which`, and arbitrary binaries, are NOT (they raise "This command requires approval", which preprocessing cannot satisfy). Do CLI-presence and other tooling checks in the skill *body* via real Bash calls, not in `!` preprocessing.
+  3. **Must exit 0** — preprocessing treats any nonzero exit as a hard failure. A `2>/dev/null` redirect only silences stderr; it does NOT change the exit code. `ls .milestone 2>/dev/null` still exits 1 when the dir is absent and fails the skill. Detect optional files/dirs in the body instead, or use a command that exits 0 when there is nothing to report.
+
+  Flag every violating `!` command. For rule 1 give a single-command rewrite; for rules 2–3 the fix is usually to move the check into the skill body. Same rules apply to slash commands.
 
 Flag as **recommendation** (our conventions):
 - **markdown_headings_in_body**: Using markdown headings instead of XML (our preference, not Anthropic's)
@@ -275,25 +280,26 @@ Use pdfplumber...
 </example>
 
 <example name="unsafe_dynamic_context_commands">
-❌ Flag as critical (compound `!` commands fail the permission checker during preprocessing):
+❌ Flag as critical — each line breaks a different rule:
 ```
 <context>
-Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@refs/remotes/origin/@@' || echo main`
-GitHub CLI: !`which gh >/dev/null 2>&1 && echo available || echo missing`
-Working tree: !`git status --short | head -3 || true`
+Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@refs/remotes/origin/@@' || echo main`  # rule 1: compound (pipe + sed + ||)
+GitHub CLI: !`command -v gh`                # rule 2: `command` builtin isn't auto-approved → "requires approval"
+Milestone ledger dirs: !`ls .milestone 2>/dev/null`  # rule 3: exits 1 when dir absent (redirect hides stderr, not exit code)
 </context>
 ```
 
-✅ Should be single commands (a lone `2>/dev/null` redirect is fine):
+✅ Keep only commands that are single, auto-approved, AND exit 0; move tooling/optional-path checks into the body:
 ```
 <context>
 Default branch ref: !`git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null`
-GitHub CLI: !`command -v gh`
 Working tree: !`git status --short`
 </context>
+<!-- forge-CLI presence and `.milestone/<slug>/` ledger detection happen in the skill body
+     via real Bash calls, which CAN prompt for permission and handle a nonzero exit. -->
 ```
 
-**Why**: `!` commands run as skill preprocessing, which cannot prompt for permission. A compound command (pipe, `&&`, `||`, `sed`) is hard-rejected ("contains multiple operations") and the whole skill fails to load. Keep each command atomic; push any prefix-stripping or fallback logic into the skill's instructions instead.
+**Why**: `!` commands run as skill preprocessing, which cannot prompt for permission or tolerate a nonzero exit. A compound command is hard-rejected ("contains multiple operations"); a non-allowlisted command ("requires approval"); a nonzero-exit command ("Shell command failed") — and in every case the whole skill fails to load. Keep each `!` command atomic, auto-approved, and exit-0; push prefix-stripping, fallback logic, CLI-presence checks, and optional-path probes into the skill's instructions instead.
 </example>
 
 <example name="inappropriate_conditional_tags">
