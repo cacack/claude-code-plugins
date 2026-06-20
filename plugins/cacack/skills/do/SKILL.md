@@ -44,6 +44,8 @@ If pattern is ambiguous (single word that could be a partial filename), prefer *
 No prompt 0NN/NN found in .prompts/. If you meant issue #NN,
 run `/cacack:play NN` first to plan, then `/cacack:do` to execute.
 ```
+
+**Worktree note:** the cycle runs inside a dedicated git worktree (see CLAUDE.md). **batch** and **prompts** modes expect to already be in the worktree `/play` created — they inherit it via the working directory and must NOT create a fresh one (a new worktree branches off clean default and would orphan the `.prompts/` batch). If `git rev-parse --show-toplevel` is not under `/.claude/worktrees/`, you are resuming outside that worktree — proceed, but note the run isn't isolated from simultaneous work. **direct** mode is a cycle entry point and creates its own worktree (see `<step_direct>`).
 </step_dispatch>
 
 <step_batch_or_prompts>
@@ -69,12 +71,13 @@ Present subagent dispatch as the first option (labeled "(Recommended)"). If the 
 <step_direct>
 For **direct** mode (free-text task), execute in current context:
 
+0. **Ensure worktree isolation.** Direct mode is a cycle entry point (it skips `/play`), so isolate it the same way. Run `git rev-parse --show-toplevel`; if the path is not under `/.claude/worktrees/`, call `EnterWorktree` with a slug derived from the task before making any edits, silently. Skip if already in a worktree (e.g. invoked after `/play` — no-op). See CLAUDE.md.
 1. Quick codebase scan to understand the area (use Glob/Grep, not full exploration)
 2. Create a TodoWrite list with the major steps
 3. Implement, marking todos complete as you go
 4. Verify with whatever check the project supports (lint, tests, type-check)
 
-> Note: this step uses `TodoWrite`, `Glob`, `Grep`, `Read`, `Edit`, `Write`, and `Bash`. They aren't listed in `allowed-tools` because the skill intentionally has no tool restriction — see the comment at the top of this file. If `allowed-tools` is ever added, include all of the above.
+> Note: this step uses `TodoWrite`, `Glob`, `Grep`, `Read`, `Edit`, `Write`, `Bash`, and `EnterWorktree`. They aren't listed in `allowed-tools` because the skill intentionally has no tool restriction — see the comment at the top of this file. If `allowed-tools` is ever added, include all of the above.
 
 This path skips planning because the task is small enough to not need it. If the task turns out to be larger than expected, stop and suggest the user re-run via `/play` for proper planning.
 </step_direct>

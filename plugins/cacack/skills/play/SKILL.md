@@ -13,11 +13,13 @@ allowed-tools:
   - Bash(git branch:*)
   - Bash(git log:*)
   - Bash(git diff:*)
+  - Bash(git rev-parse:*)
   - Bash(ls:*)
   - Bash(mkdir:*)
   - WebFetch
   - EnterPlanMode
   - ExitPlanMode
+  - EnterWorktree
   - AskUserQuestion
   - TodoWrite
   - Skill
@@ -60,6 +62,17 @@ For issue mode, fetch via the available CLI:
 
 On fetch failure (invalid number, auth, network), present the error and ask for a description instead.
 </step_1_input>
+
+<step_1_5_worktree>
+**Enforce worktree isolation.** This repo runs the play → do → panel → ship cycle inside a dedicated git worktree so simultaneous cycles never pollute each other's working tree (see CLAUDE.md). `/play` is the cycle entry point, so it creates the worktree; `/do`, `/panel-review`, and `/ship` inherit it via the session's working directory.
+
+1. Detect whether the session is already in a dedicated worktree by running (Bash tool):
+   `git rev-parse --show-toplevel`
+   If the path contains `/.claude/worktrees/`, you are already in one — skip this step, do not nest.
+2. Otherwise call the `EnterWorktree` tool with a `name` derived from the task: issue number + topic slug (e.g. `42-add-auth`), or the task slug in task mode (e.g. `split-auth-middleware`, max 64 chars, letters/digits/dots/dashes/underscores only). This branches a clean worktree off the default branch and switches the session into it, so all subsequent artifacts (`.prompts/`, edits) and the downstream stages operate there.
+
+Auto-create silently — do not ask for confirmation. The worktree persists after `/ship` (PR open) for inspection; remove it after the PR merges (`/deliver-milestone` does this automatically; for a standalone cycle, `ExitWorktree` with `action: remove` once merged).
+</step_1_5_worktree>
 
 <step_2_understand>
 Extract from the issue or task:
@@ -256,6 +269,7 @@ Notes:
 </batch_format>
 
 <success_criteria>
+- Worktree isolation enforced before any artifacts are written — entered a dedicated `.claude/worktrees/` worktree (or detected the session was already in one), silently and without nesting
 - Issue fetched cleanly (or task description accepted) — errors surfaced, not silently retried
 - Codebase exploration produced concrete affected-area list before planning
 - Build-vs-Reuse check happened explicitly

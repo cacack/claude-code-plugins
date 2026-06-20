@@ -15,6 +15,15 @@ Key guidelines (see [design-guidelines.md](./plugins/cacack/docs/design-guidelin
 - **Skills as programs** - invoke real tools, produce verifiable output
 - **External memory** - externalize state to files, don't assume context persists
 
+## Worktree Workflow
+
+The `play → do → panel → ship` cycle (and `deliver-milestone`) runs inside a dedicated git worktree under `.claude/worktrees/` so simultaneous parallel cycles never pollute each other's working tree.
+
+- **`/play`** creates/enters the worktree (auto, silent) — it is the cycle entry point. **`/do`** does the same in its direct (free-text) mode, since that path skips `/play`.
+- **`/do` (batch/prompts mode), `/panel-review`, `/ship`** inherit the worktree via the session working directory — no action needed; they must not create a nested one.
+- The worktree **persists after `/ship`** (PR open) for inspection. Remove it **after the PR merges**: `deliver-milestone` does this automatically; for a standalone cycle, use `ExitWorktree` with `action: remove`.
+- `deliver-milestone` gives **each issue its own worktree**, torn down after that issue merges.
+
 ## Repository Structure (Canonical - Do Not Deviate)
 
 This structure follows Claude Code's official plugin marketplace standards (matching `anthropics/claude-plugins-official`):
