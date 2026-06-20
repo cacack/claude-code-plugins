@@ -16,10 +16,12 @@ claude plugin install cacack
 
 ### Skills
 
-#### Development Workflow (play → do → ship)
-- `play` - Plan the work: fetch a GitHub/GitLab issue (or take a free-text task), explore, design, approve via plan mode, then either execute inline or emit a DAG of execution prompts to `.prompts/` for `/do`
+#### Development Workflow (play → do → panel → ship → merge)
+The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simultaneous parallel cycles never pollute each other — `/play` (or `/do` in direct mode) creates it; the rest inherit it; `/merge` tears it down.
+- `play` - Plan the work: fetch a GitHub/GitLab issue (or take a free-text task), explore, design, approve via plan mode, then either execute inline or emit a DAG of execution prompts to `.prompts/` for `/do`. Creates the cycle's worktree
 - `do` - Execute the work: run the latest `/play` batch (no args), run specific prompts by number, or execute a free-text task directly
 - `ship` - Ship the work: preflight checks, issue compliance verification, documentation review, and PR/MR creation (`--quick` for fast path)
+- `merge` - Land a green PR/MR with semi-linear history (rebase, then merge commit) and clean up the local clone: remove the cycle's worktree, return to and pull the default branch, delete the merged branch locally and remotely, and prune stale refs
 - `deliver-milestone` - Drive a whole milestone/epic to done across every open issue (implement → panel review → address findings → ship → optional CodeRabbit → merge). Routes by agency: a fully-autonomous run has Claude author and launch a built-in dynamic Workflow; a checkpointed run uses an interactive orchestrator that calls `/play`, `/do`, `/panel-review`, `/ship` with approval pauses
 - `debug-like-expert` - Deep analysis debugging mode for complex issues with methodical investigation protocols
 - `security-review` - Comprehensive security analysis of changes, context, or entire repository
