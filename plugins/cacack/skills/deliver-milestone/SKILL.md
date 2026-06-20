@@ -193,12 +193,19 @@ add/remove happens inside agent prompts via the `git worktree` CLI — not the s
    `coderabbit*` review or times out. (The workflow script itself cannot sleep or time itself, so
    the wait MUST live inside the agent, not in a script-level JS loop.) On findings, triage + fix
    + reship; on timeout, record and continue. Never block on the bot.
-6. **Merge** — only if `args.stopAfter === "merge"`: an `agent()` confirms checks green, merges
-   (`gh pr merge --squash --delete-branch` / `glab mr merge --squash --remove-source-branch`, or
-   the repo's documented strategy), then tears down the issue's worktree — `cd` to the main checkout,
-   pull `defaultBranch`, and `git worktree remove --force .claude/worktrees/<number>-<slug>` (force
-   because the squash-merge leaves the local commits off the branch). When `stopAfter` is `review` or
-   `ship` the worktree is intentionally **left in place** for the human to inspect/merge.
+6. **Merge** — only if `args.stopAfter === "merge"`: an `agent()` produces **semi-linear** history.
+   <!-- KEEP IN SYNC WITH plugins/cacack/skills/merge/SKILL.md — this is the autonomous-route
+   inline mirror of /cacack:merge (workflow agents run raw git/gh/glab rather than invoking the
+   skill); any change to the merge strategy/cleanup there must be reflected here. -->
+   Mirror `/cacack:merge`: guard a clean tree, confirm checks green, rebase the branch onto the
+   fresh default and re-confirm green with a **capped poll** (GitHub: local `git rebase
+   origin/<defaultBranch>` + `git push --force-with-lease`; GitLab: `glab mr rebase`), then
+   merge-commit it (`gh pr merge --merge --delete-branch` / `glab mr merge --remove-source-branch
+   --yes` — `--yes` is required, the route is non-interactive). After confirming the PR/MR state is
+   `MERGED`, tear down the issue's worktree — `cd` to the main checkout, pull `defaultBranch`,
+   `git worktree remove --force .claude/worktrees/<number>-<slug>`, and `git fetch --prune`. Quote
+   forge-supplied branch names when interpolating them. When `stopAfter` is `review` or `ship` the
+   worktree is intentionally **left in place** for the human to inspect/merge.
 
 Wrap each issue body in try/catch; on a caught error, record `{ number, stage: "failed", note:
 <message> }`, `log()` it, and let the `for` loop continue to the next issue — never abort the
@@ -227,12 +234,12 @@ Used by `<route_checkpointed>`. Each stage delegates to the existing skill via t
 6. **CodeRabbit pass** *(only if enabled; pause: ship-merge, per-stage)* — poll the PR/MR for the
    bot review (see `<coderabbit_polling>`); on a hit, triage + address valid findings + reship
    (`/cacack:ship --quick` usually); on timeout, record and continue. → `coderabbit-addressed`.
-7. **Merge** *(pause: ship-merge, per-stage; per-issue pauses here)* — confirm checks green, then
-   `gh pr merge <n> --squash --delete-branch` (or `glab mr merge <n> --squash --remove-source-branch`),
-   then tear down this issue's worktree: `ExitWorktree` with `action: remove` (the `/play`-created
-   worktree is session-tracked, so this returns the session to the main checkout and deletes the
-   worktree+branch; pass `discard_changes: true` since the squash-merge leaves local commits off the
-   branch). Pull `defaultBranch`. The next issue's `/play` then creates a fresh worktree. → `merged`.
+7. **Merge — `/cacack:merge <pr-or-mr-number>`** *(pause: ship-merge, per-stage; per-issue pauses
+   here)* — delegates the semi-linear merge + cleanup: re-gates checks, rebases the branch onto the
+   default and merge-commits it, then tears down this issue's worktree (the `/play`-created worktree
+   is session-tracked, so `/merge`'s `ExitWorktree` returns the session to the main checkout),
+   deletes the branch locally + remotely, pulls `defaultBranch`, and prunes. The next issue's `/play`
+   then creates a fresh worktree. → `merged`.
 </pipeline_stages>
 
 <finding_triage>
