@@ -47,6 +47,8 @@ After resolving:
    - `gh pr view --json number,title,url 2>/dev/null` — open PR for the current branch, if any
    These run at invocation time, not skill-load time — keep them in the workflow, not in a static context block.
 
+   When run as the `panel` stage of the play → do → panel → ship cycle, this skill inherits the cycle's git worktree via the session working directory — no special handling needed, since it only reads the diff of the current branch. See CLAUDE.md.
+
 1. **Resolve scope** as above. Print a one-line summary: "Reviewing: <description> (<N files>, +<adds>/-<dels>)".
 
 2. **Capture context for subagents.** In addition to the diff, prepare a short context block:
