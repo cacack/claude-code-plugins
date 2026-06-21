@@ -102,9 +102,10 @@ Produce semi-linear history: rebase the feature branch onto the base, then merge
 2. `glab mr rebase <n>` — rebases the source branch onto the target on the server.
 3. Re-gate: poll the MR pipeline (`glab ci status`) until `success`, same ~10-poll / ~15-min cap; stop on failure or timeout, don't merge.
 4. **Verify the merge method before claiming semi-linear.** If the project's merge method is *not* "Merge commit with semi-linear history" (it's fast-forward or squash), the rebase+merge won't produce the promised history — **stop and ask** whether to proceed with the project's actual method. If the user proceeds, record the *actual* strategy used (don't label it semi-linear in the report).
-5. `glab mr merge <n> --remove-source-branch --yes`.
+5. `glab mr merge <n> --auto-merge=false --remove-source-branch --yes`. The `--auto-merge=false` is **mandatory**: glab enables auto-merge (merge-when-pipeline-succeeds) **by default whenever a pipeline is running**, in which case it prints a misleading `✓ Merged!` while only *scheduling* the merge — yet `--remove-source-branch` still deletes the branch right away, leaving the MR permanently stuck (auto-merge can never fire without a source branch). Forcing it off makes glab merge now or fail loudly.
+6. **Verify the merge actually landed — do NOT trust the CLI's `Merged!` / `Pipeline succeeded` output.** Re-fetch and confirm `state == merged` (`glab mr view <n> --output json`). If it is *not* merged, **stop and do not proceed to cleanup**: the command scheduled auto-merge or otherwise didn't complete. Report it; if `--remove-source-branch` already removed the branch, the surviving local commit can be re-pushed to restore the source branch before retrying with `--auto-merge=false`.
 
-Capture the resulting merge commit SHA **and the strategy actually used** for the report.
+Capture the resulting merge commit SHA **and the strategy actually used** for the report — only after the merged state is confirmed.
 </step_4_semilinear_merge>
 
 <step_5_cleanup>
@@ -148,6 +149,8 @@ If the change bumped the version, remind the user of the tag command:
 
 <safety>
 - NEVER merge a PR/MR with failing or pending required checks — gate in step 3 and again after the rebase (capped poll, no indefinite blocking).
+- ALWAYS pass `--auto-merge=false` to `glab mr merge`. Its default enables merge-when-pipeline-succeeds whenever a pipeline is running and prints a misleading `Merged!` while only scheduling the merge — combined with `--remove-source-branch` this deletes the branch and leaves the MR permanently stuck. Force an immediate merge instead.
+- NEVER infer merge success from a CLI's stdout (`Merged!`, `Pipeline succeeded`). Confirm it by re-fetching the PR/MR `state` and seeing `merged`; only then capture the SHA or run cleanup.
 - NEVER use a plain `git push -f` — only `--force-with-lease`, so a rebase push aborts if someone else pushed. (Allowed-tools only grants `git push --force-with-lease`.)
 - NEVER abandon a conflicted rebase mid-flight — `git rebase --abort` and hand back to the user.
 - NEVER check out / rebase over a dirty working tree — gate on `git status --porcelain` being empty first (step 4).
@@ -177,6 +180,7 @@ If the change bumped the version, remind the user of the tag command:
 - Arguments normalized (leading `#` stripped); GitLab number understood as the MR IID
 - Working tree confirmed clean before checkout/rebase
 - Merge gated on open + mergeable + green checks, and again after the rebase with a capped poll (no indefinite blocking)
+- GitLab merge forced immediate (`--auto-merge=false`), never left to glab's default auto-merge; landed state verified by re-fetching the MR `state == merged`, never inferred from the CLI's `Merged!` output
 - Confirmation prompt shown, skipped only on an explicit user-typed number — never on a number relayed by another skill
 - Forge-supplied branch names/titles quoted when interpolated into commands
 - Semi-linear history produced where the platform allows it; on a GitLab merge-method mismatch, stopped to ask and reported the *actual* strategy used (never mislabeled)
