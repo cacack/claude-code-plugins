@@ -155,7 +155,7 @@ workflow API (`agent`, `parallel`, `phase`, `log`, and `args`). Key runtime fact
 
 **Shape:** process `args.issues` **sequentially** with a plain `for` loop (NOT `pipeline`/`parallel`
 across issues). Each issue is delivered in its **own dedicated git worktree** under
-`.claude/worktrees/`, so simultaneous work never pollutes a shared tree (see CLAUDE.md). The
+`.claude/worktrees/`, so simultaneous work never pollutes a shared tree (unconditional, not gated on CLAUDE.md). The
 worktree path is deterministic from the issue (`.claude/worktrees/<number>-<slug>`); the implement
 agent creates it and every later agent for that issue `cd`s into it before doing anything. Within an
 issue, do run the five reviewers in parallel. (The workflow script can't run git, so all worktree
