@@ -263,7 +263,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 </rigorous_workflow>
 
 <worktree>
-The play → do → panel → ship cycle runs inside a dedicated git worktree (see CLAUDE.md). `/ship` inherits it via the session working directory and commits/pushes from the worktree's branch — no special handling needed. Do **not** exit or remove the worktree here: it persists after the PR/MR is opened so the user can inspect or follow up. Clean it up only after the PR merges — `/deliver-milestone` removes it automatically; for a standalone cycle, `ExitWorktree` with `action: remove` once merged.
+The play → do → panel → ship cycle always runs inside a dedicated git worktree (unconditional, not gated on CLAUDE.md). `/ship` inherits it via the session working directory and commits/pushes from the worktree's branch — no special handling needed. Do **not** exit or remove the worktree here: it persists after the PR/MR is opened so the user can inspect or follow up. Clean it up only after the PR merges — `/deliver-milestone` removes it automatically; for a standalone cycle, `ExitWorktree` with `action: remove` once merged.
 </worktree>
 
 <output_format>
