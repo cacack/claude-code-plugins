@@ -14,6 +14,7 @@ allowed-tools:
   - Bash(git log:*)
   - Bash(git diff:*)
   - Bash(git rev-parse:*)
+  - Bash(git remote:*)
   - Bash(ls:*)
   - Bash(mkdir:*)
   - WebFetch

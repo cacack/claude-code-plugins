@@ -18,10 +18,10 @@ This helps prevent security vulnerabilities from reaching production by catching
 </objective>
 
 <context>
-Git status: ! `git status`
-Changed files: ! `git diff --name-only`
-Staged changes: ! `git diff --cached --name-only`
-Current branch: ! `git branch --show-current`
+Git status: !`git status`
+Changed files: !`git diff --name-only`
+Staged changes: !`git diff --cached --name-only`
+Current branch: !`git branch --show-current`
 </context>
 
 <process>
