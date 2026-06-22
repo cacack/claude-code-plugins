@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Edit
   - Write
+  - Bash(date:*)
 ---
 
 <objective>

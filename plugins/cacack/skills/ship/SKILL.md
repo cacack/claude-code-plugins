@@ -33,13 +33,17 @@ Ship code changes with appropriate rigor. By default, runs preflight checks, ver
 </objective>
 
 <context>
-Git status: ! `git status --short`
-Current branch: ! `git branch --show-current`
-Remote: ! `git remote get-url origin 2>/dev/null | head -1`
-Changes: ! `git diff --stat HEAD 2>/dev/null | tail -5`
-Recent commits: ! `git log --oneline -3 2>/dev/null`
-Make targets: ! `make -qp 2>/dev/null | awk -F: '/^[a-z][a-z0-9_-]*:/ && !/^\./ {print $1}' | grep -E '^(lint|test|check|security|audit)' | tr '\n' ' ' || echo "none"`
+Git status: !`git status --short`
+Current branch: !`git branch --show-current`
+Remote: !`git remote get-url origin 2>/dev/null`
+Changes: !`git diff --stat HEAD 2>/dev/null`
+Recent commits: !`git log --oneline -3 2>/dev/null`
 </context>
+
+<!-- Available make targets are detected in the body (phase 1_preflight) via real Bash calls, NOT
+in `<context>`: `!` preprocessing is permission-checked and cannot prompt, and each pipe segment
+(awk/grep/tr) would need its own approval — so a piped detection command makes the skill fail to
+load. Context bang commands must stay single, simple, and covered by `allowed-tools`. -->
 
 <routing>
 Parse `$ARGUMENTS` for flags and commit message:
