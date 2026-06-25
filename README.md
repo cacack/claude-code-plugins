@@ -47,11 +47,13 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `create-hooks` - Build custom hooks with examples and troubleshooting guides
 - `create-slash-commands` - Build slash commands with argument handling and tool restrictions
 - `create-subagents` - Design and implement specialized subagents with orchestration patterns
+- `create-claudemd` - Create, author, or migrate `CLAUDE.md` and `.claude/rules/` files following Anthropic best practices (create / rules / migrate modes). Pairs with `audit-claudemd` for the audit side
 
 #### Extension Maintenance
 - `audit-skill` - Audit and validate skill structure and quality
 - `audit-slash-command` - Audit and validate slash command implementation
 - `audit-subagent` - Audit and validate subagent definitions
+- `audit-claudemd` - Audit a `CLAUDE.md` or `.claude/rules/` file/dir for conciseness, stale references, scope, and path-scoping (drives the `claudemd-auditor` agent)
 - `heal-skill` - Self-improvement workflow for skills
 
 #### Shipping & Quality
