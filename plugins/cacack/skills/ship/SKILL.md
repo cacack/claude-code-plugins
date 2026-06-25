@@ -75,12 +75,24 @@ Fast path for trivial changes. No preflight, no compliance, no docs review.
 
 **Process:**
 
-1. Stage all changes:
+1. **Working-tree sanity check** (skipping this contradicts `<safety>` in this file). Quick mode stages everything with `git add .`, so scan what's about to be staged for secrets first:
+   ```bash
+   git status --short
+   ```
+   Display the result. If any path matches a sensitive-file pattern, stop and warn the user **before** staging:
+   - `.env`, `.env.*`, `*.env`
+   - `*.key`, `*.pem`, `*_rsa`, `*_dsa`, `*_ecdsa`, `*_ed25519`, `id_rsa*`
+   - `*credential*`, `*secret*`, `*password*`, `*.kdbx`
+   - `.netrc`, `.pypirc`, `.npmrc` (only if it contains tokens)
+
+   Ask the user to confirm or to exclude the files before continuing. Do not proceed past this on the fast path without explicit confirmation.
+
+2. Stage all changes:
    ```bash
    git add .
    ```
 
-2. Generate or use provided commit message:
+3. Generate or use provided commit message:
    - Format: `type(scope): description`
    - Include footer:
      ```
@@ -89,13 +101,13 @@ Fast path for trivial changes. No preflight, no compliance, no docs review.
      Co-Authored-By: Claude <noreply@anthropic.com>
      ```
 
-3. Commit and push:
+4. Commit and push:
    ```bash
    git commit -m "..."
    git push
    ```
 
-4. Report completion:
+5. Report completion:
    ```
    ✓ Shipped (quick mode)
      Commit: abc1234
