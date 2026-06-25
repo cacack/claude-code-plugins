@@ -38,6 +38,9 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `whats-next` - Discover and pick up work from handoffs, todos, GitHub/GitLab issues, or ideas (prioritized by readiness, with milestone-scoped issues ranked above general ones)
 - `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
 
+#### Engineering Canon
+- `instill-principles` - Install or re-sync the engineering canon (9 durable engineering principles + 6 agent operating rules) into a repo's `.claude/rules/` or your user profile's always-on context. Audits the target for overlap, merges without duplicating, and writes a managed block you re-sync as the canon evolves. See [docs/engineering-principles.md](plugins/cacack/docs/engineering-principles.md)
+
 #### Extension Creation
 - `create-agent-skills` - Comprehensive workflow for building agent skills with references, templates, and workflows
 - `create-hooks` - Build custom hooks with examples and troubleshooting guides
