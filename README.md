@@ -36,6 +36,7 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `check-todos` - Review and manage your todo list
 - `park` - Park current session context or capture cross-project ideas for later pickup
 - `whats-next` - Discover and pick up work from handoffs, todos, GitHub/GitLab issues, or ideas (prioritized by readiness, with milestone-scoped issues ranked above general ones)
+- `history` - Read Claude Code conversation history from `~/.claude/history.jsonl` and present recent sessions (date, project, topic, session ID) as a scannable table, with a `claude --resume` tip
 - `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
 
 #### Engineering Canon
