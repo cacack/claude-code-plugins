@@ -82,7 +82,63 @@ Project-level subagents override user-level when names conflict.
 - `inherit`: uses same model as main conversation
 - If omitted: defaults to configured subagent model (usually sonnet)
 </field>
+
+<field name="disallowedTools">
+- Tools to explicitly deny, removed from the inherited or specified tools list
+- Useful for removing specific dangerous tools while inheriting the rest
+</field>
+
+<field name="permissionMode">
+- Controls how the subagent handles permission prompts
+- Values: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`
+- Not available for plugin agents (silently ignored — see `<plugin_restrictions>`)
+</field>
+
+<field name="maxTurns">
+- Maximum number of agentic turns before the subagent stops
+- Prevents runaway agents from consuming excessive resources
+</field>
+
+<field name="skills">
+- Skills to preload into the subagent's context at startup
+- Full skill content is injected (the inverse of `context: fork` in skills)
+- Gives a subagent domain knowledge without separate file references
+</field>
+
+<field name="memory">
+- Persistent memory scope for cross-session learning: `user`, `project`, or `local`
+- Enables the subagent to retain and recall information across sessions
+</field>
+
+<field name="background">
+- Set `true` to always run this subagent as a background task
+- Background subagents run without blocking the main conversation
+</field>
+
+<field name="isolation">
+- Set to `worktree` to run the subagent in an isolated git worktree
+- Avoids conflicts when the subagent mutates files in parallel with main work
+</field>
+
+<field name="mcpServers">
+- Scoped MCP servers available only to this subagent
+- Not available for plugin agents (silently ignored — see `<plugin_restrictions>`)
+</field>
+
+<field name="hooks">
+- Lifecycle hooks scoped to this subagent
+- Not available for plugin agents (silently ignored — see `<plugin_restrictions>`)
+</field>
 </configuration>
+
+<plugin_restrictions>
+**Plugin agents** (defined in a plugin's `agents/` directory) carry security restrictions. These fields are **silently ignored** when set on a plugin agent:
+- `hooks` — lifecycle hooks cannot be defined by plugins
+- `mcpServers` — scoped MCP servers cannot be defined by plugins
+- `permissionMode` — permission overrides cannot be set by plugins
+
+The restrictions prevent plugins from escalating privileges or introducing untrusted server connections. Project-level and user-level agents can use every field without restriction. Since this repo ships agents *as a plugin*, do not rely on these three fields in `plugins/cacack/agents/` — they won't take effect.
+</plugin_restrictions>
 
 <execution_model>
 <critical_constraint>
@@ -126,6 +182,27 @@ Subagent: Generate code based on confirmed plan
 Main Chat: Present results, handle testing/deployment
 ```
 </workflow_design>
+
+<background_execution>
+Subagents can run in the background, freeing the main conversation for other work:
+- Set `background: true` in frontmatter to always run as a background task
+- Users can also send any subagent to background with Ctrl+B or by saying "run in background"
+- Background subagents return their results when complete, without blocking the conversation
+</background_execution>
+
+<persistent_memory>
+The `memory` field enables persistent cross-session learning:
+- A subagent with memory retains information and improves over time
+- Scope controls where memory is stored: `user` (global), `project` (repo-specific), or `local` (directory-specific)
+- Useful for agents that should learn preferences, patterns, or context across sessions
+</persistent_memory>
+
+<skills_preloading>
+The `skills` field preloads skill content directly into the subagent's context at startup:
+- Full skill content is injected, giving the subagent domain knowledge immediately
+- This is the inverse of `context: fork` in skills (which sends work *out* to a subagent)
+- Use it when a subagent needs domain expertise that already lives in a skill
+</skills_preloading>
 </execution_model>
 
 <system_prompt_guidelines>
@@ -249,7 +326,7 @@ You can also edit subagent files directly:
 
 **Subagent usage and configuration**: [references/subagents.md](references/subagents.md)
 - File format and configuration
-- Model selection (Sonnet 4.5 + Haiku 4.5 orchestration)
+- Model selection (Sonnet 4.6 + Haiku 4.5 orchestration)
 - Tool security and least privilege
 - Prompt caching optimization
 - Complete examples
