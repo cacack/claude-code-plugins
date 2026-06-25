@@ -145,6 +145,9 @@ All in `references/`:
 **Patterns:** common-patterns.md, workflows-and-validation.md
 **Assets:** using-templates.md, using-scripts.md
 **Advanced:** executable-code.md, api-security.md, iteration-and-testing.md
+**Standards:** audit-standards.md — authoritative sources, Anthropic-requirements-vs-repo-conventions split, quarterly review cadence + change log (read before an audit)
+
+Design framing: [Handyman Principle](../../docs/handyman-principle.md) — context is scarce; favor focused skills over kitchen-sink ones.
 </reference_index>
 
 <workflows_index>

@@ -4,13 +4,13 @@ description: Expert guidance for creating, configuring, and using Claude Code ho
 ---
 
 <objective>
-Hooks are event-driven automation for Claude Code that execute shell commands or LLM prompts in response to tool usage, session events, and user interactions. This skill teaches you how to create, configure, and debug hooks for validating commands, automating workflows, injecting context, and implementing custom completion criteria.
+Hooks are event-driven automation for Claude Code that execute shell commands, LLM prompts, HTTP requests, or subagents in response to tool usage, session events, and user interactions. This skill teaches you how to create, configure, and debug hooks for validating commands, automating workflows, injecting context, and implementing custom completion criteria.
 
 Hooks provide programmatic control over Claude's behavior without modifying core code, enabling project-specific automation, safety checks, and workflow customization.
 </objective>
 
 <context>
-Hooks are shell commands or LLM-evaluated prompts that execute in response to Claude Code events. They operate within an event hierarchy: events (PreToolUse, PostToolUse, Stop, etc.) trigger matchers (tool patterns) which fire hooks (commands or prompts). Hooks can block actions, modify tool inputs, inject context, or simply observe and log Claude's operations.
+Hooks are handlers that execute in response to Claude Code events. They operate within an event hierarchy: events (PreToolUse, PostToolUse, Stop, etc.) trigger matchers (tool patterns) which fire hooks (commands, prompts, HTTP calls, or agents). Hooks can block actions, modify tool inputs, inject context, or simply observe and log Claude's operations.
 </context>
 
 <quick_start>
@@ -19,7 +19,7 @@ Hooks are shell commands or LLM-evaluated prompts that execute in response to Cl
    - Project: `.claude/hooks.json`
    - User: `~/.claude/hooks.json`
 2. Choose hook event (when it fires)
-3. Choose hook type (command or prompt)
+3. Choose hook type (command, prompt, http, or agent)
 4. Configure matcher (which tools trigger it)
 5. Test with `claude --debug`
 </workflow>
@@ -54,19 +54,66 @@ This hook:
 </quick_start>
 
 <hook_types>
+Events are grouped by category below. Blocking hooks (Can block? = Yes) can return `"decision": "block"` to prevent the action.
+
+### Session Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **SessionStart** | Session begins/resumes | No |
+| **SessionEnd** | Session terminates | No |
+
+### Tool Events
 | Event | When it fires | Can block? |
 |-------|---------------|------------|
 | **PreToolUse** | Before tool execution | Yes |
-| **PostToolUse** | After tool execution | No |
-| **UserPromptSubmit** | User submits a prompt | Yes |
+| **PostToolUse** | After tool succeeds | No |
+| **PostToolUseFailure** | After tool fails | No |
+| **PermissionRequest** | When the permission dialog appears | Yes |
+
+### Agent / Task Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
 | **Stop** | Claude attempts to stop | Yes |
-| **SubagentStop** | Subagent attempts to stop | Yes |
-| **SessionStart** | Session begins | No |
-| **SessionEnd** | Session ends | No |
-| **PreCompact** | Before context compaction | Yes |
+| **StopFailure** | Turn ends due to an API error | No |
+| **SubagentStart** | A subagent spawns | No |
+| **SubagentStop** | A subagent attempts to stop | Yes |
+| **TaskCreated** | A task is created via TaskCreate | No |
+| **TaskCompleted** | A task is marked complete | No |
+| **TeammateIdle** | An agent-team teammate is about to go idle | No |
+
+### User Interaction Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **UserPromptSubmit** | User submits a prompt | Yes |
 | **Notification** | Claude needs input | No |
 
-Blocking hooks can return `"decision": "block"` to prevent the action. See [references/hook-types.md](references/hook-types.md) for detailed use cases.
+### Context Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **PreCompact** | Before context compaction | Yes |
+| **PostCompact** | After context compaction | No |
+| **InstructionsLoaded** | CLAUDE.md / rules file loaded | No |
+| **ConfigChange** | A configuration file changes | No |
+| **CwdChanged** | Working directory changes | No |
+
+### File Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **FileChanged** | A watched file changes | No |
+
+### MCP Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **Elicitation** | An MCP server requests user input | Yes |
+| **ElicitationResult** | User responds to an MCP elicitation | No |
+
+### Worktree Events
+| Event | When it fires | Can block? |
+|-------|---------------|------------|
+| **WorktreeCreate** | A git worktree is created | No |
+| **WorktreeRemove** | A worktree is cleaned up | No |
+
+See [references/hook-types.md](references/hook-types.md) for detailed input/output schemas per event.
 </hook_types>
 
 <hook_anatomy>
@@ -110,6 +157,55 @@ Blocking hooks can return `"decision": "block"` to prevent the action. See [refe
 }
 ```
 </hook_type>
+
+<hook_type name="http">
+**Type**: POSTs the event JSON to a URL endpoint
+
+**Use when**:
+- External service validation
+- Webhook integrations
+- Centralized policy enforcement / audit logging
+
+**Input**: JSON body via POST
+**Output**: decision via HTTP status code + JSON response body (HTTP 200 = approve, non-200 = block; the body may include `decision`, `reason`, and other standard hook output fields)
+
+```json
+{
+  "type": "http",
+  "url": "https://hooks.example.com/validate",
+  "timeout": 5000
+}
+```
+</hook_type>
+
+<hook_type name="agent">
+**Type**: Spawns a subagent with tools that returns a hook decision
+
+**Use when**:
+- Complex multi-step verification
+- Checks requiring file reads or API calls
+- Dynamic analysis the other types can't express
+
+```json
+{
+  "type": "agent",
+  "prompt": "Verify that all modified files have corresponding test files. Check the git diff and ensure coverage.",
+  "tools": ["Bash", "Read", "Glob"]
+}
+```
+</hook_type>
+
+<common_fields>
+All hook types support these additional fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timeout` | number | Timeout in ms (default: 60000) |
+| `async` | boolean | Run in background without blocking (default: false) |
+| `once` | boolean | Run once per session, skills only (default: false) |
+| `statusMessage` | string | Custom spinner text shown during execution |
+| `if` | string | Permission-rule-syntax filter that gates whether the hook runs |
+</common_fields>
 </hook_anatomy>
 
 <matchers>
@@ -159,6 +255,7 @@ Available in hook commands:
 |----------|-------|
 | `$CLAUDE_PROJECT_DIR` | Project root directory |
 | `${CLAUDE_PLUGIN_ROOT}` | Plugin directory (plugin hooks only) |
+| `${CLAUDE_PLUGIN_DATA}` | Persistent plugin data directory (plugin hooks only) |
 | `$ARGUMENTS` | Hook input JSON (prompt hooks only) |
 
 **Example**:
@@ -262,10 +359,9 @@ This shows which hooks matched, command execution, and output. See [references/t
 - Input/output schemas for each
 - Blocking vs non-blocking hooks
 
-**Command vs Prompt hooks**: [references/command-vs-prompt.md](references/command-vs-prompt.md)
-- Decision tree: which type to use
-- Command hook patterns and examples
-- Prompt hook patterns and examples
+**Choosing a handler type**: [references/command-vs-prompt.md](references/command-vs-prompt.md)
+- Decision tree: command vs prompt vs http vs agent
+- Patterns and examples for each handler type
 - Performance considerations
 
 **Matchers and patterns**: [references/matchers.md](references/matchers.md)
