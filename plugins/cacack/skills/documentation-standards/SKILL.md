@@ -82,7 +82,9 @@ What would you like to do?
    and build system, and the issue tracker in use.
 2. **Map to the standard's types** — for the repo's audiences, determine which
    canonical documents should exist (Dimension 1) and where each belongs
-   (Dimension 2).
+   (Dimension 2). Always scaffold the **required** docs (`README`, `LICENSE`);
+   scaffold an **optional** doc only when its Dimension 1 trigger holds for this
+   repo.
 3. **Report the gap** — a table of {document, exists?, correct location?,
    proposed action}. Flag misplaced or duplicated docs.
 4. **Draft only what's missing or misplaced.** Reuse existing content; never
@@ -112,7 +114,7 @@ What would you like to do?
 
 1. **Inventory** the repo's docs and their locations (`find`, `ls`).
 2. **Score against each dimension:**
-   - *Types* — right documents for the audiences; no doc doing two jobs; each `docs/` document follows its template in `references/templates/`
+   - *Types* — right documents for the audiences; no doc doing two jobs; each `docs/` document follows its template in `references/templates/`. Use Dimension 1's required/optional markers: flag a missing **required** root doc (`README`, `LICENSE`) as a finding; flag a missing **optional** doc only when its stated trigger applies; never flag an optional doc absent its trigger
    - *Locations* — root stays lean; reference material under the `docs/` structure (`architecture/ decisions/ designs/ governance/ guides/ operations/ reference/`); ADRs zero-padded and numbered; each `docs/` subdir has a `README.md`
    - *Organization* — single source of truth, no duplicated facts, everything indexed, ADR lifecycle honored, one runbook per failure domain
    - *Formatting* — one H1, tagged code fences, relative links, sentence-case headings, one sentence per line, documented exported symbols

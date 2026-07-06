@@ -32,6 +32,10 @@ location, organization, and voice.
 | **Stewards (direction)** | "What is this, for whom, and what won't we do?" | `CONSTITUTION.md` (optional `GOVERNANCE.md` for *who decides & how*) |
 | **Everyone (meta)** | project meta / legal / history | `LICENSE`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md` |
 
+This table maps docs to audiences, not to obligation — see the canonical root
+types list below for each doc's **required/optional** status (only `README.md`
+and `LICENSE` are required).
+
 When writing the `docs/` reference layer, also consider which of these deeper
 audiences the content serves — they determine technical depth and what to call
 out explicitly:
@@ -45,41 +49,52 @@ out explicitly:
 
 Call out security and operational concerns explicitly when relevant.
 
-Canonical **root** types, each with **one** purpose:
+Canonical **root** types, each with **one** purpose. Only `README.md` and
+`LICENSE` are **required**; every other entry is **optional** — adopt it when the
+project warrants it (a private or internal repo may reasonably skip
+`SECURITY.md`, `CODE_OF_CONDUCT.md`, and more).
 
-- **`README.md`** — the front door. What it is (1–2 sentences), why it exists,
-  quick start, install, minimal usage, and links out to everything else.
-  User-facing entrypoint; never a dumping ground for reference detail.
-- **`CLAUDE.md`** — guidance for Claude Code **only**, never user documentation.
-  Slim; defers detail to `.claude/rules/` and `docs/`. (Author with
-  `create-claudemd`; audit with `audit-claudemd`.)
-- **`CONTRIBUTING.md`** — contributor onboarding: dev setup, commands, code
-  standards, commit and change-request conventions, and the testing bar.
-- **`CODE_OF_CONDUCT.md`** — expected conduct and enforcement contact. Adopt a
-  standard text (e.g. Contributor Covenant) rather than authoring one; both
-  GitHub and GitLab recognize it at the root.
-- **`CHANGELOG.md`** — release history. Prefer **generated** (release-please /
-  conventional commits) over hand-maintained.
-- **`SECURITY.md`** — vulnerability-reporting policy and supported versions.
-- **`CONSTITUTION.md`** — the project's charter/intent: mission, audience,
-  principles, non-goals, success criteria. The apex doc every other document,
-  decision, and policy is judged against. One screen; if it grows, the detail
-  belongs in `docs/`. Optional but recommended. (Author/refresh with
-  `constitution`; review activity against it with `panel-product`.)
-- **`GOVERNANCE.md`** — *optional, and distinct from `CONSTITUTION.md`*: who runs
+- **`README.md`** *(required)* — the front door. What it is (1–2 sentences), why
+  it exists, quick start, install, minimal usage, and links out to everything
+  else. User-facing entrypoint; never a dumping ground for reference detail.
+- **`LICENSE`** *(required)* — legal.
+- **`CLAUDE.md`** *(optional)* — guidance for Claude Code **only**, never user
+  documentation. Slim; defers detail to `.claude/rules/` and `docs/`. Add once
+  Claude Code is used to work in the repo. (Author with `create-claudemd`; audit
+  with `audit-claudemd`.)
+- **`CONTRIBUTING.md`** *(optional)* — contributor onboarding: dev setup,
+  commands, code standards, commit and change-request conventions, and the
+  testing bar. Add once the project accepts outside contributions.
+- **`CODE_OF_CONDUCT.md`** *(optional)* — expected conduct and enforcement
+  contact. Add for public or community projects; adopt a standard text (e.g.
+  Contributor Covenant) rather than authoring one. Both GitHub and GitLab
+  recognize it at the root.
+- **`CHANGELOG.md`** *(optional)* — release history. Add once the project cuts
+  tagged releases. Prefer **generated** (release-please / conventional commits)
+  over hand-maintained.
+- **`SECURITY.md`** *(optional)* — vulnerability-reporting policy and supported
+  versions. Add when the project accepts external vulnerability reports; a
+  private or internal-only repo may skip it.
+- **`CONSTITUTION.md`** *(optional)* — the project's charter/intent: mission,
+  audience, principles, non-goals, success criteria. Recommended for any project
+  with non-trivial scope or more than one contributor. The apex doc every other
+  document, decision, and policy is judged against. One screen; if it grows, the
+  detail belongs in `docs/`. (Author/refresh with `constitution`; review
+  activity against it with `panel-product`.)
+- **`GOVERNANCE.md`** *(optional)* — distinct from `CONSTITUTION.md`: who runs
   the project and how — roles, decision-making process, how maintainers are
   added or removed. `CONSTITUTION.md` is *intent/direction*; `GOVERNANCE.md` is
   *people/authority*. Add only when the project has real multi-party governance;
   a solo or internal project rarely needs it.
-- **`LICENSE`** — legal.
-- **`CODEOWNERS`** — *optional*: maps paths to reviewers. Portable across forges
-  only at `CODEOWNERS` (root) or `docs/CODEOWNERS` — both GitHub and GitLab
-  resolve those; avoid the forge-specific `.github/`/`.gitlab/` copies if you
-  want it to travel. Default to root (matching `LICENSE`/`SECURITY.md`); move to
-  `docs/CODEOWNERS` only when the root is already at its indexing limit.
-- **Optional root indexes** — `FEATURES.md` (exhaustive feature list), `IDEAS.md`
-  (unvetted concepts), `USAGE.md` (extended examples). Add only when the root
-  README genuinely cannot hold them.
+- **`CODEOWNERS`** *(optional)* — maps paths to reviewers. Add once path-based
+  review routing is worth automating. Portable across forges only at
+  `CODEOWNERS` (root) or `docs/CODEOWNERS` — both GitHub and GitLab resolve
+  those; avoid the forge-specific `.github/`/`.gitlab/` copies if you want it to
+  travel. Default to root (matching `LICENSE`); move to `docs/CODEOWNERS` only
+  when the root is already at its indexing limit.
+- **Root indexes** *(optional)* — `FEATURES.md` (exhaustive feature list),
+  `IDEAS.md` (unvetted concepts), `USAGE.md` (extended examples). Add only when
+  the root README genuinely cannot hold them.
 
 Canonical **`docs/` reference-layer** types — each governed by a template in
 `templates/` (copy the template, fill the sections, remove placeholder text):
@@ -112,12 +127,11 @@ Otherwise it is a *section* in an existing document.
 
 ## Dimension 2 — Locations (where each lives)
 
-**Root** — only the documents a newcomer or a tool expects by convention:
-`README`, `LICENSE`, `CONTRIBUTING`, `CHANGELOG`, `SECURITY`, `CLAUDE.md`,
-`CODE_OF_CONDUCT`, and `CONSTITUTION.md` (plus an optional `GOVERNANCE.md` or
-`CODEOWNERS`).
-Plus, at most, a few top-level indexes (`FEATURES`/`IDEAS`/`USAGE`). The root is
-a table of contents, not a library — keep it lean; the all-caps charter/meta
+**Root** — `README` and `LICENSE` are the only required root docs. Beyond them
+the root holds whichever *optional* canonical docs the project adopts (see
+Dimension 1 for the full list and each doc's required/optional status) plus, at
+most, a few top-level indexes (`FEATURES`/`IDEAS`/`USAGE`). The root is a table
+of contents, not a library — keep it lean; the all-caps charter/meta
 docs are the standing exception, not license to accrete reference material.
 
 **`docs/`** — the structured reference layer. Use the standard subdirectories,
