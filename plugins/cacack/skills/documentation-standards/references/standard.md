@@ -8,6 +8,13 @@ convention) over a structured **`docs/` reference layer** (in-depth material,
 organized by document type and written from templates). Go is used for concrete
 API-doc examples; substitute your language's idiom.
 
+The standard is **forge-agnostic**: everything it prescribes lives at the repo
+root or under `docs/`, the two locations both GitHub and GitLab recognize. The
+handful of files that only exist as forge configuration — change-request
+templates, issue templates, sponsorship — are irreducibly forge-specific and are called out
+separately (see *Forge-specific config* in Dimension 2) rather than mixed into
+the portable taxonomy.
+
 ---
 
 ## Dimension 1 — Types (what each document is, and its audience)
@@ -47,7 +54,10 @@ Canonical **root** types, each with **one** purpose:
   Slim; defers detail to `.claude/rules/` and `docs/`. (Author with
   `create-claudemd`; audit with `audit-claudemd`.)
 - **`CONTRIBUTING.md`** — contributor onboarding: dev setup, commands, code
-  standards, commit/PR conventions, and the testing bar.
+  standards, commit and change-request conventions, and the testing bar.
+- **`CODE_OF_CONDUCT.md`** — expected conduct and enforcement contact. Adopt a
+  standard text (e.g. Contributor Covenant) rather than authoring one; both
+  GitHub and GitLab recognize it at the root.
 - **`CHANGELOG.md`** — release history. Prefer **generated** (release-please /
   conventional commits) over hand-maintained.
 - **`SECURITY.md`** — vulnerability-reporting policy and supported versions.
@@ -62,6 +72,11 @@ Canonical **root** types, each with **one** purpose:
   *people/authority*. Add only when the project has real multi-party governance;
   a solo or internal project rarely needs it.
 - **`LICENSE`** — legal.
+- **`CODEOWNERS`** — *optional*: maps paths to reviewers. Portable across forges
+  only at `CODEOWNERS` (root) or `docs/CODEOWNERS` — both GitHub and GitLab
+  resolve those; avoid the forge-specific `.github/`/`.gitlab/` copies if you
+  want it to travel. Default to root (matching `LICENSE`/`SECURITY.md`); move to
+  `docs/CODEOWNERS` only when the root is already at its indexing limit.
 - **Optional root indexes** — `FEATURES.md` (exhaustive feature list), `IDEAS.md`
   (unvetted concepts), `USAGE.md` (extended examples). Add only when the root
   README genuinely cannot hold them.
@@ -99,7 +114,8 @@ Otherwise it is a *section* in an existing document.
 
 **Root** — only the documents a newcomer or a tool expects by convention:
 `README`, `LICENSE`, `CONTRIBUTING`, `CHANGELOG`, `SECURITY`, `CLAUDE.md`,
-`CODE_OF_CONDUCT`, and `CONSTITUTION.md` (plus an optional `GOVERNANCE.md`).
+`CODE_OF_CONDUCT`, and `CONSTITUTION.md` (plus an optional `GOVERNANCE.md` or
+`CODEOWNERS`).
 Plus, at most, a few top-level indexes (`FEATURES`/`IDEAS`/`USAGE`). The root is
 a table of contents, not a library — keep it lean; the all-caps charter/meta
 docs are the standing exception, not license to accrete reference material.
@@ -146,6 +162,22 @@ may carry a local `README` for orientation.
 the tree.
 
 **Issue tracker** — roadmap, planned features, bugs. Not files in the repo.
+
+### Forge-specific config (not portable)
+
+A few files are forge configuration, not documentation, and cannot live at the
+root or under `docs/`. Prescribe neither location as canonical — use whichever
+forge hosts the project, and treat these as out of the portable taxonomy:
+
+| Purpose | GitHub | GitLab |
+|---------|--------|--------|
+| Change-request templates | `.github/PULL_REQUEST_TEMPLATE.md` | `.gitlab/merge_request_templates/*.md` |
+| Issue templates | `.github/ISSUE_TEMPLATE/*` | `.gitlab/issue_templates/*.md` |
+| Sponsorship | `.github/FUNDING.yml` | *(no direct equivalent)* |
+| Reviewer mapping (`CODEOWNERS`) | *(portable — see Dimension 1)* | *(portable — see Dimension 1)* |
+
+`CODEOWNERS` is the exception: it is portable, so its placement rule lives in
+Dimension 1, not here.
 
 **Placement test:** "Who looks for this, and where would they look first?" Put it
 there. If two audiences want it, give it **one** home and link from the other —
@@ -248,12 +280,12 @@ never copy.
   living inline and version-controlled (sequence diagrams in ADRs, small
   flowcharts in runbooks). For complex topology, prefer an exported PNG.
 
-**Commit / PR conventions** (documentation-relevant slice; the repo's git
-standard owns the rest)
+**Commit / change-request conventions** (documentation-relevant slice; the
+repo's git standard owns the rest)
 
 - Documentation changes use the `docs:` conventional-commit type — never `feat`
   or `fix`, which are reserved for consumable code changes.
-- PR titles follow the repo's policy.
+- Change-request titles follow the repo's policy.
 
 ---
 
