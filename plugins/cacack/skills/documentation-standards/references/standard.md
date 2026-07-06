@@ -22,6 +22,7 @@ location, organization, and voice.
 | **Maintainers (reference)** | "Why is it this way? What's the deep detail?" | `docs/**` reference layer (see Dimension 2), design & research notes |
 | **Agents (Claude Code)** | "How should Claude work in this repo?" | `CLAUDE.md`, `.claude/rules/*.md` |
 | **Operators** | "How do I run, deploy, or recover it?" | `SECURITY.md`, `docs/operations/**` |
+| **Stewards (direction)** | "What is this, for whom, and what won't we do?" | `CONSTITUTION.md` (optional `GOVERNANCE.md` for *who decides & how*) |
 | **Everyone (meta)** | project meta / legal / history | `LICENSE`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md` |
 
 When writing the `docs/` reference layer, also consider which of these deeper
@@ -50,6 +51,16 @@ Canonical **root** types, each with **one** purpose:
 - **`CHANGELOG.md`** — release history. Prefer **generated** (release-please /
   conventional commits) over hand-maintained.
 - **`SECURITY.md`** — vulnerability-reporting policy and supported versions.
+- **`CONSTITUTION.md`** — the project's charter/intent: mission, audience,
+  principles, non-goals, success criteria. The apex doc every other document,
+  decision, and policy is judged against. One screen; if it grows, the detail
+  belongs in `docs/`. Optional but recommended. (Author/refresh with
+  `constitution`; review activity against it with `panel-product`.)
+- **`GOVERNANCE.md`** — *optional, and distinct from `CONSTITUTION.md`*: who runs
+  the project and how — roles, decision-making process, how maintainers are
+  added or removed. `CONSTITUTION.md` is *intent/direction*; `GOVERNANCE.md` is
+  *people/authority*. Add only when the project has real multi-party governance;
+  a solo or internal project rarely needs it.
 - **`LICENSE`** — legal.
 - **Optional root indexes** — `FEATURES.md` (exhaustive feature list), `IDEAS.md`
   (unvetted concepts), `USAGE.md` (extended examples). Add only when the root
@@ -88,9 +99,10 @@ Otherwise it is a *section* in an existing document.
 
 **Root** — only the documents a newcomer or a tool expects by convention:
 `README`, `LICENSE`, `CONTRIBUTING`, `CHANGELOG`, `SECURITY`, `CLAUDE.md`,
-`CODE_OF_CONDUCT`. Plus, at most, a few top-level indexes
-(`FEATURES`/`IDEAS`/`USAGE`). The root is a table of contents, not a library —
-keep it lean.
+`CODE_OF_CONDUCT`, and `CONSTITUTION.md` (plus an optional `GOVERNANCE.md`).
+Plus, at most, a few top-level indexes (`FEATURES`/`IDEAS`/`USAGE`). The root is
+a table of contents, not a library — keep it lean; the all-caps charter/meta
+docs are the standing exception, not license to accrete reference material.
 
 **`docs/`** — the structured reference layer. Use the standard subdirectories,
 creating only those a project needs:
@@ -145,8 +157,13 @@ never copy.
 
 - **Single source of truth (DRY).** Every fact has exactly one authoritative
   home: README → user entry; CLAUDE.md → agent guidance; issues → roadmap;
-  ADRs → decisions & rationale; CHANGELOG → what shipped. Duplicated knowledge
-  drifts out of sync.
+  ADRs → decisions & rationale; CHANGELOG → what shipped; CONSTITUTION.md →
+  mission, direction & non-goals. Duplicated knowledge drifts out of sync.
+- **Charter hierarchy.** `CONSTITUTION.md` sits above the reference layer:
+  governance policies (`docs/governance/policies/`) *implement* it and ADRs
+  *decide within* it — they cite the constitution, never restate it. The root
+  README's documentation map links `CONSTITUTION.md` like any other doc so it is
+  never orphaned.
 - **Link, don't duplicate.** Cross-reference with relative links (within a repo).
   When tempted to copy, extract to one home and link to it.
 - **Discoverability / index.** The root README links to the docs that matter to

@@ -42,7 +42,7 @@ sibling skills — hand off instead:
 | Author or migrate a `CLAUDE.md` / `.claude/rules/` file | `create-claudemd` |
 | Audit docs for drift, dead links, stale content | `audit-docs` |
 | Find docs needing updates after code changes | `docs-analyzer` |
-| Author or refresh a `CONSTITUTION.md` | `charter` |
+| Author or refresh a `CONSTITUTION.md` | `constitution` |
 
 CLAUDE.md and `.claude/rules/` are covered by the standard's *types* dimension
 (agent-facing docs), but their **authoring** belongs to `create-claudemd`.

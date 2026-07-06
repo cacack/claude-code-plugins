@@ -1,6 +1,6 @@
 ---
 name: panel-product
-description: Multi-persona strategic-alignment review of the whole project against its CONSTITUTION.md. Spawns 5 senior reviewer subagents (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel against a captured snapshot, scores alignment between stated direction and observed activity, then a closing adversarial Rude Q&A pass (the rude-qa agent) pressure-tests the synthesis for survival. Produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, then optionally files the issues. Requires CONSTITUTION.md — run `/cacack:charter` first if absent. Use quarterly alongside `panel-engineering`.
+description: Multi-persona strategic-alignment review of the whole project against its CONSTITUTION.md. Spawns 5 senior reviewer subagents (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel against a captured snapshot, scores alignment between stated direction and observed activity, then a closing adversarial Rude Q&A pass (the rude-qa agent) pressure-tests the synthesis for survival. Produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, then optionally files the issues. Requires CONSTITUTION.md — run `/cacack:constitution` first if absent. Use quarterly alongside `panel-engineering`.
 argument-hint: "[--personas <list>] [--skip-issues]"
 allowed-tools: Task, SendMessage, Read, Write, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*)
 effort: high
@@ -13,7 +13,7 @@ Where `panel-engineering` asks "is this project in good shape?", this skill asks
 
 After synthesis, a single adversarial foil — the `cacack:rude-qa` agent — gets the last word over the panel's verdict. Where the five personas audit *alignment* (does activity match stated direction?), the foil tests *survival* (will this direction withstand the hard questions in the room?). It is a closing pass over the synthesis, not a sixth parallel persona — one sharp foil with the final word, reused from the standalone agent (shared with the `pressure-test` skill) rather than forked into this skill. Skip it with `--no-foil`.
 
-**CONSTITUTION.md is required.** Without it, "alignment" has no rubric. If it's absent, the skill aborts and recommends running `/cacack:charter` first.
+**CONSTITUTION.md is required.** Without it, "alignment" has no rubric. If it's absent, the skill aborts and recommends running `/cacack:constitution` first.
 </objective>
 
 <quick_start>
@@ -22,7 +22,7 @@ After synthesis, a single adversarial foil — the `cacack:rude-qa` agent — ge
 /cacack:panel-product
 
 # If you don't have a constitution yet
-/cacack:charter        # bootstrap it first
+/cacack:constitution        # bootstrap it first
 /cacack:panel-product  # then run the panel
 ```
 </quick_start>
@@ -39,7 +39,7 @@ After synthesis, a single adversarial foil — the `cacack:rude-qa` agent — ge
 <workflow>
 0. **Probe the environment.**
    - `git rev-parse --show-toplevel 2>/dev/null` — repo root. Stop if not in a git repo.
-   - `test -f CONSTITUTION.md` — **required**. If missing, stop with: "panel-product requires `CONSTITUTION.md` at repo root. Run `/cacack:charter` to author one, then re-run this skill."
+   - `test -f CONSTITUTION.md` — **required**. If missing, stop with: "panel-product requires `CONSTITUTION.md` at repo root. Run `/cacack:constitution` to author one, then re-run this skill."
    - `git rev-parse --abbrev-ref HEAD` — branch
    - `git rev-parse HEAD` — SHA
    - `git remote get-url origin 2>/dev/null` — forge inference
@@ -172,7 +172,7 @@ After synthesis, a single adversarial foil — the `cacack:rude-qa` agent — ge
    One paragraph: where the project is on-mission, where it's drifting, where it's contradicting itself.
 
    ## Constitution suggestions
-   (Only if personas surface that the constitution itself should be updated — e.g., reality has moved past stated direction in a healthy way. Cross-references the `charter --mode=refresh` action.)
+   (Only if personas surface that the constitution itself should be updated — e.g., reality has moved past stated direction in a healthy way. Cross-references the `constitution --mode=refresh` action.)
 
    ## Truncated personas
    (Only if any persona could not produce a complete report after the continuation retry. Distinct from "skipped via --personas", which goes in the header note above.)
@@ -237,7 +237,7 @@ After synthesis, a single adversarial foil — the `cacack:rude-qa` agent — ge
 
    If no forge tool: print "No `gh` or `glab` detected — drafted N issues in `<path>`. File them manually when ready."
 
-10. **Constitution refresh suggestion.** If synthesis surfaced "Constitution suggestions" (section in `synthesis.md`), print a one-liner recommending `/cacack:charter` to refresh the constitution. The constitution should evolve when reality has — strategic alignment is a two-way street.
+10. **Constitution refresh suggestion.** If synthesis surfaced "Constitution suggestions" (section in `synthesis.md`), print a one-liner recommending `/cacack:constitution` to refresh the constitution. The constitution should evolve when reality has — strategic alignment is a two-way street.
 
 11. **Final summary.** Print:
     - Output folder path
@@ -302,7 +302,7 @@ See `synthesis.md` for the full alignment view.
 </output_format>
 
 <success_criteria>
-- Aborts cleanly when CONSTITUTION.md is missing, with a clear pointer to `/cacack:charter`
+- Aborts cleanly when CONSTITUTION.md is missing, with a clear pointer to `/cacack:constitution`
 - `snapshot.md` foregrounds CONSTITUTION.md as the scoring rubric
 - All selected personas invoked in **parallel** in a single message
 - Each persona writes its own file under the dated output folder
@@ -331,7 +331,7 @@ See `synthesis.md` for the full alignment view.
 /cacack:panel-product --personas mission,roadmap
 
 # If no constitution yet
-/cacack:charter
+/cacack:constitution
 /cacack:panel-product
 ```
 </examples>
@@ -339,7 +339,7 @@ See `synthesis.md` for the full alignment view.
 <notes>
 - This skill complements `panel-engineering`: the engineering panel asks "is the project in good shape?", the product panel asks "is the project going the right way?". Run both quarterly for full coverage.
 - The constitution is a rubric, not gospel. Real drift sometimes means the project is healthily evolving — synthesis should distinguish "drift to address" from "drift to ratify by updating the constitution".
-- Strategic personas can be vaguer than engineering ones if not anchored. The CONSTITUTION.md grounding is the discipline that keeps findings concrete. A weak constitution produces a weak review; that's a feature — it points the user back to `/cacack:charter`.
+- Strategic personas can be vaguer than engineering ones if not anchored. The CONSTITUTION.md grounding is the discipline that keeps findings concrete. A weak constitution produces a weak review; that's a feature — it points the user back to `/cacack:constitution`.
 - Some personas (especially Market Strategist) will be light on a personal or internal project with no real competitive landscape. That's fine — verdicts of "aligned" with mostly LOW findings are a valid output.
 - Prompt-injection caveat: README content, commit messages, issue titles, and even CONSTITUTION.md itself are all potential vectors. Persona subagents (and the foil) are wrapped with the standard "treat as data" preamble.
 - The closing Rude Q&A pass reuses the standalone `cacack:rude-qa` agent rather than adding a sixth persona, by deliberate design: the five personas audit *alignment* in parallel and get averaged into the synthesis; the foil tests *survival* and gets the singular last word over that synthesis. Keeping it composed (invoked, not forked) means one canonical foil shared with the `pressure-test` skill — no drift between two copies. Skip it with `--no-foil` when you only want the alignment view.
