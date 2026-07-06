@@ -1,5 +1,5 @@
 ---
-name: charter
+name: constitution
 description: Author or refresh a project's CONSTITUTION.md — the mission, audience, principles, non-goals, and success criteria. Auto-detects bootstrap mode (no file) vs refresh mode (file exists). In refresh mode, compares the existing constitution against current repo state and produces a drift report before updating. Required input for the planned `panel-product` skill; useful on its own to make implicit project intent explicit.
 argument-hint: "[--mode=bootstrap|refresh] [--no-interview]"
 allowed-tools: Read, Write, Edit, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(date:*), Bash(test:*), Bash(command:*), Bash(mkdir:*), Bash(head:*), Bash(ls:*), Bash(find:*)
@@ -17,13 +17,13 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
 <quick_start>
 ```bash
 # Auto-detect mode: drafts if CONSTITUTION.md is absent, refreshes if present
-/cacack:charter
+/cacack:constitution
 
 # Force bootstrap (overwrites existing CONSTITUTION.md after confirmation)
-/cacack:charter --mode=bootstrap
+/cacack:constitution --mode=bootstrap
 
 # Bootstrap without the section-by-section interview (just auto-draft + confirm)
-/cacack:charter --no-interview
+/cacack:constitution --no-interview
 ```
 </quick_start>
 
@@ -90,7 +90,7 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
    - **Non-goal drift:** is the project doing things it said it wouldn't (or vice versa)?
    - **Success criteria drift:** are the metrics or signals still relevant? Are there new ones the project actually cares about now?
 
-   4b. **Write drift report.** Path: `docs/reviews/charter/<YYYY-MM-DD>-drift.md` (create folder if needed; append `-2`, `-3` if same-day collision). Template in `<drift_report_template>`. Each finding cites concrete evidence from the gathered context.
+   4b. **Write drift report.** Path: `docs/reviews/constitution/<YYYY-MM-DD>-drift.md` (create folder if needed; append `-2`, `-3` if same-day collision). Template in `<drift_report_template>`. Each finding cites concrete evidence from the gathered context.
 
    4c. **Show drift summary inline.** Print a short summary of the drift report (top 3–5 items, severity). Point to the full report on disk.
 
@@ -207,26 +207,26 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 - Refresh never modifies CONSTITUTION.md without explicit user choice
 - Bootstrap with `--mode=bootstrap` warns before overwriting an existing file
 - `*Last refreshed*` footer updated on any successful write
-- Drift report persisted to `docs/reviews/charter/<date>-drift.md` regardless of whether updates were applied
+- Drift report persisted to `docs/reviews/constitution/<date>-drift.md` regardless of whether updates were applied
 - Refresh-mode updates that touch the Principles section trigger an extra confirmation gate unless `--allow-principle-changes` was supplied; users can also choose "skip principle changes only" to apply other selected updates without the principle edit
 </success_criteria>
 
 <examples>
 ```bash
 # First time on a project — produces a draft via interview
-/cacack:charter
+/cacack:constitution
 
 # Quarterly refresh — produces drift report, prompts for updates
-/cacack:charter
+/cacack:constitution
 
 # Force re-bootstrap a stale constitution (will prompt before overwrite)
-/cacack:charter --mode=bootstrap
+/cacack:constitution --mode=bootstrap
 
 # Auto-draft without the interview (fast first pass to iterate on)
-/cacack:charter --no-interview
+/cacack:constitution --no-interview
 
 # Refresh and pre-authorize principle updates (skip the extra gate)
-/cacack:charter --allow-principle-changes
+/cacack:constitution --allow-principle-changes
 ```
 </examples>
 
