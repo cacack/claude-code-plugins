@@ -20,13 +20,17 @@ Apply one documentation standard across every repo. The standard lives in
 `references/standard.md` and covers four dimensions — **types** (what each
 document is, by audience), **locations** (where it lives), **organization**
 (single-source-of-truth, discoverability, ADR lifecycle), and **formatting**
-(markdown, voice, API docs). This skill loads that standard and helps you
-consult, scaffold, or check against it.
+(markdown, voice, API docs). It pairs a lean OSS-style root with a structured
+`docs/` reference layer; each `docs/` document type is written from a template in
+`references/templates/`. This skill loads that standard and helps you consult,
+scaffold, or check against it.
 </objective>
 
 <quick_start>
-Read `references/standard.md` first — it is the source of truth. Then route by
-what the user wants: consult, scaffold, or check.
+Read `references/standard.md` first — it is the source of truth. The `docs/`
+document templates live in `references/templates/` (architecture, ADR, design,
+guide, policy, runbook, reference). Then route by what the user wants: consult,
+scaffold, or check.
 </quick_start>
 
 <scope>
@@ -82,8 +86,11 @@ What would you like to do?
 3. **Report the gap** — a table of {document, exists?, correct location?,
    proposed action}. Flag misplaced or duplicated docs.
 4. **Draft only what's missing or misplaced.** Reuse existing content; never
-   overwrite substantive docs without showing the diff. For `CLAUDE.md` or
-   `.claude/rules/`, hand off to `create-claudemd`.
+   overwrite substantive docs without showing the diff. Write each `docs/`
+   document from its template in `references/templates/` (copy the template, fill
+   the sections, remove placeholder text); give each `docs/` subdirectory a
+   `README.md` index. For `CLAUDE.md` or `.claude/rules/`, hand off to
+   `create-claudemd`.
 5. **Wire up discoverability** — ensure the root README (or a "Documentation
    Structure" map) links every doc; no orphans.
 6. **Present the plan before writing any file.**
@@ -105,10 +112,10 @@ What would you like to do?
 
 1. **Inventory** the repo's docs and their locations (`find`, `ls`).
 2. **Score against each dimension:**
-   - *Types* — right documents for the audiences; no doc doing two jobs
-   - *Locations* — root stays lean; reference material under `docs/`; ADRs numbered
-   - *Organization* — single source of truth, no duplicated facts, everything indexed, ADR lifecycle honored
-   - *Formatting* — one H1, tagged code fences, relative links, sentence-case headings, documented exported symbols
+   - *Types* — right documents for the audiences; no doc doing two jobs; each `docs/` document follows its template in `references/templates/`
+   - *Locations* — root stays lean; reference material under the `docs/` structure (`architecture/ decisions/ designs/ governance/ guides/ operations/ reference/`); ADRs zero-padded and numbered; each `docs/` subdir has a `README.md`
+   - *Organization* — single source of truth, no duplicated facts, everything indexed, ADR lifecycle honored, one runbook per failure domain
+   - *Formatting* — one H1, tagged code fences, relative links, sentence-case headings, one sentence per line, documented exported symbols
 3. **Report findings** grouped by dimension, each with the file and a concrete fix.
    Do **not** chase drift, dead links, or staleness — that is `audit-docs`.
 4. **Offer to apply** the structural/placement fixes; keep content edits opt-in.
@@ -125,6 +132,7 @@ What would you like to do?
 
 <constraints>
 - ALWAYS read `references/standard.md` before acting — it is the source of truth
+- Write `docs/` documents from their `references/templates/` template — never freehand a type that has one
 - NEVER duplicate a fact across documents; extract to one home and link
 - NEVER overwrite substantive existing docs without showing the change first
 - Hand off CLAUDE.md/rules authoring to `create-claudemd`, drift/dead-links to
