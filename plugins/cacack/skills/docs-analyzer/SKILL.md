@@ -1,6 +1,6 @@
 ---
 name: docs-analyzer
-description: Analyze code changes semantically to identify documentation that needs updating. Maps new features, API changes, and breaking changes to specific doc sections with draft update suggestions.
+description: Analyze code changes semantically to identify documentation that needs updating. Maps new features, API changes, and breaking changes to specific doc sections with draft update suggestions. For drift and dead-link auditing use audit-docs; for the documentation standard (types, placement, formatting) use documentation-standards.
 user-invocable: false
 ---
 

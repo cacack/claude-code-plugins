@@ -54,6 +54,7 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `audit-slash-command` - Audit and validate slash command implementation
 - `audit-subagent` - Audit and validate subagent definitions
 - `audit-claudemd` - Audit a `CLAUDE.md` or `.claude/rules/` file/dir for conciseness, stale references, scope, and path-scoping (drives the `claudemd-auditor` agent)
+- `audit-docs` - Audit project documentation for dead links, orphaned files, drift/staleness, and duplicated facts (DRY) — the runtime enforcement of the `documentation-standards` link-don't-duplicate discipline (drives the `docs-auditor` agent)
 - `heal-skill` - Self-improvement workflow for skills
 
 #### Shipping & Quality
