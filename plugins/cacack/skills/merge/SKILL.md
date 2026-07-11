@@ -26,7 +26,7 @@ allowed-tools:
 Land a merge request / pull request the right way and leave the local clone clean.
 
 Two responsibilities, in order:
-1. **Merge with semi-linear history** — rebase the branch onto its base, then create a merge commit (no fast-forward). Linear-looking history, but with an explicit merge point per change.
+1. **Merge with semi-linear history** — rebase the branch onto its base, then create a merge commit (no fast-forward). Linear-looking history, but with an explicit merge point per change. The merge commit gets a **de-conventionalized body** so release-please doesn't duplicate the CHANGELOG (step 4).
 2. **Clean up** — tear down the cycle's worktree (if any), return to the default branch and pull, delete the merged branch locally and remotely, and prune stale remote-tracking refs.
 
 Tagging is intentionally **out of scope** — releases are tagged manually (see CLAUDE.md).
@@ -95,7 +95,9 @@ Produce semi-linear history: rebase the feature branch onto the base, then merge
 5. `git push --force-with-lease origin <head>` (safe force — aborts if the remote moved unexpectedly).
 6. **Re-gate after the force-push** — CI re-runs against the rebased branch. Poll `gh pr checks <n>` ~90s apart, **at most ~10 polls (~15 min total)**. On all-green → proceed. On a failing check → stop and report. On timeout (still pending after the cap) → stop and report as pending; **do not merge** — never block the session indefinitely. (Same bound as `deliver-milestone`'s `<coderabbit_polling>`.)
 7. Return to base so the local branch can be deleted cleanly: `git checkout <base>`.
-8. Merge commit: `gh pr merge <n> --merge --delete-branch` (`--merge` forces a merge commit; the rebase made it semi-linear; `--delete-branch` removes the remote branch).
+8. Merge commit with a **de-conventionalized body** (`--merge` forces the merge commit; the rebase made it semi-linear; `--delete-branch` removes the remote branch). Set the body to the PR **title with any leading Conventional-Commit prefix stripped** — remove a `^\w+(\(.+?\))?!?:\s*` prefix and capitalize the first letter (e.g. `feat(server): add routing tools` → `Add routing tools`). Single-quote it per `<safety>`:
+   `gh pr merge <n> --merge --subject 'Merge pull request #<n> from <head>' --body '<de-conventionalized title>' --delete-branch`
+   **Why:** the repo uses merge commits, so both the rebased branch commit and the merge commit reach release-please. If the merge body is the raw conventional title (`feat: …`), release-please parses it as a second commit and **duplicates every CHANGELOG entry**; a prose body leaves the branch's conventional commits as the sole changelog source. (If the title has no prefix, use it as-is; if in doubt, an empty `--body ''` also works.)
 
 **GitLab** (server-side rebase):
 1. Guard the working tree as above (`git status --porcelain` clean).
@@ -151,6 +153,7 @@ If the change bumped the version, remind the user of the tag command:
 - NEVER merge a PR/MR with failing or pending required checks — gate in step 3 and again after the rebase (capped poll, no indefinite blocking).
 - ALWAYS pass `--auto-merge=false` to `glab mr merge`. Its default enables merge-when-pipeline-succeeds whenever a pipeline is running and prints a misleading `Merged!` while only scheduling the merge — combined with `--remove-source-branch` this deletes the branch and leaves the MR permanently stuck. Force an immediate merge instead.
 - NEVER infer merge success from a CLI's stdout (`Merged!`, `Pipeline succeeded`). Confirm it by re-fetching the PR/MR `state` and seeing `merged`; only then capture the SHA or run cleanup.
+- NEVER let the merge commit body be the raw conventional PR title. In a merge-commit repo, a `feat:`/`fix:` line in the merge body makes release-please double-count it and duplicate every CHANGELOG entry — strip the Conventional-Commit prefix (or use an empty body). See step 4.
 - NEVER use a plain `git push -f` — only `--force-with-lease`, so a rebase push aborts if someone else pushed. (Allowed-tools only grants `git push --force-with-lease`.)
 - NEVER abandon a conflicted rebase mid-flight — `git rebase --abort` and hand back to the user.
 - NEVER check out / rebase over a dirty working tree — gate on `git status --porcelain` being empty first (step 4).
@@ -184,6 +187,7 @@ If the change bumped the version, remind the user of the tag command:
 - Confirmation prompt shown, skipped only on an explicit user-typed number — never on a number relayed by another skill
 - Forge-supplied branch names/titles quoted when interpolated into commands
 - Semi-linear history produced where the platform allows it; on a GitLab merge-method mismatch, stopped to ask and reported the *actual* strategy used (never mislabeled)
+- Merge commit body de-conventionalized (Conventional-Commit prefix stripped, or empty), so release-please doesn't duplicate CHANGELOG entries
 - Conflicted rebase aborted and handed back, never forced
 - Destructive cleanup gated on a confirmed `MERGED` state
 - Local clone left clean: worktree removed (if any, via the `/.claude/worktrees/` substring check), base checked out + pulled, feature branch deleted locally + remotely, stale refs pruned
