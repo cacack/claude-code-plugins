@@ -177,7 +177,7 @@ Auto-detect is a hint, not a gate. A diff that trips nothing can still deserve `
    - **Highest-severity wins.** When the same location appears in multiple reports, the consolidated severity is the highest reported.
    - **Verdict aggregation.** Final verdict is the most conservative of the six individual verdicts: any `block` → block; else any `proceed-with-caution` → proceed-with-caution; else `ship-it`.
    - **Preserve the Tracer's chains.** A Tracer finding's value is the chain, not the endpoint. When grouping it with a diff-local finding at the same location, keep the chain in the consolidated entry — collapsing it to a single `file:line` throws away the reason it is credible.
-   - **Collate unverified dismissals.** Gather every `**unverified**` entry from all six `### Checked, not flagged` sections and de-duplicate by location. These are lines a reviewer looked at and could not clear. Report them (capped at 10, most-changed files first) under their own heading — **do not** silently drop them, and **do not** promote them to findings. They are known-unknowns: the panel's honest statement of where it stopped. Evidenced (non-`unverified`) dismissals stay out of the consolidated report; they exist so a dismissal is auditable in the per-persona report, not to be reprinted.
+   - **Collate unverified dismissals.** Gather every `**unverified**` entry from all six `### Checked, not flagged` sections and de-duplicate by location. These are lines a reviewer looked at and could not clear. Report them (capped at 10, most-changed files first) under their own heading — **do not** silently drop them, and **do not** promote them to findings. They are known-unknowns: the panel's honest statement of where it stopped. Evidenced (non-`unverified`) dismissals stay out of the consolidated report; they exist so a dismissal is auditable in the per-persona report, not to be reprinted. Keep the **per-persona** counts as you collate — the at-a-glance table attributes them by reviewer, which de-duplication would erase.
 
 6. **Print the consolidated report** using the output format below.
 
@@ -197,6 +197,18 @@ Auto-detect is a hint, not a gate. A diff that trips nothing can still deserve `
 **Files changed:** <N> · **Lines:** +<adds>/-<dels>
 **Depth:** <standard | deep>
 **Final verdict:** <block | proceed-with-caution | ship-it>
+
+## At a glance
+
+| Reviewer | Verdict | c/h/m/l | unverified |
+|---|---|---|---|
+| 🔍 Skeptic | proceed-with-caution | 0/0/2/2 | 1 |
+| 🧰 Maintainer | proceed-with-caution | 0/1/1/2 | — |
+| ⚡ Performance | ship-it | 0/0/0/0 | — |
+| 📞 Caller | proceed-with-caution | 0/1/2/2 | — |
+| 🔒 Security | ship-it | 0/0/0/0 | — |
+| 🧭 Tracer | ship-it | 0/0/0/0 | 2 |
+| **Totals** | **proceed-with-caution** | **0/2/5/6** | **3** |
 
 ## Cross-flagged findings 🎯
 Locations flagged by two or more reviewers — high-signal items to address first.
@@ -261,15 +273,27 @@ stopped. Worth a human glance, especially on changed guards.
 
 (Omit this section if empty. Cap at 10; if more, say "N more omitted".)
 
-## Totals
-- Critical: N
-- High: N
-- Medium: N
-- Low: N
-
 ## Recommendation
 <one-paragraph synthesis, naming the 1-3 most important things to address before merging>
 ```
+
+**The at-a-glance table is a real markdown table — never hand-drawn box characters.** The terminal
+renderer draws the box itself, so a markdown table is what produces the boxed look *and* survives
+being posted as a PR review comment in step 8; literal `┌─┬─┐` art is unaligned in a proportional
+font and needs a code fence to survive at all. Rules for the table:
+
+- **One row per persona, always all six, in the order above** — a persona with nothing to report
+  still gets a `ship-it` / `0/0/0/0` row. An omitted row reads as "didn't run" when it means "found
+  nothing", and the whole point of the table is telling those apart at a glance.
+- **`c/h/m/l`** restates that persona's `### Summary counts` line verbatim as a compact quadruple.
+- **`unverified`** is the count of that persona's `**unverified**` ledger entries — before
+  de-duplication, so the column attributes them to whoever left them. Use an em dash for zero. The
+  **Totals** row's `unverified` is the de-duplicated count that `## Unverified dismissals` lists,
+  so it can legitimately be lower than the column's sum; do not "fix" that by summing.
+- **A reviewer that stayed truncated after the step-4 retry** gets `truncated` in the Verdict cell
+  and `—` in both count columns, so a missing report never masquerades as a clean one.
+- The **Totals** row carries the aggregated verdict from step 5's conservative-OR rule and is the
+  only bolded row. It replaces the old standalone `## Totals` section — do not emit both.
 </output_format>
 
 <ledger_chain>
@@ -314,6 +338,7 @@ A "not a bug" verdict from earlier in the session — your own, or another agent
 - `agentId` captured from every Task result so SendMessage continuation has a target
 - Any reviewer missing the `### Summary counts` marker is auto-continued via SendMessage to its `agentId` (once); if still missing, raw output surfaced under a "truncated" note rather than dropped
 - Cross-flagged findings highlighted using the same-enclosing-symbol rule (primary) with a ±5-line fallback
+- Consolidated report opens with the at-a-glance markdown table: all six personas as rows (never omitted, even at zero findings), a bolded Totals row, and no hand-drawn box characters
 - Tracer findings retain their chain in the consolidated report
 - `## Unverified dismissals` collated from all six ledgers, de-duplicated, capped at 10 — not dropped, not promoted to findings
 - Final verdict applies the conservative-OR rule
