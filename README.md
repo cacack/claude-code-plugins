@@ -62,7 +62,7 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `issue-compliance` - Verify staged changes satisfy linked issue requirements with coverage scoring
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 - `documentation-standards` - The canonical project-documentation standard (types, locations, organization, formatting): a lean OSS-style root over a structured `docs/` reference layer, with templates for each doc type (architecture, ADR, design, guide, policy, runbook, reference). Consult it, scaffold a repo's doc set, or check existing docs against it. Pairs with `audit-docs` (drift/dead links), `docs-analyzer` (code-driven updates), and `create-claudemd` (CLAUDE.md authoring)
-- `panel-review` - Multi-persona code review of a diff. Spawns 5 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer) in parallel against a branch, PR, or commit range
+- `panel-review` - Multi-persona code review of a diff. Spawns 6 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer, Tracer) in parallel against a branch, PR, or commit range. `--deep` raises investigation budgets; auto-suggested on provenance-heavy diffs
 - `panel-engineering` - Multi-persona engineering-health review of the whole repo (quarterly). Spawns 5 senior personas (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured snapshot, produces per-persona reports plus synthesis and proposed-issue drafts, optionally files the issues
 - `constitution` - Author or refresh a project's `CONSTITUTION.md` (mission, audience, principles, non-goals, success criteria). Auto-detects bootstrap vs refresh mode; in refresh mode produces a drift report before updating. Required input for `panel-product`
 - `panel-product` - Multi-persona strategic-alignment review against `CONSTITUTION.md` (quarterly). Spawns 5 senior personas (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel, then a closing adversarial Rude Q&A foil pass (`rude-qa` agent) pressure-tests the synthesis for survival; produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, optionally files the issues. Requires `CONSTITUTION.md` — run `constitution` first if absent (`--no-foil` skips the foil pass)
@@ -103,6 +103,7 @@ Reviewer subagents (invoked in parallel by the `panel-review` skill):
 - `reviewer-performance` - Spots hot-path costs: complexity, allocations, lock contention, leaks
 - `reviewer-ergonomics` - Caller-perspective review of public APIs, contracts, error messages, breaking changes
 - `reviewer-security` - Diff-focused security review for injection, auth gaps, secrets, unsafe defaults
+- `reviewer-tracer` - Cross-file data-flow review: traces changed values, columns, FKs, and config keys to every writer and reader to find producer/consumer disagreement
 
 Engineering-panel subagents (invoked in parallel by the `panel-engineering` skill):
 - `engineering-architect` - Whole-repo architecture: module boundaries, coupling, layering, scalability shape
