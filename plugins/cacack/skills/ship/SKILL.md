@@ -403,7 +403,7 @@ Otherwise offer only if BOTH:
 ```
 This change is substantial ({N} files, +{adds}/-{dels}).
 Run a panel code review before pushing?
-(Spawns 5 parallel reviewers — typically a couple of minutes.)
+(Spawns 6 parallel reviewers — typically a couple of minutes.)
 
 Options:
 1. Run panel review now (recommended)
