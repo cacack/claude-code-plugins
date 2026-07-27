@@ -1,7 +1,7 @@
 ---
 name: ship
 description: Intelligently commit and ship changes with a freshness check, preflight checks, issue compliance, documentation classification, an optional pre-push panel review, and PR creation. Use --quick for simple direct shipping when rigor isn't needed.
-argument-hint: "[commit message] [--quick] [--no-bump] [--review|--no-review]"
+argument-hint: "[commit message] [--quick] [--no-bump] [--review|--no-review] [--deep]"
 allowed-tools:
   - Read
   - Edit
@@ -375,7 +375,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 <phase name="7_review">
 Optionally run a multi-persona panel review on the branch's work **before it leaves the machine**. The commit exists locally (commit phase) but has not been pushed, so any finding can be addressed with `git commit --amend` at zero cost to shared history. This is the "use the panel before sending a PR for review" moment that `panel-review` is designed for.
 
-**This phase only ever *offers* — it never auto-runs.** The panel spawns five parallel subagents at high effort; firing it on every ship would be wasteful and noisy. Stay silent on routine commits; speak up only on substantial feature/fix work.
+**This phase only ever *offers* — it never auto-runs.** The panel spawns six parallel subagents at high effort; firing it on every ship would be wasteful and noisy. Stay silent on routine commits; speak up only on substantial feature/fix work.
 
 **Step 1 — capture the review base once, then decide whether to offer.**
 
@@ -395,6 +395,8 @@ Hard skip (silent, no offer) if ANY:
 
 Force offer (bypass the size/type gate) if `--review` present. (`panel-review` still applies its own large-diff guard once invoked.)
 
+Pass `--deep` through to `panel-review` when `/ship` was invoked with `--deep` (or when the user asks for a deep pass at the Step 2 prompt). Without a passthrough the deep pass is unreachable from `/ship`, which is the path most provenance-heavy changes actually arrive on.
+
 Otherwise offer only if BOTH:
 - Commit type is `feat:`, `fix:`, `perf:`, or contains `BREAKING CHANGE` / `!`
 - Diff exceeds the trivial threshold above
@@ -410,7 +412,9 @@ Options:
 2. Skip — push without review
 ```
 
-**Step 3 — if the user accepts**, invoke `/cacack:panel-review` via the `Skill` tool with the pinned range as its argument: `<BASE>..HEAD` (substitute the captured commit SHA). This pins the review to exactly the branch work measured in Step 1. Wait for the consolidated report.
+**Step 3 — if the user accepts**, invoke `/cacack:panel-review` via the `Skill` tool with the pinned range as its argument: `<BASE>..HEAD` (substitute the captured commit SHA), plus `--deep` if it was passed through. This pins the review to exactly the branch work measured in Step 1. Wait for the consolidated report.
+
+**Step 3b — surface the panel's `## Unverified dismissals` section, if it emitted one.** These are lines a reviewer examined but could not clear; they are not findings and must not be triaged as such. Print them verbatim under a short heading and say plainly that they are the boundary of the review, not a clean bill of health. This is the last moment the change is still amendable for free, so an unresolved guard is cheapest to check here. Do **not** let a `ship-it` verdict imply those lines were cleared — verdicts summarize findings, and the ledger exists precisely because silence is not clearance.
 
 **Step 4 — gate on the panel's final verdict:**
 - **`block`** → STOP before the push phase. Present the blocking findings and offer via `AskUserQuestion`:

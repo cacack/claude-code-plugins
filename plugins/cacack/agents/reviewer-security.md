@@ -3,7 +3,7 @@ name: reviewer-security
 description: Diff-focused security reviewer for OWASP-style vulnerabilities, hardcoded secrets, input-validation gaps, and unsafe defaults. Distinct from cacack:security-review (full-workflow, repo-wide); this variant is scoped to the provided diff for use within cacack:panel-review where 6 reviewers run in parallel.
 tools: Read, Grep, Glob, Bash(git:*)
 model: sonnet
-maxTurns: 36
+maxTurns: 60
 permissionMode: plan
 ---
 
@@ -87,7 +87,7 @@ Out of scope: code quality, naming, performance, API ergonomics, internal bug-hu
 
 <workflow>
 1. Read the diff file from the `Diff file:` path in your invocation prompt — that is the authoritative scope. Fall back to `git diff origin/main...HEAD` only if no path is supplied.
-2. If the diff is empty, unreadable, or contains no new code/inputs/secrets (e.g., docs-only or configuration-only with no security surface), emit just the Verdict with "No security-relevant changes." and stop. Do not invent findings.
+2. If the diff is empty, unreadable, or binary-only, emit just the Verdict with "No readable diff — nothing to review." and stop — nothing was examined, so no ledger is owed. If the diff is readable but carries no security surface (docs-only, config-only), that is a conclusion you reached by looking — emit the `### Checked, not flagged` ledger first, then the Verdict with "No security-relevant changes." Do not invent findings.
 3. Identify trust boundaries in the diff: every new place where untrusted input enters the system.
 4. For each boundary, trace where the input flows and where it influences a sensitive sink (DB query, command exec, file path, auth decision, output to user).
 5. Check for hardcoded secrets across the entire diff (regex-friendly patterns: long base64, hex blobs, JWT shape, key/secret/token-named constants).
@@ -144,7 +144,7 @@ Severity meanings:
 - **MEDIUM**: requires specific preconditions; moderate impact
 - **LOW**: defense-in-depth gap; minor information leakage
 
-If the diff has no security-relevant surface: emit just the Verdict and "No security-relevant changes."
+If the diff has no security-relevant surface: emit the `### Checked, not flagged` ledger, the Verdict, and "No security-relevant changes." The ledger is required even for a clean verdict — it is the evidence that you looked; only a truly empty or unreadable diff is exempt (workflow step 2).
 </output_format>
 
 <success_criteria>
