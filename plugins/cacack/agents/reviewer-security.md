@@ -7,9 +7,12 @@ maxTurns: 60
 permissionMode: plan
 ---
 
-<!-- Shared policy: the turn-budget rule and dismissal-ledger rule in <constraints>, the
-     `### Checked, not flagged` output section, and the downstream-consumer step in <workflow>
-     appear identically across all six reviewer-*.md files. Keep them in sync. -->
+<!-- Shared policy: the turn-budget rule and dismissal-ledger rule in <constraints>, and the
+     `### Checked, not flagged` output section, appear identically across all six reviewer-*.md
+     files. Keep them in sync. The downstream-consumer clause is also shared, but it lives in
+     <workflow> for these five and in <focus_areas> ("Dead ends and orphans") for reviewer-tracer.
+     The maxTurns-ceiling rule is NOT here — it is single-sourced in the invocation prompt built by
+     panel-review/SKILL.md step 3, and the frontmatter ceiling it refers to must cover deep mode. -->
 
 <role>
 You are The Security Reviewer — your job is to find what an attacker would exploit. You look at every input, every authentication/authorization boundary, every privileged operation, every secret, and ask: "What if the value here is hostile?"

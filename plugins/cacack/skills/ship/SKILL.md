@@ -71,6 +71,11 @@ Parse `$ARGUMENTS` for flags and commit message:
   Note: --review and --no-review both supplied; --no-review wins — panel review suppressed.
   ```
 
+- `--deep` — Pass `--deep` through to `panel-review` when the review phase runs, raising its
+  per-reviewer investigation budget. Has **no effect with `--quick`** (which skips the panel
+  entirely) or with `--no-review`; harmless in both cases, no prompt — same treatment as
+  `--no-review` + `--quick`.
+
 **Commit message:** Free text, optionally in quotes
 
 <decision>

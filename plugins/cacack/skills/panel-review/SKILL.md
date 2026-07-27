@@ -2,7 +2,7 @@
 name: panel-review
 description: Multi-persona code review of a diff. Spawns 6 reviewer subagents (Skeptic, Maintainer, Performance Engineer, Caller, Security Reviewer, Tracer) in parallel against the current branch diff (default), a GitHub PR, or a commit range. Use whenever the user asks for a code review, panel review, or PR review and you want a structured multi-angle pass without depending on external tools like CodeRabbit.
 argument-hint: "[<pr-number> | <commit-range>] [--deep | --standard]"
-allowed-tools: Task, SendMessage, Read, Write, Grep, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(mktemp:*)
+allowed-tools: Task, SendMessage, Read, Write, Grep, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(mktemp:*), Bash(grep:*)
 effort: high
 ---
 
@@ -25,7 +25,7 @@ Other supported scopes: PR number (`/cacack:panel-review 274`), GitHub PR URL, o
 </quick_start>
 
 <scope_resolution>
-First strip a `--deep` or `--standard`/`--no-deep` token from `$ARGUMENTS` if present and record it (see `<depth_modes>`); resolve scope from what remains:
+First strip a `--deep` or `--standard` token from `$ARGUMENTS` if present and record it (see `<depth_modes>`); resolve scope from what remains. If **both** are present, `--standard` wins — print `Note: --deep and --standard both supplied; --standard wins — running standard depth.` once, then continue:
 
 | Input | Scope |
 |-------|-------|
@@ -58,13 +58,13 @@ Two depths. **Standard** is the default: the per-reviewer budget in step 3's tem
 Non-interactive callers (a background workflow, an agent that cannot raise `AskUserQuestion`) get standard unless they explicitly pass `--deep`. Never stall on the auto-detect question in that context — run standard and note in the report that deep was suggested but could not be offered.
 
 Enter deep mode when **either** holds:
-- The user passed `--deep`. (`--standard` / `--no-deep` forces standard and suppresses the auto-detect question entirely — use it on repos where the path patterns below fire constantly.)
-- **Auto-detect suggested it and the user accepted.** After capturing the diff, use `Grep` against the captured diff file (not a `grep` pipe — the shell allowlist has no `grep`) to check for provenance-heavy surfaces, where cross-file disagreement hides:
+- The user passed `--deep` (and not `--standard` — see the precedence rule in `<scope_resolution>`). `--standard` forces standard depth and suppresses the auto-detect question entirely; use it on repos where the path patterns below fire constantly.
+- **Auto-detect suggested it and the user accepted.** After capturing the diff, check for provenance-heavy surfaces, where cross-file disagreement hides. Use `grep` via Bash against the captured diff file — the `Grep` tool is **not** present in every session, so do not depend on it:
   - Paths matching `migrat`, `schema`, `.sql`, `models`, `entit`, `.proto`, `openapi`, `swagger`, `config/`, `.env`, `secrets`, `terraform`, `helm`. Note `config/` matches a **directory**, deliberately: a bare `config` substring matches `webpack.config.js`, `jest.config.ts`, and `.env.example` on nearly every JS repo, which trains the user to dismiss the prompt.
   - Diff **content** matching `ALTER TABLE`, `CREATE TABLE`, `ADD COLUMN`, `NOT NULL`, `FOREIGN KEY`, `REFERENCES`, `DEFAULT `, `os.Getenv`/`process.env`/`getenv`, or a connection/DSN string
   - More than 8 files changed **and** a changed comparison operator or sentinel literal (`> 0`, `>= 0`, `!= -1`, `IS NULL`, `is None`, `== nil`)
 
-  **Skip the content and operator checks when every changed file is Markdown or plain text.** Prose that *documents* these patterns matches them — a diff editing this very section trips `FOREIGN KEY`, `NOT NULL`, and `DEFAULT ` without touching a schema. Path matching still applies.
+  **Restrict the content and operator checks to changed files that are not prose** (`.md`, `.txt`, `.rst`). Prose that *documents* these patterns matches them — a diff editing this very section trips `FOREIGN KEY`, `NOT NULL`, and `DEFAULT ` without touching a schema. An "every changed file is Markdown" test does **not** work: in any repo whose CI demands a version bump alongside resource changes, a docs-only diff still carries a manifest `.json`, so the skip would never fire on exactly the diffs it targets. For a git range, exclude with pathspecs — `git diff <range> -- ':!*.md' ':!*.txt' ':!*.rst'`. For a PR, intersect `gh pr diff --name-only` with the same exclusion and grep only those files' hunks. If nothing remains, skip both checks; path matching still applies.
 
   On a hit, print one line naming what matched — e.g. `Deep pass suggested: diff adds a FOREIGN KEY and changes a boundary check.` — then ask whether to run deep. Ask **once**; on decline, run standard and do not re-prompt. Never enter deep mode silently: it doubles the cost.
 

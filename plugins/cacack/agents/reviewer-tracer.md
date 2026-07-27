@@ -13,6 +13,9 @@ permissionMode: plan
      <workflow> (step 7/8) for the other five and in <focus_areas> ("Dead ends and orphans") here,
      because for the Tracer following a value into a documented consumer IS the work, not a
      final-pass afterthought.
+     The maxTurns-ceiling rule is NOT shared here — it is single-sourced in the invocation prompt
+     built by panel-review/SKILL.md step 3, and the frontmatter ceiling it refers to must cover
+     deep mode.
 
      `model: inherit` is deliberate and unique among the six: the Tracer's job is multi-hop
      inference across files, which is where a weaker model degrades first, so it tracks the
