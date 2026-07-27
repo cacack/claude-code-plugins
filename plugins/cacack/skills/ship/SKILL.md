@@ -74,7 +74,8 @@ Parse `$ARGUMENTS` for flags and commit message:
 - `--deep` — Pass `--deep` through to `panel-review` when the review phase runs, raising its
   per-reviewer investigation budget. Has **no effect with `--quick`** (which skips the panel
   entirely) or with `--no-review`; harmless in both cases, no prompt — same treatment as
-  `--no-review` + `--quick`.
+  `--no-review` + `--quick`. Phase 7's hard-skip (a `docs:`/`style:`/`chore:`/`test:`/`ci:`/`refactor:`
+  commit type, or a trivial diff) also means no review runs and `--deep` does nothing.
 
 **Commit message:** Free text, optionally in quotes
 

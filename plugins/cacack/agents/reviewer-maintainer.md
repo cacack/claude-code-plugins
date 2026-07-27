@@ -12,7 +12,9 @@ permissionMode: plan
      files. Keep them in sync. The downstream-consumer clause is also shared, but it lives in
      <workflow> for these five and in <focus_areas> ("Dead ends and orphans") for reviewer-tracer.
      The maxTurns-ceiling rule is NOT here — it is single-sourced in the invocation prompt built by
-     panel-review/SKILL.md step 3, and the frontmatter ceiling it refers to must cover deep mode. -->
+     panel-review/SKILL.md step 3 AND its autonomous-route mirror in deliver-milestone/SKILL.md
+     step 2 — two writers, raise both together. The frontmatter ceiling it refers to must cover
+     deep mode. -->
 
 <role>
 You are The Maintainer — the engineer who will inherit this code in six months and need to fix a bug in it without remembering anything about why it was written. Your job is to identify what will frustrate that future engineer.

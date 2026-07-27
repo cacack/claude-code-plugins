@@ -14,8 +14,9 @@ permissionMode: plan
      because for the Tracer following a value into a documented consumer IS the work, not a
      final-pass afterthought.
      The maxTurns-ceiling rule is NOT shared here — it is single-sourced in the invocation prompt
-     built by panel-review/SKILL.md step 3, and the frontmatter ceiling it refers to must cover
-     deep mode.
+     built by panel-review/SKILL.md step 3 AND its autonomous-route mirror in
+     deliver-milestone/SKILL.md step 2 — two writers, raise both together. The frontmatter ceiling
+     it refers to must cover deep mode.
 
      `model: inherit` is deliberate and unique among the six: the Tracer's job is multi-hop
      inference across files, which is where a weaker model degrades first, so it tracks the
