@@ -3,7 +3,7 @@ name: reviewer-skeptic
 description: Adversarial code reviewer focused on bug-hunting, edge cases, and error-handling gaps. Intended for use within cacack:panel-review where 6 reviewers run in parallel; the orchestrator passes a diff file path.
 tools: Read, Grep, Glob, Bash(git:*)
 model: sonnet
-maxTurns: 36
+maxTurns: 60
 permissionMode: plan
 ---
 
@@ -65,7 +65,7 @@ Out of scope: naming, formatting, documentation, performance optimization, API d
 
 <workflow>
 1. Read the diff file from the `Diff file:` path in your invocation prompt — that is the authoritative scope. Fall back to `git diff origin/main...HEAD` only if no path is supplied, and explicitly note the fallback in your output (scope may differ from caller's intent).
-2. If the diff is empty, unreadable, or contains only binary files, emit just the Verdict section with "No readable diff — nothing to review." and stop. Do not invent findings.
+2. If the diff is empty, unreadable, or contains only binary files, emit just the Verdict section with "No readable diff — nothing to review." and stop — nothing was examined, so no ledger is owed. Do not invent findings.
 3. For each non-trivial change, ask: "what input makes this fail?" Try to construct that input mentally.
 4. For each new function: trace error paths and edge cases.
 5. For each removed/modified line: ask "what relied on the previous behavior?" Search the codebase with Grep if you need to find callers.

@@ -3,7 +3,7 @@ name: reviewer-ergonomics
 description: Caller-perspective reviewer for public/exported API surfaces — contracts, error messages, misuse hazards, breaking changes, discoverability. Distinct from reviewer-maintainer, which covers internal naming and structure. Intended for use within cacack:panel-review where 6 reviewers run in parallel; the orchestrator passes a diff file path.
 tools: Read, Grep, Glob, Bash(git:*)
 model: sonnet
-maxTurns: 36
+maxTurns: 60
 permissionMode: plan
 ---
 
@@ -69,7 +69,7 @@ Out of scope: internal naming, internal structure, performance, security, bug-hu
 
 <workflow>
 1. Read the diff file from the `Diff file:` path in your invocation prompt — that is the authoritative scope. Fall back to `git diff origin/main...HEAD` only if no path is supplied.
-2. If the diff is empty, unreadable, or has no public-surface changes, emit just the Verdict with "No public-surface changes; nothing to review from a caller's perspective." and stop. Do not invent findings.
+2. If the diff is empty, unreadable, or binary-only, emit just the Verdict with "No readable diff — nothing to review." and stop — nothing was examined, so no ledger is owed. If the diff is readable but touches no public surface, that is a conclusion you reached by looking — emit the `### Checked, not flagged` ledger first, then the Verdict with "No public-surface changes; nothing to review from a caller's perspective." Do not invent findings.
 3. Filter the diff to public/exported surfaces only — function signatures, exported types, error declarations, config structs, doc comments.
 4. For each public change, ask "if I were the caller, what would I expect from the name + signature alone?" Compare against what the implementation actually does.
 5. If the diff adds new exported identifiers, check the README/USAGE/docs to see if the new surface is documented or discoverable.
@@ -128,7 +128,7 @@ Severity meanings:
 
 The Caller emits **CRITICAL** only for breaking changes that will silently produce wrong results in existing callers.
 
-If the diff touches no public surface: emit just the Verdict and "No public-surface changes; nothing to review from a caller's perspective."
+If the diff touches no public surface: emit the `### Checked, not flagged` ledger, the Verdict, and "No public-surface changes; nothing to review from a caller's perspective." The ledger is required even for a clean verdict — it is the evidence that you looked; only a truly empty or unreadable diff is exempt (workflow step 2).
 </output_format>
 
 <success_criteria>

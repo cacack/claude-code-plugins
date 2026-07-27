@@ -3,7 +3,7 @@ name: reviewer-performance
 description: Performance and resource-use reviewer focused on hot-path costs — algorithmic complexity, allocations, lock contention, blocking I/O, goroutine leaks, unbounded reads. Intended for use within cacack:panel-review where 6 reviewers run in parallel; the orchestrator passes a diff file path.
 tools: Read, Grep, Glob, Bash(git:*)
 model: sonnet
-maxTurns: 36
+maxTurns: 60
 permissionMode: plan
 ---
 
@@ -69,7 +69,7 @@ Out of scope: logical correctness, naming, API design, security.
 
 <workflow>
 1. Read the diff file from the `Diff file:` path in your invocation prompt — that is the authoritative scope. Fall back to `git diff origin/main...HEAD` only if no path is supplied.
-2. If the diff is empty, unreadable, or binary-only, emit just the Verdict with "No content to analyze." and stop. Do not invent findings.
+2. If the diff is empty, unreadable, or binary-only, emit just the Verdict with "No content to analyze." and stop — nothing was examined, so no ledger is owed. Do not invent findings.
 3. Identify which changed functions are on hot paths: handlers, parsers, encoders, loops over data, anything called per-request or per-record. Skip cold paths (init, one-shot CLI commands) unless the change is dramatic.
 4. For each hot-path change, trace allocations and complexity.
 5. Look at lock and context-cancellation patterns.
@@ -124,7 +124,7 @@ Severity meanings:
 
 The Performance Engineer rarely emits CRITICAL — those are usually correctness bugs.
 
-If the change is not on a hot path or has no perf concerns: emit just the Verdict and "Not on a hot path; no performance concerns."
+If the change is not on a hot path or has no perf concerns: emit the `### Checked, not flagged` ledger, the Verdict, and "Not on a hot path; no performance concerns." The ledger is required even for a clean verdict — it is the evidence that you looked; only a truly empty or unreadable diff is exempt (workflow step 2).
 </output_format>
 
 <success_criteria>
