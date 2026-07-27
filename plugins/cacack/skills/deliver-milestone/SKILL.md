@@ -84,7 +84,17 @@ If `--agency=<auto|checkpoint>` was passed, use it; otherwise ask via `AskUserQu
   `<route_checkpointed>`.
 
 Then resolve **CodeRabbit** (`--coderabbit`/`--no-coderabbit`, else default off — it adds up to
-~10 min/issue). A dirty working tree → warn (the first implementation step needs a clean default
+~10 min/issue).
+
+Then resolve **review depth**: record `deep = true` if `--deep` was passed, else false. Only the
+checkpointed route can honor it (the autonomous route is non-interactive and always runs standard
+depth). If `--deep` was passed **and** the route is autonomous, print this exact line once before
+continuing — an advertised flag must never be dropped in silence:
+```
+Note: --deep is not supported by --agency=auto (reviews run at standard depth); use --agency=checkpoint for a deep pass.
+```
+
+A dirty working tree → warn (the first implementation step needs a clean default
 branch to branch from).
 </step_2_choose_agency>
 
@@ -124,7 +134,10 @@ Resolve the **checkpoint granularity** (`--checkpoint`, else ask) — where to p
 **Ledger for resumability.** Compute a kebab `<slug>` from the title; use
 `.milestone/<slug>/state.json` (see `<state_format>`). If it exists, this is a **resume** —
 reconcile against the live issue list (issues closed out-of-band → `merged`; new ones → appended
-`pending`), summarize progress, continue from the first non-terminal issue. Otherwise create it
+`pending`), summarize progress, continue from the first non-terminal issue. **Migrate a pre-schema
+ledger:** a root missing `deep` reads as `false`; an issue record *missing* `unverifiedDismissals`
+is unknown, **not** empty — record it as `unrecorded` and say so in the summary rather than
+synthesizing `[]`, which would assert a clean review nobody performed. Otherwise create it
 with every issue at `pending`. Mirror progress with `TodoWrite`.
 
 **Per-issue loop** — for each non-terminal issue, run `<pipeline_stages>`, updating the ledger
@@ -178,7 +191,8 @@ add/remove happens inside agent prompts via the `git worktree` CLI — not the s
    into the issue's worktree path, computes its own diff (`git diff <defaultBranch>...HEAD`), and gets
    the same split budget `/cacack:panel-review` step 3 grants — ~8 general reads plus a separate
    reserved ~8 for reads that trace a value to its writer, gate, or consumer, with Greps unbudgeted
-   but still spending turns. Give the `-tracer` call the extra `Depth:` line its persona expects
+   but still spending turns. <!-- This is the SECOND writer of the read/turn budget rule; the first
+   is panel-review/SKILL.md step 3. Raise one and you must raise the other. --> Give the `-tracer` call the extra `Depth:` line its persona expects
    (`trace the top ~6 entries on your trace list`); without it the Tracer silently falls back to its
    own default. This route is always the standard depth — there is no `--deep` equivalent here
    because the workflow is non-interactive and cannot offer the choice; a human wanting deep should
@@ -210,10 +224,13 @@ add/remove happens inside agent prompts via the `git worktree` CLI — not the s
      adding a seventh persona or a second extraction pass would overflow the stage.
    **Carry each review's `### Checked, not flagged` ledger through to triage.** The extraction
    schema below has no field for it, so the extraction path DROPS it — collate the `**unverified**`
-   entries from the six raw prose reviews yourself (de-duplicate by location, cap 10) and attach
-   them to the issue's ledger entry as `unverifiedDismissals`, exactly as
-   `/cacack:panel-review` would under `## Unverified dismissals`. They are not findings: never feed
-   them to the fix agent as defects, and never let their absence read as clearance.
+   entries from the six raw prose reviews yourself (de-duplicate by location, cap 10), exactly as
+   `/cacack:panel-review` would under `## Unverified dismissals`. This route has **no** persistent
+   ledger (`<state_format>` is gated-route only), so persist them where this route actually keeps
+   state: `log()` them so they appear in `/workflows`, and carry them on the issue's record in the
+   returned summary object as `unverifiedDismissals` — otherwise they live only in the orchestrator's
+   context and vanish on resume. They are not findings: never feed them to the fix agent as defects,
+   and never let their absence read as clearance.
 
    **Filter and log dropped findings.** Before findings reach triage or the summary counts, drop
    structurally malformed ones — no `file:line` location, or an empty Issue/Suggestion body (not just
@@ -250,11 +267,13 @@ add/remove happens inside agent prompts via the `git worktree` CLI — not the s
    forge-supplied branch names when interpolating them. When `stopAfter` is `review` or `ship` the
    worktree is intentionally **left in place** for the human to inspect/merge.
 
-Wrap each issue body in try/catch; on a caught error, record `{ number, stage: "failed", note:
-<message> }`, `log()` it, and let the `for` loop continue to the next issue — never abort the
+Wrap each issue body in try/catch; on a caught error, record the **same six-key shape** as every
+other entry — `{ number, stage: "failed", pr: null, findings: {}, unverifiedDismissals: [], note:
+<message> }` (one shape for `results`, so a consumer never hits `undefined`) — `log()` it, and let the `for` loop continue to the next issue — never abort the
 whole run, never swallow silently. Push each issue's record at the end of its iteration (or before
 an early `continue`), then **return** a summary object `{ milestone, stopAfter, merged, shipped,
-reviewed, failed, results }`. Use `phase("#<n> <title>")` per issue and `log()` before ship/merge
+reviewed, failed, results }` — each entry in `results` carrying `{ number, stage, pr, findings,
+unverifiedDismissals, note }` so the review's known-unknowns survive into the final report. Use `phase("#<n> <title>")` per issue and `log()` before ship/merge
 with concrete content — e.g. `` log(`#${n} ${title}: shipping ${branch}`) `` — so the
 `/workflows` view is legible and pausable.
 </workflow_authoring_brief>
@@ -270,7 +289,10 @@ Used by `<route_checkpointed>`. Each stage delegates to the existing skill via t
 2. **Implement — `/cacack:do`** *(pause: per-stage)* — run the emitted batch (no args). → `implemented`.
 3. **Review — `/cacack:panel-review`** *(pause: per-stage)* — capture verdict + counts; stash the
    findings summary **and any `## Unverified dismissals` entries** in the ledger entry. Pass
-   `--deep` through when `deliver-milestone` was invoked with it. → `reviewed`.
+   `--deep` through when the **ledger's** `deep` is true — set from the flag at creation and
+   preserved across resume. Do **not** read the invocation here: the resume hint
+   (`/cacack:deliver-milestone <id>`) carries no flags, so an invocation check silently downgrades
+   every resumed issue to standard depth. → `reviewed`.
 4. **Address valid findings** *(pause: per-stage)* — triage via `<finding_triage>`; fix valid ones
    (delegate to `/cacack:do "address these findings: …"` or edit directly). → `findings-addressed`.
 5. **Ship — `/cacack:ship`** *(pause: ship-merge, per-stage)* — rigorous workflow (preflight,
@@ -322,17 +344,25 @@ workflow runtime's in-session resume):
 ```json
 {
   "milestone": "v2.0", "forge": "github", "defaultBranch": "main",
-  "agency": "checkpoint", "checkpoint": "ship-merge", "coderabbit": false,
+  "agency": "checkpoint", "checkpoint": "ship-merge", "coderabbit": false, "deep": false,
   "created": "<ISO-8601 stamped at creation>",
   "issues": [
     {"number": 42, "title": "…", "stage": "merged", "branch": "feat/42-…", "pr": 101,
-     "findings": {"panel": "ship-it 0C/0H/2M/1L, 1 fixed", "coderabbit": "timed-out"}, "note": ""},
-    {"number": 43, "title": "…", "stage": "reviewed", "branch": "feat/43-…", "pr": null, "findings": {}, "note": ""}
+     "findings": {"panel": "ship-it 0C/0H/2M/1L, 1 fixed", "coderabbit": "timed-out"},
+     "unverifiedDismissals": [], "note": ""},
+    {"number": 43, "title": "…", "stage": "reviewed", "branch": "feat/43-…", "pr": null, "findings": {},
+     "unverifiedDismissals": ["src/db.go:41 — did not trace where retry_count is written"], "note": ""}
   ]
 }
 ```
 
-Stage order: `pending → planned → implemented → reviewed → findings-addressed → shipped →
+`unverifiedDismissals` is the panel's `## Unverified dismissals` section for that issue — lines a
+reviewer examined but could not clear. It is **not** a findings list; keep it out of triage input.
+Empty is ambiguous and the two cases look identical in JSON: an empty array after a *complete*
+panel run means nothing was left unverified (a real clean signal — `panel-review` omits the section
+exactly then), while an empty or missing array after a failed, skipped, or pre-schema run means
+nobody recorded what they checked. Never read the second case as clearance; when you cannot tell
+which it is, say so rather than implying the first. Stage order: `pending → planned → implemented → reviewed → findings-addressed → shipped →
 coderabbit-addressed → merged`. Terminal off-ramps: `skipped` (user), `failed` (reason in
 `note`). Keep it valid JSON at all times; free text goes in `note`, never inline in `stage`.
 </state_format>
@@ -341,6 +371,10 @@ coderabbit-addressed → merged`. Terminal off-ramps: `skipped` (user), `failed`
 **Autonomous route:** when the workflow finishes it returns `{milestone, stopAfter, merged,
 shipped, reviewed, failed, results}`. Relay a short report; for each `failed`, give the recorded
 reason and next step; if `stopAfter=ship`, remind the user the open PRs are theirs to merge.
+**Surface every issue's `results[].unverifiedDismissals`** under a short heading, stating they are
+the boundary of the review and not a clean bill of health — mirroring `ship`'s phase-7 step 3b. A
+run that reports only verdicts and counts launders a shallow dismissal into apparent clearance;
+see `<ledger_chain>` in `cacack:panel-review` for the full writer/reader chain.
 Resume semantics: a paused/stopped run resumes **in the same session** from `/workflows` (`p`) or
 by relaunching the same script — completed agents replay from cache. It does **not** retry issues
 already recorded `failed`; to get past a real failure, fix the blocker and **re-run the
@@ -348,7 +382,8 @@ milestone** (step 1 resolves only *open* issues, so merged ones drop out automat
 save a good run as a `/deliver-milestone` command (`s` in `/workflows`).
 
 **Checkpointed route:** on loop completion print the same merged/skipped/failed summary with PR
-numbers and per-failure next steps. Leave the ledger in place (mention `rm -rf .milestone/<slug>`
+numbers and per-failure next steps, plus each issue's ledger `unverifiedDismissals` under the same
+heading and the same caveat as the autonomous route. Leave the ledger in place (mention `rm -rf .milestone/<slug>`
 to clear it once satisfied).
 </on_completion>
 

@@ -7,9 +7,14 @@ maxTurns: 60
 permissionMode: plan
 ---
 
-<!-- Shared policy: the turn-budget rule and dismissal-ledger rule in <constraints>, the
-     `### Checked, not flagged` output section, and the downstream-consumer step in <workflow>
-     appear identically across all six reviewer-*.md files. Keep them in sync. -->
+<!-- Shared policy: the turn-budget rule and dismissal-ledger rule in <constraints>, and the
+     `### Checked, not flagged` output section, appear identically across all six reviewer-*.md
+     files. Keep them in sync. The downstream-consumer clause is also shared, but it lives in
+     <workflow> for these five and in <focus_areas> ("Dead ends and orphans") for reviewer-tracer.
+     The maxTurns-ceiling rule is NOT here — it is single-sourced in the invocation prompt built by
+     panel-review/SKILL.md step 3 AND its autonomous-route mirror in deliver-milestone/SKILL.md
+     step 2 — two writers, raise both together. The frontmatter ceiling it refers to must cover
+     deep mode. -->
 
 <role>
 You are The Maintainer — the engineer who will inherit this code in six months and need to fix a bug in it without remembering anything about why it was written. Your job is to identify what will frustrate that future engineer.
