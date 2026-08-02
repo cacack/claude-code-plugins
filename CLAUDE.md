@@ -39,6 +39,7 @@ repo-root/
 │       ├── agents/            # Agent definitions (*.md)
 │       ├── docs/              # Design principles and guidelines
 │       ├── hooks/             # Hook configurations (hooks.json)
+│       ├── principles/        # Canon profile payloads + PROFILES.md contract
 │       └── skills/            # Skills (SKILL.md dirs) - primary resource type
 └── README.md
 ```
@@ -48,7 +49,7 @@ repo-root/
 1. **marketplace.json** lives at `.claude-plugin/marketplace.json` (marketplace root)
 2. **plugin.json** lives at `plugins/cacack/.claude-plugin/plugin.json` (each plugin has its own)
 3. **source** in marketplace.json points to plugin directory: `"./plugins/cacack"`
-4. **Resource directories** (agents/, skills/, hooks/) are inside the plugin directory
+4. **Resource directories** (agents/, skills/, hooks/, principles/) are inside the plugin directory
 5. **Paths in plugin.json** are relative to **plugin root** (`plugins/cacack/`)
 6. **Do NOT put** resource directories inside `.claude-plugin/` - only `plugin.json` goes there
 
