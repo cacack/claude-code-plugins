@@ -1,0 +1,13 @@
+{
+  "name": "delivery",
+  "description": "The play → do → panel → ship delivery cycle: planning, execution, multi-persona diff review, preflight checks, issue compliance, PR shipping, and merge",
+  "version": "1.0.0",
+  "author": {
+    "name": "Chris Clonch",
+    "email": "chris@theclonchs.com"
+  },
+  "homepage": "https://github.com/cacack/claude-code-plugins",
+  "repository": "https://github.com/cacack/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["workflow", "delivery", "code-review", "shipping"]
+}

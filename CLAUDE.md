@@ -8,9 +8,9 @@ Personal Claude Code plugin marketplace following the official multi-plugin patt
 
 ## Design Principles
 
-Resources follow the [Handyman Principle](./plugins/cacack/docs/handyman-principle.md): context is scarce.
+Resources follow the [Handyman Principle](./plugins/authoring/docs/handyman-principle.md): context is scarce.
 
-Key guidelines (see [design-guidelines.md](./plugins/cacack/docs/design-guidelines.md)):
+Key guidelines (see [design-guidelines.md](./plugins/authoring/docs/design-guidelines.md)):
 - **Specialization over generalization** - focused agents/skills that do one thing well
 - **Skills as programs** - invoke real tools, produce verifiable output
 - **External memory** - externalize state to files, don't assume context persists
@@ -31,42 +31,66 @@ This structure follows Claude Code's official plugin marketplace standards (matc
 ```
 repo-root/
 ├── .claude-plugin/
-│   └── marketplace.json   # Marketplace catalog only
+│   └── marketplace.json   # Marketplace catalog only (one entry per plugin)
 ├── plugins/
-│   └── cacack/            # Plugin in subdirectory
-│       ├── .claude-plugin/
-│       │   └── plugin.json    # Plugin metadata
-│       ├── agents/            # Agent definitions (*.md)
-│       ├── docs/              # Design principles and guidelines
-│       ├── hooks/             # Hook configurations (hooks.json)
-│       ├── principles/        # Canon profile payloads + PROFILES.md contract
-│       └── skills/            # Skills (SKILL.md dirs) - primary resource type
+│   ├── delivery/          # play → do → panel → ship cycle + reviewer agents
+│   ├── panels/            # repo-wide health panels + persona agents
+│   ├── authoring/         # create/audit toolkit for Claude Code resources
+│   │   └── docs/          # Handyman Principle, design guidelines
+│   ├── principles/        # canon installer (instill) + profile payloads
+│   │   └── principles/    # profile payloads + PROFILES.md contract
+│   └── toolbox/           # personal productivity utilities
 └── README.md
+```
+
+Each plugin directory contains:
+
+```
+plugins/<name>/
+├── .claude-plugin/
+│   └── plugin.json        # Plugin metadata (canonical version source)
+├── agents/                # Agent definitions (*.md), if any
+├── docs/                  # Plugin-owned docs, if any
+└── skills/                # Skills (SKILL.md dirs) - primary resource type
 ```
 
 ### Structure Rules
 
 1. **marketplace.json** lives at `.claude-plugin/marketplace.json` (marketplace root)
-2. **plugin.json** lives at `plugins/cacack/.claude-plugin/plugin.json` (each plugin has its own)
-3. **source** in marketplace.json points to plugin directory: `"./plugins/cacack"`
-4. **Resource directories** (agents/, skills/, hooks/, principles/) are inside the plugin directory
-5. **Paths in plugin.json** are relative to **plugin root** (`plugins/cacack/`)
+2. **plugin.json** lives at `plugins/<name>/.claude-plugin/plugin.json` (each plugin has its own)
+3. **source** in each marketplace entry points to its plugin directory: `"./plugins/<name>"`
+4. **Resource directories** (agents/, skills/, docs/) are inside the plugin directory
+5. **Paths in plugin.json** are relative to **plugin root** (`plugins/<name>/`)
 6. **Do NOT put** resource directories inside `.claude-plugin/` - only `plugin.json` goes there
+7. **Cross-plugin references are descriptive only.** A skill may *mention* another plugin's skill (`delivery:panel-review`), but hard invocations (Task subagent_type, dispatch targets) must stay within the same plugin — there is no dependency mechanism between plugins.
+8. **Docs referenced by a skill at runtime live inside that skill's plugin** — an installed plugin ships only its own subtree.
 
 ### Path Resolution
 
 ```
 marketplace.json location: .claude-plugin/marketplace.json
-source: "./plugins/cacack" → plugin root = plugins/cacack/
-plugin.json location:      → plugins/cacack/.claude-plugin/plugin.json
-hooks (auto-loaded):       → plugins/cacack/hooks/hooks.json
+source: "./plugins/delivery" → plugin root = plugins/delivery/
+plugin.json location:        → plugins/delivery/.claude-plugin/plugin.json
+hooks (auto-loaded):         → plugins/delivery/hooks/hooks.json (if present)
 ```
+
+### Plugin Boundaries
+
+| Plugin | Owns |
+|---|---|
+| `delivery` | play, do, ship, merge, deliver-milestone, panel-review, preflight-checks, issue-compliance, issue-delivery, whats-next, run-prompt, security-review; reviewer-\* agents, shipper |
+| `panels` | constitution, panel-engineering, panel-product, pressure-test; engineering-\*, product-\*, rude-qa agents |
+| `authoring` | create-\* and audit-\* skills, heal-skill, docs-analyzer, documentation-standards; \*-auditor agents; design docs |
+| `principles` | instill, privacy-redaction; canon profile payloads |
+| `toolbox` | add-to-todos, check-todos, park, history, consider, expertise, debug-like-expert |
+
+New resources go in the plugin whose scope they fit; a resource that fits none may justify a new plugin (weigh against marketplace sprawl).
 
 ## Resource Types
 
 ### Skills (Primary)
 
-Skills are the primary resource type. Each skill is a directory with `SKILL.md` in `plugins/cacack/skills/`. Commands and skills are unified - both create slash commands.
+Skills are the primary resource type. Each skill is a directory with `SKILL.md` in `plugins/<name>/skills/`. Commands and skills are unified - both create slash commands, namespaced by plugin (e.g. `/delivery:ship`).
 
 Skill frontmatter:
 ```yaml
@@ -96,7 +120,7 @@ Dynamic context: `` !`shell-command` `` runs as preprocessing before skill conte
 
 ### Agents
 
-Agent definitions in `plugins/cacack/agents/` directory as `.md` files.
+Agent definitions in `plugins/<name>/agents/` directories as `.md` files.
 
 Agent frontmatter:
 ```yaml
@@ -124,7 +148,7 @@ hooks: {}                            # Scoped to this agent
 
 ### Hooks
 
-Hook configurations in `plugins/cacack/hooks/hooks.json`. Auto-loaded by Claude Code 2.1.4+; do NOT reference in plugin.json.
+Hook configurations in `plugins/<name>/hooks/hooks.json` (no plugin currently ships hooks). Auto-loaded by Claude Code 2.1.4+; do NOT reference in plugin.json.
 
 Hook event types:
 - `SessionStart` - Session begins/resumes (matcher: `startup`, `resume`, `clear`, `compact`)
@@ -165,18 +189,21 @@ Hook common fields: `timeout` (seconds), `if` (permission rule syntax filter), `
 
 ## Adding Resources
 
-- Skills: Create directory in `plugins/cacack/skills/<name>/` with `SKILL.md`
-- Agents: Add `.md` files to `plugins/cacack/agents/`
-- Hooks: Add to `plugins/cacack/hooks/hooks.json`
+- Pick the owning plugin from the Plugin Boundaries table first
+- Skills: Create directory in `plugins/<plugin>/skills/<name>/` with `SKILL.md`
+- Agents: Add `.md` files to `plugins/<plugin>/agents/`
+- Hooks: Add to `plugins/<plugin>/hooks/hooks.json`
 - Update README.md after adding resources
 
 Use kebab-case for all file and directory names.
 
 ## Version Management
 
-Plugin version must be maintained in BOTH files and kept in sync:
-- `plugins/cacack/.claude-plugin/plugin.json` - canonical source
-- `.claude-plugin/marketplace.json` - in the plugin entry's `version` field
+**Each plugin versions independently.** A plugin's version must be maintained in BOTH files and kept in sync:
+- `plugins/<name>/.claude-plugin/plugin.json` - canonical source
+- `.claude-plugin/marketplace.json` - in that plugin's entry's `version` field
+
+The marketplace itself carries no version — its state is the git history. Bump only the plugins whose files changed.
 
 ### marketplace.json Plugin Entry
 
@@ -194,7 +221,7 @@ Each plugin entry in marketplace.json MUST include these fields (matching offici
 
 ### When to Bump Versions
 
-**Always bump version before using /ship.** Follow semver:
+**Always bump the changed plugin's version before using /ship.** Follow semver per plugin:
 
 - **Major (x.0.0)**: Breaking changes
 - **Minor (0.x.0)**: New features (`feat:`)
@@ -202,42 +229,38 @@ Each plugin entry in marketplace.json MUST include these fields (matching offici
 
 ### Commit and Tag Format
 
-After bumping version in BOTH `plugins/cacack/.claude-plugin/plugin.json` AND `.claude-plugin/marketplace.json`:
+After bumping version in BOTH `plugins/<name>/.claude-plugin/plugin.json` AND that plugin's entry in `.claude-plugin/marketplace.json`:
 
-1. Commit: `chore: bump version to X.Y.Z`
-2. Tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
-3. Push: `git push origin vX.Y.Z`
+1. Commit: `chore: bump <name> to X.Y.Z`
+2. Tag (per-plugin): `git tag -a <name>/vX.Y.Z -m "Release <name> version X.Y.Z"`
+3. Push: `git push origin <name>/vX.Y.Z`
+
+Pre-split monolith tags (`vX.Y.Z`) are historical; do not add new ones.
 
 **Versions and tags are immutable.** Never force-push tags.
 
 ## Testing
 
 ### Before Committing
-Always validate the plugin structure:
+Always validate every plugin structure:
 ```bash
-claude plugin validate ./plugins/cacack
+for p in plugins/*/; do claude plugin validate "$p"; done
 ```
 
 ### Local Testing (before pushing)
-Test installation locally to catch issues before pushing:
+Test installation in an isolated HOME to catch issues before pushing (avoids touching your real plugin config):
 ```bash
-# Remove remote marketplace and add local
-claude plugin marketplace remove cacack
-claude plugin marketplace add ./
-
-# Install and verify
-claude plugin install cacack@cacack
-
-# After testing, switch back to remote
-claude plugin marketplace remove cacack
-claude plugin marketplace add https://github.com/cacack/claude-code-plugins
+HOME=$(mktemp -d) bash -c '
+  claude plugin marketplace add ./
+  for p in plugins/*/; do claude plugin install "$(basename $p)@cacack"; done
+'
 ```
 
 ### CI Validation
 The GitHub Actions workflow automatically:
-1. Validates plugin structure on every push/PR
-2. Checks version sync between marketplace.json and plugin.json
-3. Requires version bump when resources change
+1. Validates every plugin's structure on every push/PR
+2. Checks version sync between each marketplace entry and its plugin.json
+3. Requires a version bump for each plugin whose files changed
 
 ## Distribution
 

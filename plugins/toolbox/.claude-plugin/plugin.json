@@ -1,0 +1,13 @@
+{
+  "name": "toolbox",
+  "description": "Personal productivity utilities: todos, context parking, session history, decision frameworks, domain expertise packs, and expert debugging mode",
+  "version": "1.0.0",
+  "author": {
+    "name": "Chris Clonch",
+    "email": "chris@theclonchs.com"
+  },
+  "homepage": "https://github.com/cacack/claude-code-plugins",
+  "repository": "https://github.com/cacack/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["productivity", "todos", "utilities"]
+}
