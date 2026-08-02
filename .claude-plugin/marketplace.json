@@ -9,14 +9,58 @@
   },
   "plugins": [
     {
-      "name": "cacack",
-      "version": "2.0.1",
-      "description": "Personal collection of Claude Code agents and skills for productivity and automation",
+      "name": "delivery",
+      "version": "1.0.0",
+      "description": "The play → do → panel → ship delivery cycle: planning, execution, multi-persona diff review, preflight checks, issue compliance, PR shipping, and merge",
       "author": {
         "name": "Chris Clonch",
         "email": "chris@theclonchs.com"
       },
-      "source": "./plugins/cacack",
+      "source": "./plugins/delivery",
+      "strict": true
+    },
+    {
+      "name": "panels",
+      "version": "1.0.0",
+      "description": "Repo-wide multi-persona health panels: CONSTITUTION.md authoring, engineering and product review boards, and adversarial pressure-testing via Rude Q&A",
+      "author": {
+        "name": "Chris Clonch",
+        "email": "chris@theclonchs.com"
+      },
+      "source": "./plugins/panels",
+      "strict": true
+    },
+    {
+      "name": "authoring",
+      "version": "1.0.0",
+      "description": "Toolkit for building Claude Code resources: create and audit skills, slash commands, subagents, hooks, CLAUDE.md files, prompts, plans, and project docs",
+      "author": {
+        "name": "Chris Clonch",
+        "email": "chris@theclonchs.com"
+      },
+      "source": "./plugins/authoring",
+      "strict": true
+    },
+    {
+      "name": "principles",
+      "version": "1.0.0",
+      "description": "The canon: install or re-sync durable principles and agent operating rules into always-on Claude Code context, plus the privacy-redaction floor",
+      "author": {
+        "name": "Chris Clonch",
+        "email": "chris@theclonchs.com"
+      },
+      "source": "./plugins/principles",
+      "strict": true
+    },
+    {
+      "name": "toolbox",
+      "version": "1.0.0",
+      "description": "Personal productivity utilities: todos, context parking, session history, decision frameworks, domain expertise packs, and expert debugging mode",
+      "author": {
+        "name": "Chris Clonch",
+        "email": "chris@theclonchs.com"
+      },
+      "source": "./plugins/toolbox",
       "strict": true
     }
   ]

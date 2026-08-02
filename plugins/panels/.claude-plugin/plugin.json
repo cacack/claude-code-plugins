@@ -1,0 +1,13 @@
+{
+  "name": "panels",
+  "description": "Repo-wide multi-persona health panels: CONSTITUTION.md authoring, engineering and product review boards, and adversarial pressure-testing via Rude Q&A",
+  "version": "1.0.0",
+  "author": {
+    "name": "Chris Clonch",
+    "email": "chris@theclonchs.com"
+  },
+  "homepage": "https://github.com/cacack/claude-code-plugins",
+  "repository": "https://github.com/cacack/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["review", "strategy", "architecture", "product"]
+}

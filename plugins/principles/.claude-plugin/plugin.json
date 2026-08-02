@@ -1,0 +1,13 @@
+{
+  "name": "principles",
+  "description": "The canon: install or re-sync durable principles and agent operating rules into always-on Claude Code context, plus the privacy-redaction floor",
+  "version": "1.0.0",
+  "author": {
+    "name": "Chris Clonch",
+    "email": "chris@theclonchs.com"
+  },
+  "homepage": "https://github.com/cacack/claude-code-plugins",
+  "repository": "https://github.com/cacack/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["principles", "rules", "claudemd"]
+}

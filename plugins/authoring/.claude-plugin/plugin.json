@@ -1,0 +1,13 @@
+{
+  "name": "authoring",
+  "description": "Toolkit for building Claude Code resources: create and audit skills, slash commands, subagents, hooks, CLAUDE.md files, prompts, plans, and project docs",
+  "version": "1.0.0",
+  "author": {
+    "name": "Chris Clonch",
+    "email": "chris@theclonchs.com"
+  },
+  "homepage": "https://github.com/cacack/claude-code-plugins",
+  "repository": "https://github.com/cacack/claude-code-plugins",
+  "license": "MIT",
+  "keywords": ["skills", "agents", "hooks", "authoring", "audit"]
+}

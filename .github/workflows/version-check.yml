@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  validate-plugin:
+  validate-plugins:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -20,26 +20,32 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Validate plugin structure
-        run: claude plugin validate ./plugins/cacack
+      - name: Validate plugin structures
+        run: |
+          for dir in plugins/*/; do
+            echo "::group::Validating $dir"
+            claude plugin validate "$dir"
+            echo "::endgroup::"
+          done
 
       - name: Test plugin installation
         run: |
           # Use isolated home directory for clean test
           export HOME=$(mktemp -d)
 
-          # Add local marketplace and install
           claude plugin marketplace add ./
-          claude plugin install cacack@cacack
 
-          # Verify installation
-          if [ -d "$HOME/.claude/plugins/cache/cacack/cacack" ]; then
-            echo "✓ Plugin installed successfully"
-            ls -la "$HOME/.claude/plugins/cache/cacack/cacack/"
-          else
-            echo "✗ Plugin installation failed"
-            exit 1
-          fi
+          for dir in plugins/*/; do
+            name=$(basename "$dir")
+            claude plugin install "$name@cacack"
+
+            if [ -d "$HOME/.claude/plugins/cache/cacack/$name" ]; then
+              echo "✓ $name installed successfully"
+            else
+              echo "✗ $name installation failed"
+              exit 1
+            fi
+          done
 
   check-version-bump:
     runs-on: ubuntu-latest
@@ -49,47 +55,39 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check if resources changed
-        id: resources
+      - name: Check per-plugin version bumps
         run: |
           CHANGED=$(git diff --name-only origin/main...HEAD)
+          FAILED=0
 
-          if echo "$CHANGED" | grep -qE '^plugins/cacack/(commands/|agents/|skills/|hooks/|principles/)'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Resource files changed:"
-            echo "$CHANGED" | grep -E '^plugins/cacack/(commands/|agents/|skills/|hooks/|principles/)' || true
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No resource file changes detected"
-          fi
+          for dir in plugins/*/; do
+            name=$(basename "$dir")
 
-      - name: Check version bump
-        if: steps.resources.outputs.changed == 'true'
-        run: |
-          PR_MARKETPLACE=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
-          PR_PLUGIN=$(jq -r '.version' plugins/cacack/.claude-plugin/plugin.json)
+            if ! echo "$CHANGED" | grep -q "^plugins/$name/"; then
+              echo "$name: no changes — version bump not required"
+              continue
+            fi
 
-          git show origin/main:.claude-plugin/marketplace.json > /tmp/main-marketplace.json
-          git show origin/main:plugins/cacack/.claude-plugin/plugin.json > /tmp/main-plugin.json
+            PR_PLUGIN=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
+            PR_MARKETPLACE=$(jq -r --arg n "$name" '.plugins[] | select(.name == $n) | .version' .claude-plugin/marketplace.json)
 
-          MAIN_MARKETPLACE=$(jq -r '.plugins[0].version' /tmp/main-marketplace.json)
-          MAIN_PLUGIN=$(jq -r '.version' /tmp/main-plugin.json)
+            if [ "$PR_MARKETPLACE" != "$PR_PLUGIN" ]; then
+              echo "::error::$name: version mismatch between marketplace.json ($PR_MARKETPLACE) and plugin.json ($PR_PLUGIN)"
+              FAILED=1
+              continue
+            fi
 
-          echo "Main: marketplace=$MAIN_MARKETPLACE, plugin=$MAIN_PLUGIN"
-          echo "PR:   marketplace=$PR_MARKETPLACE, plugin=$PR_PLUGIN"
+            if MAIN_PLUGIN_JSON=$(git show "origin/main:plugins/$name/.claude-plugin/plugin.json" 2>/dev/null); then
+              MAIN_VERSION=$(echo "$MAIN_PLUGIN_JSON" | jq -r '.version')
+              if [ "$PR_PLUGIN" = "$MAIN_VERSION" ]; then
+                echo "::error::$name: files changed but version ($PR_PLUGIN) was not bumped"
+                FAILED=1
+              else
+                echo "$name: version bumped from $MAIN_VERSION to $PR_PLUGIN"
+              fi
+            else
+              echo "$name: new plugin at $PR_PLUGIN — no bump required"
+            fi
+          done
 
-          if [ "$PR_MARKETPLACE" != "$PR_PLUGIN" ]; then
-            echo "::error::Version mismatch between marketplace.json and plugin.json"
-            exit 1
-          fi
-
-          if [ "$PR_MARKETPLACE" = "$MAIN_MARKETPLACE" ]; then
-            echo "::error::Resource files changed but version was not bumped!"
-            exit 1
-          fi
-
-          echo "Version bumped from $MAIN_MARKETPLACE to $PR_MARKETPLACE"
-
-      - name: Skip version check
-        if: steps.resources.outputs.changed == 'false'
-        run: echo "No resource changes - version bump not required"
+          exit $FAILED
