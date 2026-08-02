@@ -89,9 +89,6 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 #### Internal (non-user-invocable)
 - `privacy-redaction` - Determine a destination's visibility, then redact local and internal specifics before they land in it — the procedure behind the privacy floor in the `instill-principles` canon
 - `issue-delivery` - Close the loop between a PR/MR and its tracked issue: closing vs. referencing keywords, partial-delivery bookkeeping, and deviation disclosure. Defers coverage scoring to `issue-compliance`
-- `shared-modules/commit-message` - Reusable logic for generating conventional commit messages
-- `shared-modules/docs-check` - Reusable logic for checking if documentation needs updates
-- `shared-modules/git-context` - Reusable logic for gathering git repository context
 
 ### Agents
 - `shipper` - Expert shipping orchestrator for rigorous code delivery (preflight, issue compliance, docs review)
