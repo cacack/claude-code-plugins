@@ -54,10 +54,10 @@ jobs:
         run: |
           CHANGED=$(git diff --name-only origin/main...HEAD)
 
-          if echo "$CHANGED" | grep -qE '^plugins/cacack/(commands/|agents/|skills/|hooks/)'; then
+          if echo "$CHANGED" | grep -qE '^plugins/cacack/(commands/|agents/|skills/|hooks/|principles/)'; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Resource files changed:"
-            echo "$CHANGED" | grep -E '^plugins/cacack/(commands/|agents/|skills/|hooks/)' || true
+            echo "$CHANGED" | grep -E '^plugins/cacack/(commands/|agents/|skills/|hooks/|principles/)' || true
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No resource file changes detected"

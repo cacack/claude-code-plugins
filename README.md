@@ -40,7 +40,7 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `create-plans` - Create detailed project plans with milestones, phases, and checkpoints
 
 #### Engineering Canon
-- `instill-principles` - Install or re-sync the engineering canon (9 durable engineering principles + 6 agent operating rules) into a repo's `.claude/rules/` or your user profile's always-on context. Audits the target for overlap, merges without duplicating, and writes a managed block you re-sync as the canon evolves. See [docs/engineering-principles.md](plugins/cacack/docs/engineering-principles.md)
+- `instill-principles` - Install or re-sync a canon **profile** into a repo's `.claude/rules/`, your user profile's always-on context, or the repo-root `CLAUDE.md` when a repo has no `.claude/`. Two profiles, one canon: `engineering` for someone shipping code (9 durable principles + 6 agent operating rules + privacy and issue-delivery floors), `universal` for non-code work with Claude (the ideas that survive generalization, in wording that names no code — two engineering-only ideas are dropped rather than watered down). You get one per scope, never both — the skill audits the scope for overlap, migrates a pre-profile install in place, and writes a managed block you re-sync as the canon evolves. See [docs/engineering-principles.md](plugins/cacack/docs/engineering-principles.md)
 
 #### Extension Creation
 - `create-agent-skills` - Comprehensive workflow for building agent skills with references, templates, and workflows
@@ -87,6 +87,8 @@ The cycle runs inside a dedicated git worktree (`.claude/worktrees/`) so simulta
 - `expertise/macos-apps` - Complete macOS app development knowledge (AppKit, document apps, system APIs)
 
 #### Internal (non-user-invocable)
+- `privacy-redaction` - Determine a destination's visibility, then redact local and internal specifics before they land in it — the procedure behind the privacy floor in the `instill-principles` canon
+- `issue-delivery` - Close the loop between a PR/MR and its tracked issue: closing vs. referencing keywords, partial-delivery bookkeeping, and deviation disclosure. Defers coverage scoring to `issue-compliance`
 - `shared-modules/commit-message` - Reusable logic for generating conventional commit messages
 - `shared-modules/docs-check` - Reusable logic for checking if documentation needs updates
 - `shared-modules/git-context` - Reusable logic for gathering git repository context
