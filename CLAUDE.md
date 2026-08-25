@@ -80,7 +80,7 @@ hooks (auto-loaded):         → plugins/delivery/hooks/hooks.json (if present)
 |---|---|
 | `delivery` | play, do, ship, merge, deliver-milestone, panel-review, preflight-checks, issue-compliance, issue-delivery, whats-next, run-prompt, security-review; reviewer-\* agents, shipper |
 | `panels` | constitution, panel-engineering, panel-product, pressure-test; engineering-\*, product-\*, rude-qa agents |
-| `authoring` | create-\* and audit-\* skills, heal-skill, docs-analyzer, documentation-standards; \*-auditor agents; design docs |
+| `authoring` | create-\* and audit-\* skills, graft, heal-skill, docs-analyzer, documentation-standards; \*-auditor agents; design docs |
 | `principles` | instill, privacy-redaction; canon profile payloads |
 | `toolbox` | add-to-todos, check-todos, park, history, consider, expertise, debug-like-expert |
 

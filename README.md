@@ -96,6 +96,9 @@ Audit skills:
 - `audit-claudemd` - Audit a `CLAUDE.md` or `.claude/rules/` file/dir for conciseness, stale references, scope, and path-scoping (drives the `claudemd-auditor` agent)
 - `audit-docs` - Audit project documentation for dead links, orphaned files, drift/staleness, and duplicated facts (DRY) — the runtime enforcement of the `documentation-standards` link-don't-duplicate discipline (drives the `docs-auditor` agent)
 
+Migration skills:
+- `graft` - Graft a resource, a whole plugin, or a pattern from one home into another — within this marketplace or across repos — carrying its closure, rewriting every reference that must change, registering it in the target, and verifying nothing dangles. Handles a clone, a migration, and a re-graft of something grafted before
+
 Documentation skills:
 - `documentation-standards` - The canonical project-documentation standard (types, locations, organization, formatting): a lean OSS-style root over a structured `docs/` reference layer, with templates for each doc type. Pairs with `audit-docs` (drift/dead links), `docs-analyzer` (code-driven updates), and `create-claudemd` (CLAUDE.md authoring)
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
