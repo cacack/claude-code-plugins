@@ -114,6 +114,22 @@ expect_not "glob placeholder not flagged"   "$out" "reviewer-"
 [ "$rc" -eq 1 ] && ok "exit 1 on errors" || bad "exit 1 on errors (got $rc)"
 
 # ------------------------------------------------- plugin.json name mismatch ---------
+# A nested "name" must not satisfy the identity check: collecting every "name" in the file
+# let an author object stand in for the plugin's own name. Reading only the first match
+# would fix that and reintroduce key-order dependence, so both orderings are asserted.
+mkdir -p "$FIX/plugins/authormask/.claude-plugin" "$FIX/plugins/authormask/skills"
+printf '{"name":"something-else","author":{"name":"authormask"}}\n' \
+  > "$FIX/plugins/authormask/.claude-plugin/plugin.json"
+out=$(bash "$CHECKER" "$FIX/plugins/authormask" 2>&1)
+printf '\n--- nested name does not satisfy the identity check ---\n'
+expect "author name cannot mask a wrong plugin name" "$out" 'declares no "name" matching the directory "authormask"'
+
+mkdir -p "$FIX/plugins/authorfirst/.claude-plugin" "$FIX/plugins/authorfirst/skills"
+printf '{"author":{"name":"Cloud Services"},"name":"authorfirst","description":"a { brace } in a value"}\n' \
+  > "$FIX/plugins/authorfirst/.claude-plugin/plugin.json"
+out=$(bash "$CHECKER" "$FIX/plugins/authorfirst" 2>&1)
+expect_not "author listed first still resolves" "$out" 'declares no "name"'
+
 mk_plugin renamed wrong-name
 out=$(bash "$CHECKER" "$FIX/plugins/renamed" 2>&1)
 printf '\n--- plugin.json name mismatch ---\n'

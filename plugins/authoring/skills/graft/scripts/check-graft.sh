@@ -36,9 +36,46 @@ skip() { printf 'skip\t%s\n'  "$1" >>"$FINDINGS"; }
 # file that happens to order `author` first, which silently inverts every self-reference.
 PLUGIN_NAME=$(basename "$ROOT")
 
+# Only a "name" at brace depth 1 is the plugin's own. Collecting every "name" in the file
+# let an author object's name satisfy the identity check, so a plugin.json declaring the
+# wrong name passed whenever author.name happened to equal the directory name. Taking the
+# first match instead would reintroduce the key-order dependence the comment above warns
+# about, so track depth: exact, order-independent, indentation-independent, and no jq.
 json_names() {
-  grep -oE '"name"[[:space:]]*:[[:space:]]*"[^"]*"' "$1" 2>/dev/null \
-    | sed 's/.*"\([^"]*\)"$/\1/'
+  awk '
+    {
+      instr = 0; esc = 0; stripped = ""
+      for (i = 1; i <= length($0); i++) {
+        c = substr($0, i, 1)
+        if (esc) { esc = 0; stripped = stripped c; continue }
+        if (c == "\\") { esc = 1; stripped = stripped c; continue }
+        if (c == "\"") { instr = !instr; stripped = stripped c; continue }
+        if (!instr && (c == "{" || c == "}")) {
+          # Text accumulated before a brace sits at the depth in effect while it was read,
+          # which is the depth BEFORE this brace changes it — for "{" the outer level, for
+          # "}" the level being closed. Emitting after the change placed the name of a
+          # nested author object at depth 1 on a minified line.
+          prev = depth
+          depth += (c == "{") ? 1 : -1
+          emit(stripped, prev)
+          stripped = ""
+          continue
+        }
+        stripped = stripped c
+      }
+      emit(stripped, depth)
+    }
+    function emit(text, d) {
+      if (d != 1) return
+      while (match(text, /"name"[[:space:]]*:[[:space:]]*"[^"]*"/)) {
+        v = substr(text, RSTART, RLENGTH)
+        sub(/^"name"[[:space:]]*:[[:space:]]*"/, "", v)
+        sub(/"$/, "", v)
+        print v
+        text = substr(text, RSTART + RLENGTH)
+      }
+    }
+  ' "$1" 2>/dev/null
 }
 
 if ! json_names "$PLUGIN_JSON" | grep -qxF "$PLUGIN_NAME"; then
