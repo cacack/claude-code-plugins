@@ -35,6 +35,8 @@ mk_plugin sibling
 mkdir -p "$FIX/plugins/tgt/skills/good" "$FIX/plugins/sibling/agents" "$FIX/outside"
 echo "leak" > "$FIX/outside/leak.md"
 touch "$FIX/plugins/sibling/agents/some-agent.md"
+mkdir -p "$FIX/plugins/tgt/commands"
+touch "$FIX/plugins/tgt/commands/a-command.md"
 
 cat > "$FIX/plugins/tgt/skills/good/SKILL.md" <<'M'
 ---
@@ -46,6 +48,8 @@ Dot-prefixed dangling: [refs](./references/also-missing.md)
 Escaping: [leak](../../../../outside/leak.md)
 Real and fine: [self](SKILL.md)
 A URL is not a path: [docs](https://example.com/x.md)
+Anti-pattern sample in a double-backtick span: `` [`path/to/x.tf`](url) `` is wrong.
+Live link outside the span is still read: [gone](references/vanished.md)
 Backticked plugin-root escape: `${CLAUDE_PLUGIN_ROOT}/../../outside/leak.md`
 Backticked plugin-root missing: `${CLAUDE_PLUGIN_ROOT}/references/absent.md`
 
@@ -55,6 +59,7 @@ Dispatch, repo idiom with no subagent_type on the line:
 Explicit form: each call uses the matching `subagent_type` (`sibling:some-agent`).
 Self-reference that does not exist: tgt:ghost-skill
 Self-reference that does exist: tgt:good
+Self-reference to a command, the third resource kind: tgt:a-command
 Descriptive prose only: the sibling:some-agent agent does something similar.
 A glob names nothing: sibling:reviewer-*
 M
@@ -102,10 +107,29 @@ expect "cross-plugin skills: entry"         "$out" "skills: sibling:good (cross-
 expect "descriptive mention is a note"      "$out" "descriptive, verify"
 expect_not "URL not treated as a path"      "$out" "example.com"
 expect_not "existing self-link not flagged" "$out" "SKILL.md (dangling)"
+expect_not "command resolves as a resource"  "$out" "tgt:a-command"
+expect_not "double-backtick sample not read" "$out" "-> url (dangling)"
+expect "live link beside a code span read"  "$out" "references/vanished.md (dangling)"
 expect_not "glob placeholder not flagged"   "$out" "reviewer-"
 [ "$rc" -eq 1 ] && ok "exit 1 on errors" || bad "exit 1 on errors (got $rc)"
 
 # ------------------------------------------------- plugin.json name mismatch ---------
+# A nested "name" must not satisfy the identity check: collecting every "name" in the file
+# let an author object stand in for the plugin's own name. Reading only the first match
+# would fix that and reintroduce key-order dependence, so both orderings are asserted.
+mkdir -p "$FIX/plugins/authormask/.claude-plugin" "$FIX/plugins/authormask/skills"
+printf '{"name":"something-else","author":{"name":"authormask"}}\n' \
+  > "$FIX/plugins/authormask/.claude-plugin/plugin.json"
+out=$(bash "$CHECKER" "$FIX/plugins/authormask" 2>&1)
+printf '\n--- nested name does not satisfy the identity check ---\n'
+expect "author name cannot mask a wrong plugin name" "$out" 'declares no "name" matching the directory "authormask"'
+
+mkdir -p "$FIX/plugins/authorfirst/.claude-plugin" "$FIX/plugins/authorfirst/skills"
+printf '{"author":{"name":"Cloud Services"},"name":"authorfirst","description":"a { brace } in a value"}\n' \
+  > "$FIX/plugins/authorfirst/.claude-plugin/plugin.json"
+out=$(bash "$CHECKER" "$FIX/plugins/authorfirst" 2>&1)
+expect_not "author listed first still resolves" "$out" 'declares no "name"'
+
 mk_plugin renamed wrong-name
 out=$(bash "$CHECKER" "$FIX/plugins/renamed" 2>&1)
 printf '\n--- plugin.json name mismatch ---\n'
