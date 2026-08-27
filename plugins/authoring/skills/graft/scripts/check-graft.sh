@@ -145,13 +145,26 @@ while IFS= read -r -d '' file; do
       return (out == "") ? "/" : out
     }
     function placeholder(x) { return (x == "" || x ~ /^[<{$]/ || x ~ /\.\.\./) }
+    # Strip code spans. ``...`` runs first and is cut by index() rather than a regex,
+    # because a double-backtick span legally contains single backticks — ERE has no
+    # non-greedy match, so one gsub over both forms shreds `` [`x`](url) `` into the
+    # live-looking link `[](url)`. An unterminated `` is left alone.
+    function strip_spans(s,   i, j) {
+      while ((i = index(s, "``")) > 0) {
+        j = index(substr(s, i + 2), "``")
+        if (j == 0) break
+        s = substr(s, 1, i - 1) substr(s, i + 2 + j + 1)
+      }
+      gsub(/`[^`]*`/, "", s)
+      return s
+    }
     {
       raw = $0
 
       # --- sanitized view, for links only
       if (raw ~ /^[[:space:]]*(```|~~~)/) { fence = !fence; clean = "" }
       else if (fence) { clean = "" }
-      else { clean = raw; gsub(/`[^`]*`/, "", clean) }
+      else { clean = strip_spans(raw) }
 
       s = clean
       while (match(s, /\]\([^)( \t]+\)/)) {

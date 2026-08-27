@@ -48,6 +48,8 @@ Dot-prefixed dangling: [refs](./references/also-missing.md)
 Escaping: [leak](../../../../outside/leak.md)
 Real and fine: [self](SKILL.md)
 A URL is not a path: [docs](https://example.com/x.md)
+Anti-pattern sample in a double-backtick span: `` [`path/to/x.tf`](url) `` is wrong.
+Live link outside the span is still read: [gone](references/vanished.md)
 Backticked plugin-root escape: `${CLAUDE_PLUGIN_ROOT}/../../outside/leak.md`
 Backticked plugin-root missing: `${CLAUDE_PLUGIN_ROOT}/references/absent.md`
 
@@ -106,6 +108,8 @@ expect "descriptive mention is a note"      "$out" "descriptive, verify"
 expect_not "URL not treated as a path"      "$out" "example.com"
 expect_not "existing self-link not flagged" "$out" "SKILL.md (dangling)"
 expect_not "command resolves as a resource"  "$out" "tgt:a-command"
+expect_not "double-backtick sample not read" "$out" "-> url (dangling)"
+expect "live link beside a code span read"  "$out" "references/vanished.md (dangling)"
 expect_not "glob placeholder not flagged"   "$out" "reviewer-"
 [ "$rc" -eq 1 ] && ok "exit 1 on errors" || bad "exit 1 on errors (got $rc)"
 
