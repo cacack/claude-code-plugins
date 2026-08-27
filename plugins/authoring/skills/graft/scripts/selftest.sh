@@ -35,6 +35,8 @@ mk_plugin sibling
 mkdir -p "$FIX/plugins/tgt/skills/good" "$FIX/plugins/sibling/agents" "$FIX/outside"
 echo "leak" > "$FIX/outside/leak.md"
 touch "$FIX/plugins/sibling/agents/some-agent.md"
+mkdir -p "$FIX/plugins/tgt/commands"
+touch "$FIX/plugins/tgt/commands/a-command.md"
 
 cat > "$FIX/plugins/tgt/skills/good/SKILL.md" <<'M'
 ---
@@ -55,6 +57,7 @@ Dispatch, repo idiom with no subagent_type on the line:
 Explicit form: each call uses the matching `subagent_type` (`sibling:some-agent`).
 Self-reference that does not exist: tgt:ghost-skill
 Self-reference that does exist: tgt:good
+Self-reference to a command, the third resource kind: tgt:a-command
 Descriptive prose only: the sibling:some-agent agent does something similar.
 A glob names nothing: sibling:reviewer-*
 M
@@ -102,6 +105,7 @@ expect "cross-plugin skills: entry"         "$out" "skills: sibling:good (cross-
 expect "descriptive mention is a note"      "$out" "descriptive, verify"
 expect_not "URL not treated as a path"      "$out" "example.com"
 expect_not "existing self-link not flagged" "$out" "SKILL.md (dangling)"
+expect_not "command resolves as a resource"  "$out" "tgt:a-command"
 expect_not "glob placeholder not flagged"   "$out" "reviewer-"
 [ "$rc" -eq 1 ] && ok "exit 1 on errors" || bad "exit 1 on errors (got $rc)"
 

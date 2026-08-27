@@ -102,7 +102,13 @@ done < <(find "$ROOT" -type l -print0)
 # Keying only on `subagent_type` classified "Launch the `panels:rude-qa` subagent via the
 # Task tool" as prose, which is a live cross-plugin dispatch. Bare lowercase `invoke` is
 # deliberately absent: it matches ordinary prose ("skills that invoke real tools").
-resource_exists() { [ -d "$ROOT/skills/$1" ] || [ -f "$ROOT/agents/$1.md" ]; }
+# `commands/` is a legal third resource kind: some marketplaces keep their slash commands
+# there rather than as skills, and a `plugin:name` naming one resolves fine at runtime.
+# Omitting it reported every such reference as a dangling self-reference — 6 of 15 errors
+# on the first real plugin that used the directory.
+resource_exists() {
+  [ -d "$ROOT/skills/$1" ] || [ -f "$ROOT/agents/$1.md" ] || [ -f "$ROOT/commands/$1.md" ]
+}
 
 TAB=$(printf '\t')
 NL=$'\n'   # NOT $(printf '\n') — command substitution strips the trailing newline
