@@ -1,0 +1,5 @@
+# Machine-local Claude Code settings (personal permissions, absolute paths)
+.claude/settings.local.json
+
+# Worktrees created by the play → do → panel → ship cycle
+.claude/worktrees/
