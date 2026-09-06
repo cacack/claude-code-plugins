@@ -1,0 +1,64 @@
+name: Bug
+description: Something already built is not working as intended
+labels: ["type:bug", "class:unplanned"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A Bug stays open until the defect is fixed or a blocker to fixing it is
+        named — it is not timeboxed, even when it carries heavy triage.
+
+        This form presets `class:unplanned`, which means **no milestone**. If
+        this defect was chosen and scheduled rather than arriving, switch the
+        label to `class:planned` first.
+
+        Quote logs inside a fenced code block, so a stray `@name` does not
+        notify anyone.
+  - type: textarea
+    id: at-a-glance
+    attributes:
+      label: At a glance
+      description: Three to five sentences of plain English.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      value: |
+        **Observed:**
+
+        **Expected:**
+
+        **Blast radius:**
+
+        **First seen:**
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Numbered steps, or an explanation of why it is not reproducible.
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: An observable condition proving the defect is gone, plus regression coverage where applicable.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: CI run, log query, or transcript. Every entry is a link.
+    validations:
+      required: false
