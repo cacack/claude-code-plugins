@@ -99,7 +99,8 @@ Audit skills:
 Migration skills:
 - `graft` - Graft a resource, a whole plugin, or a pattern from one home into another — within this marketplace or across repos — carrying its closure, rewriting every reference that must change, registering it in the target, and verifying nothing dangles. Handles a clone, a migration, and a re-graft of something grafted before
 
-Documentation skills:
+Standards skills:
+- `issue-standards` - The canonical tracked-issue standard (types, anatomy, evidence, labels, readiness) for GitHub and GitLab: what an issue body must carry, acceptance criteria as observable conditions, and the evidence each one owes before it closes. Ships copy-paste blocks and drop-in forge issue templates. Pairs with `delivery:issue-delivery` (PR-side linking) and `delivery:issue-compliance` (coverage scoring)
 - `documentation-standards` - The canonical project-documentation standard (types, locations, organization, formatting): a lean OSS-style root over a structured `docs/` reference layer, with templates for each doc type. Pairs with `audit-docs` (drift/dead links), `docs-analyzer` (code-driven updates), and `create-claudemd` (CLAUDE.md authoring)
 - `docs-analyzer` - Semantic analysis of code changes to identify documentation that needs updating
 - `heal-skill` - Self-improvement workflow for skills

@@ -1,0 +1,5 @@
+# .github/ISSUE_TEMPLATE/config.yml
+#
+# Blank issues stay disabled: an issue opened outside a form skips every
+# required field, which is the whole point of the forms.
+blank_issues_enabled: false

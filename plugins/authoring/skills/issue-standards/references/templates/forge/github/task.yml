@@ -1,0 +1,67 @@
+name: Task
+description: Predefined work a procedure already describes, with no design latitude
+labels: ["type:task", "class:planned"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A Task executes a procedure that already decides *how*. If you decide
+        how, open a Story instead.
+
+        Link the procedure under References, or say that none exists — that is
+        usually a sign this is a Story.
+
+        Set `value:`, `effort:`, and a theme label after opening, and add a
+        milestone if this belongs to a larger body of work.
+  - type: textarea
+    id: at-a-glance
+    attributes:
+      label: At a glance
+      description: Three to five sentences of plain English — what this is and why it matters, to someone who knows the project but not this issue. No implementation detail.
+      placeholder: What the work is, and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why this issue exists.
+      value: |
+        **Why now:**
+
+        **What is missing:**
+
+        **Value:**
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Observable conditions, not activities. Verifiable without asking you. More than five is a signal this holds more than one deliverable.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Write this whenever the work is not obviously bounded.
+      value: |
+        **In:**
+
+        **Out:**
+    validations:
+      required: false
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Every entry is a link. Use permalinks for files — press `y` on the blob page. A bare path reaches nothing.
+      placeholder: |
+        - [module.tf](https://github.com/owner/repo/blob/<sha>/module.tf) — the pin being changed
+        - #41 — blocked by
+    validations:
+      required: false
