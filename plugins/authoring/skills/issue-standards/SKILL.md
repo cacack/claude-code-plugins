@@ -148,32 +148,88 @@ typed issue links, cross-repository autolinking, and the template file layout.
 
 <process>
 
-1. **Detect the forge** (see above) and check what the repo already has —
-   `.github/ISSUE_TEMPLATE/` or `.gitlab/issue_templates/`.
-2. **Report the gap** — a table of {template, exists?, proposed action}. An
-   existing template is never overwritten without showing the diff.
-3. **Copy from `references/templates/forge/`** — `github/*.yml` (issue forms plus
-   `config.yml`) or `gitlab/*.md` (description templates). Adapt the placeholder
-   text to the repo's domain; leave the structure alone.
-4. **Create the label vocabulary**, since a template presetting a label that does
-   not exist silently drops it:
+1. **Detect the forge** (see above) and survey what the repo already has —
+   `.github/ISSUE_TEMPLATE/` or `.gitlab/issue_templates/`, **and its existing
+   labels** (`gh label list`, `glab label list`).
+2. **Report the gap** — two tables, because templates and labels fail
+   differently:
+   - *Templates*: {template, exists?, proposed action}. An existing template is
+     never overwritten without showing the diff.
+   - *Labels*: every category the standard requires against what the repo
+     already carries. Name the ones absent, and the ones **already present under
+     another name** — see reconciliation below.
+3. **Reconcile before creating.** A forge's default labels usually overlap this
+   vocabulary: GitHub ships `bug`, `enhancement`, and `documentation`. Creating
+   `type:bug` beside an in-use `bug` produces the split filter the standard's
+   own *Theme spelling* section forbids.
+
+   Apply that section's own rule — **count before renaming**:
 
    ```bash
-   # GitHub — the type and class labels the forms preset
+   gh issue list --label bug --state all --limit 200 --json number --jq 'length'
+   ```
+
+   Where the existing label holds no issues, deleting it is free. Where it holds
+   few and means the same thing, migrate them and delete it. Where it holds many
+   or maps to no single type — `enhancement` is the usual case — leave it and
+   say why; asserting a type for issues nobody has re-read is a guess.
+4. **Present the plan.** Every step below writes a file or mutates the
+   repository. Nothing above this line has done either.
+5. **Copy from `references/templates/forge/`** — `github/*.yml` (issue forms plus
+   `config.yml`) or `gitlab/*.md` (description templates). Adapt the placeholder
+   text to the repo's domain; leave the structure alone.
+6. **Create the label vocabulary**, since a template presetting a label that does
+   not exist silently drops it. All five categories, themes included — a repo
+   with no theme label cannot satisfy Definition of Ready item 11, so seed the
+   themes the repo's own structure implies:
+
+   ```bash
+   # GitHub — type and class are the closed sets the forms preset
    gh label create "type:story" --color 0E8A16 --description "Build something, with design latitude"
    gh label create "class:planned" --color C5DEF5 --description "Chosen work; eligible for a milestone"
+   # themes are open-ended and bare, named after this repo's own divisions
+   gh label create "skills" --color BFD4F2 --description "Skills and their references"
    ```
 
    GitLab scoped labels use `::` and are created per project or per group.
-5. **Present the plan before writing any file.**
+7. **Verify by reading back, not by exit code.** `gh label create` prints nothing
+   on success, so the command succeeding proves nothing about the result:
+
+   ```bash
+   gh label list --limit 100 --json name --jq '.[].name'
+   ```
+
+   Cross-check that every label named in a template's `labels:` field appears in
+   that output.
+8. **Say what the scaffold does not cover.** Issues that already exist carry
+   none of this vocabulary; bringing the backlog across is the `check` workflow's
+   job, not this one. Name the count so the gap is visible.
+9. **Note the default-branch constraint.** GitHub renders issue forms **only
+   from the default branch**. Scaffolded on a branch, they are invisible and the
+   scaffold looks broken until the change merges. Confirm after merging:
+
+   ```bash
+   gh api "repos/<owner>/<repo>/contents/.github/ISSUE_TEMPLATE?ref=<default>" --jq '.[].name'
+   ```
 
 </process>
 
+<verification_note>
+**`gh issue list --label` reads a search index that lags writes.** Immediately
+after a label edit it will report the old state while the write has already
+landed, which reads as a failed edit and invites a destructive retry. Confirm
+per-issue label state with `gh issue view <n> --json labels` — that is ground
+truth — and treat list counts as eventually consistent.
+</verification_note>
+
 <success_criteria>
 - Templates match the forge actually in use
-- Every label a template presets exists in the repo
-- No existing template overwritten without the diff shown
-- Plan presented before any file was written
+- Plan presented before the first file was written or label mutated
+- Existing labels reconciled rather than duplicated; counts taken before any rename
+- Every label a template presets exists, confirmed by reading the label list back
+- Themes seeded, so the repo can satisfy Definition of Ready item 11
+- The uncovered backlog named, with its count
+- The default-branch constraint stated, and confirmed after merge
 </success_criteria>
 
 </workflow>
