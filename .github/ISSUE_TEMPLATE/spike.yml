@@ -1,0 +1,62 @@
+name: Spike
+description: Discovery — investigation, review, bake-off, proof of concept
+labels: ["type:spike", "class:planned"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A Spike is the only type bounded by time rather than by outcome. Its
+        criterion is that a decision or finding is **recorded** — never that
+        investigation happened. A Spike that ends with nothing written has not
+        met its criteria.
+  - type: textarea
+    id: at-a-glance
+    attributes:
+      label: At a glance
+      description: Three to five sentences of plain English.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      value: |
+        **Why now:**
+
+        **What you do not know:**
+
+        **Value:**
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: The question this spike answers, stated as a question.
+      placeholder: Does X hold when Y?
+    validations:
+      required: true
+  - type: input
+    id: time-box
+    attributes:
+      label: Time-box
+      description: Days or sessions. A spike without one is an open-ended investigation.
+      placeholder: 2 days
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Name the artifact and where it lands.
+      value: |
+        - [ ] <artifact> is written to <location>, recording <the decision or finding>.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Every entry is a link.
+    validations:
+      required: false
