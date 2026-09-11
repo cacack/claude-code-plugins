@@ -4,11 +4,11 @@
 
 ## Mission
 
-A personal Claude Code plugin marketplace housing skills, subagents, and hooks that scaffold the maintainer's development workflows. The collection prioritizes focused, specialized resources that compose into agentic systems — small skills that do one thing well, externalizing context to files rather than assuming Claude remembers.
+A personal Claude Code plugin marketplace housing skills and subagents that scaffold the maintainer's development workflows. The collection prioritizes focused, specialized resources that compose into agentic systems — small skills that do one thing well, externalizing context to files rather than assuming Claude remembers.
 
 ## Audience
 
-**This is for:** Chris Clonch, the maintainer, as primary user; secondarily, other developers comfortable with Claude Code who treat this as a reference implementation for plugin patterns.
+**This is for:** Chris Clonch, the maintainer, as primary user; secondarily, other developers comfortable with Claude Code who treat this as a reference implementation for plugin patterns; and, through the `principles` plugin's universal profile, people doing non-code work with Claude who receive the canon without ever installing this marketplace.
 
 **This is not for:** beginners new to Claude Code, enterprise teams expecting supported tooling, or anyone who needs Anthropic-blessed canonical patterns (use `anthropics/claude-plugins-official` for that).
 
@@ -31,6 +31,10 @@ This project is explicitly **not** trying to:
 - Compete with or replace `anthropics/claude-plugins-official`
 - Optimize for first-time Claude Code users
 - Maintain backwards-compatibility shims for deprecated skill formats
+
+Process rigor here — issue templates, a label vocabulary, CI validation — serves the
+reference-implementation goal. It is not a support commitment, and should not be read
+as the project drifting toward one.
 
 ## Success Criteria
 
@@ -76,7 +80,8 @@ file that costs every session.
 
 ---
 
-*Last refreshed: 2026-05-16. Success Criteria rewritten as executable checks
-2026-09-11, after the first `panel-product` run found two of them false — one of
-which had been false since the day this document was written, because nothing
-verified it. If a criterion here cannot be settled by a command, it says so.*
+*Last refreshed: 2026-09-11. The Success Criteria became executable checks the same
+day, after the first `panel-product` run found two of them false — one of which had
+been false since the day this document was written, because nothing verified it. If a
+criterion here cannot be settled by a command, it says so. Drift report:
+`docs/reviews/constitution/2026-09-11-drift.md`.*
