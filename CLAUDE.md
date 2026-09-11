@@ -242,9 +242,10 @@ Pre-split monolith tags (`vX.Y.Z`) are historical; do not add new ones.
 ## Testing
 
 ### Before Committing
-Always validate every plugin structure:
+Verify the constitution's success criteria — this validates every plugin, checks
+version sync and plugin boundaries, and enforces this file's own line ceiling:
 ```bash
-for p in plugins/*/; do claude plugin validate "$p"; done
+make constitution-check
 ```
 
 ### Local Testing (before pushing)

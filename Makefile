@@ -1,4 +1,4 @@
-.PHONY: install install-scripts
+.PHONY: install install-scripts constitution-check
 
 INSTALL_DIR := $(HOME)/.local/bin
 
@@ -9,3 +9,7 @@ install-scripts: $(INSTALL_DIR)
 
 $(INSTALL_DIR):
 	mkdir -p $(INSTALL_DIR)
+
+# Verify the Success Criteria in CONSTITUTION.md. Exits non-zero on a breach.
+constitution-check:
+	@scripts/constitution-check.sh
