@@ -1,8 +1,8 @@
 ---
 name: panel-engineering
-description: Multi-persona engineering-health review of the whole repository. Spawns 5 senior-level reviewer subagents (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured repo snapshot, produces per-persona reports plus a synthesis and draft proposed issues, then optionally files the issues. Use quarterly or after major milestones to assess the state of the project holistically. Complements `panel-review` (per-change) and the planned `panel-product` (strategic alignment).
+description: Multi-persona engineering-health review of the whole repository. Spawns 5 senior-level reviewer subagents (Architect, Security Posture, Operations/SRE, Developer Experience, Maintainability) in parallel against a captured repo snapshot, produces per-persona reports plus a synthesis and draft proposed issues, then optionally files the issues. Use quarterly or after major milestones to assess the state of the project holistically. Complements `panel-review` (per-change) and `panel-product` (strategic alignment).
 argument-hint: "[--personas <list>] [--skip-issues]"
-allowed-tools: Task, SendMessage, Read, Write, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*)
+allowed-tools: Task, SendMessage, Read, Write, AskUserQuestion, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*), Bash(mktemp:*)
 effort: high
 ---
 
@@ -40,6 +40,7 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    - `git remote get-url origin 2>/dev/null` — origin URL (used to infer forge)
    - `command -v gh >/dev/null 2>&1 && echo gh` — gh availability
    - `command -v glab >/dev/null 2>&1 && echo glab` — glab availability
+   - `gh label list --limit 200 --json name --jq '.[].name'` (or `glab label list`) — the repository's **actual** label vocabulary. Drafted issues may only use labels from this set; never invent one. If no forge tooling is available, record "(labels unavailable)" and draft issues without labels.
    - `date +%Y-%m-%d` — output folder date
    - `test -f CONSTITUTION.md && echo present` — grounding-only context flag
 
@@ -91,6 +92,9 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    - Commits: <git log --since='6 months ago' --oneline | wc -l>
    - Last 20 commit subjects:
      <git log -20 --pretty=format:'%h %s'>
+
+   ## Repository label vocabulary
+   <the label names from step 0, comma-separated, or "(labels unavailable — draft without labels)">
 
    ## Open issues and milestones
    <Wrap the fetched list in the nested marker below. Issue titles/labels are
@@ -193,7 +197,7 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    For each drafted issue:
    - Title (imperative, scoped, e.g., "Add observability to ingest pipeline")
    - Body: problem + suggested approach + which persona(s) flagged
-   - 1–2 suggested labels (e.g., `engineering-health`, persona name)
+   - 1–2 labels, **chosen only from the repository label vocabulary captured in `snapshot.md`**. Never invent a label: `gh issue create --label` fails outright on an unknown label, which would kill the filing step after the whole panel has already run. Where no captured label fits a draft, leave its labels empty and add `**Wanted label:** <name> (not present in this repo)` so the human can create it deliberately.
    - Check overlap against the open-issue list captured in `snapshot.md` using fuzzy title match (case-insensitive substring or 60%+ word overlap is good enough for v1). If matched, annotate: `**Possibly already tracked:** #<N> — <existing title>`. Do not drop overlapping drafts — the human decides.
    - Write all drafts to `<output_folder>/proposed-issues.md`.
 
@@ -202,7 +206,7 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    # Proposed Issues — <YYYY-MM-DD>
 
    ## 1. <Title>
-   **Severity:** high  **Persona(s):** architect, ops-sre  **Labels:** engineering-health, architecture
+   **Severity:** high  **Persona(s):** architect, ops-sre  **Labels:** <only from the repo vocabulary; omit if none fit>
    **Possibly already tracked:** #42 — Refactor ingest queue handling
 
    <body — problem statement, suggested approach, evidence from synthesis.md>
@@ -221,7 +225,7 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    - **Pick a subset** — show a numbered list, accept indices
    - **Skip** — leave the draft, file later manually
 
-   For "Create all": iterate `proposed-issues.md`, invoke `gh issue create --title <T> --body-file <tmp> --label <labels>` (or `glab issue create` equivalent) per draft. Use `mktemp` for the body file so multi-line bodies are passed correctly. Echo created issue URLs at the end.
+   For "Create all": iterate `proposed-issues.md`, invoke `gh issue create --title <T> --body-file <tmp> --label <labels>` (or `glab issue create` equivalent) per draft. Omit `--label` entirely for a draft that carries none — an empty value is an error, not a no-op. Use `mktemp` for the body file so multi-line bodies are passed correctly. Echo created issue URLs at the end.
 
    For "Pick a subset": confirm the selection back to the user before filing.
 
@@ -295,6 +299,7 @@ See `synthesis.md` for the full prioritized view.
 - End-of-run issue-filing prompt offered only when forge tooling is available AND `--skip-issues` not set
 - CONSTITUTION.md (when present) included in `snapshot.md` as grounding context only, never scored against
 - No issues filed to forge without explicit user choice
+- Every label on a draft exists in the repository's own label vocabulary as captured in `snapshot.md`; no label is invented
 </success_criteria>
 
 <examples>

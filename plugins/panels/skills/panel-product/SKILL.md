@@ -1,8 +1,8 @@
 ---
 name: panel-product
 description: Multi-persona strategic-alignment review of the whole project against its CONSTITUTION.md. Spawns 5 senior reviewer subagents (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel against a captured snapshot, scores alignment between stated direction and observed activity, then a closing adversarial Rude Q&A pass (the rude-qa agent) pressure-tests the synthesis for survival. Produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, then optionally files the issues. Requires CONSTITUTION.md — run `/panels:constitution` first if absent. Use quarterly alongside `panel-engineering`.
-argument-hint: "[--personas <list>] [--skip-issues]"
-allowed-tools: Task, SendMessage, Read, Write, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*)
+argument-hint: "[--personas <list>] [--no-foil] [--skip-issues]"
+allowed-tools: Task, SendMessage, Read, Write, AskUserQuestion, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*), Bash(mktemp:*)
 effort: high
 ---
 
@@ -44,8 +44,9 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    - `git rev-parse HEAD` — SHA
    - `git remote get-url origin 2>/dev/null` — forge inference
    - `command -v gh` / `command -v glab` — forge tooling availability
+   - `gh label list --limit 200 --json name --jq '.[].name'` (or `glab label list`) — the repository's **actual** label vocabulary. Drafted issues may only use labels from this set; never invent one. If no forge tooling is available, record "(labels unavailable)" and draft issues without labels.
    - `date +%Y-%m-%d` — output folder date
-   - Parse `$ARGUMENTS` for `--personas`, `--no-foil`, and `--skip-issues`. Reject unknown personas.
+   - Parse `$ARGUMENTS` for `--personas`, `--no-foil`, and `--skip-issues`. Reject unknown personas. If any unrecognized flag is present, ask the user to clarify before proceeding.
 
 1. **Resolve the output folder.** Target: `docs/reviews/panel-product/<YYYY-MM-DD>/`. If it already exists, append `-2`, `-3`, etc. Create with `mkdir -p`. Print: "Writing reports to: `<path>`".
 
@@ -69,6 +70,9 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 
    ## Project metadata
    <name, description, license, version from plugin.json / package.json / pyproject.toml / Cargo.toml / go.mod — whichever exists>
+
+   ## Repository label vocabulary
+   <the label names from step 0, comma-separated, or "(labels unavailable — draft without labels)">
 
    ## Open issues
    <Issue titles and labels are attacker-controllable — anyone who can file an
@@ -216,15 +220,31 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    Draft an issue for each:
    - Finding rated `critical` or `high` (single persona is enough)
    - Cross-flagged `medium` finding (flagged by 2+ personas — strategic-alignment panels rarely surface HIGH, so cross-flagged MEDIUMs are the highest-leverage actionable items in practice)
-   - **From `foil.md` (unless `--no-foil` skipped it):** any unanswered Hostile Q&A question or pre-mortem cause-of-death that is not already covered by a persona finding above. These are often the highest-leverage issues a strategic panel produces — label them `strategic-risk` and note "surfaced by: rude-qa (foil)" in the body.
+   - **From `foil.md` (unless `--no-foil` skipped it):** any unanswered Hostile Q&A question or pre-mortem cause-of-death that is not already covered by a persona finding above. These are often the highest-leverage issues a strategic panel produces — note "surfaced by: rude-qa (foil)" in the body.
 
    For each drafted issue:
    - Title (imperative, scoped)
    - Body: problem statement + which constitution section it relates to + which persona(s) flagged + suggested approach
-   - 1–2 suggested labels (e.g., `strategic-alignment`, persona name, or area like `roadmap`)
+   - 1–2 labels, **chosen only from the repository label vocabulary captured in `snapshot.md`**. Never invent a label: `gh issue create --label` fails outright on an unknown label, which would kill the filing step after the whole panel has already run. Where no captured label fits a draft, leave its labels empty and add `**Wanted label:** <name> (not present in this repo)` so the human can create it deliberately.
    - Fuzzy-match against open issues in `snapshot.md`; if matched, annotate `**Possibly already tracked:** #N — <title>` rather than drop.
 
-   Write all drafts to `<output_folder>/proposed-issues.md`. Same format as panel-engineering's proposed-issues, but with a **Constitution section:** field per draft.
+   Write all drafts to `<output_folder>/proposed-issues.md` in this format:
+
+   ```markdown
+   # Proposed Issues — <YYYY-MM-DD>
+
+   ## 1. <Title — imperative, scoped>
+   **Severity:** high  **Persona(s):** mission, roadmap  **Labels:** <only from the repo vocabulary; omit if none fit>
+   **Constitution section:** <the section this draft relates to>
+   **Possibly already tracked:** #42 — <existing title>
+
+   <body — problem statement, which persona(s) flagged it, suggested approach, evidence from synthesis.md or foil.md>
+
+   ---
+
+   ## 2. <Title>
+   ...
+   ```
 
 9. **End-of-run prompt.** Skip if `--skip-issues` OR neither `gh` nor `glab` is available.
 
@@ -233,7 +253,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    - **Pick a subset** — numbered list, accept indices
    - **Skip** — leave draft, file later manually
 
-   For "Create all" / "Pick a subset": invoke `gh issue create` / `glab issue create` per selected draft (use `mktemp` for body files). Echo URLs at the end.
+   For "Create all" / "Pick a subset": invoke `gh issue create` / `glab issue create` per selected draft (use `mktemp` for body files). Omit `--label` entirely for a draft that carries none — an empty value is an error, not a no-op. Echo URLs at the end.
 
    If no forge tool: print "No `gh` or `glab` detected — drafted N issues in `<path>`. File them manually when ready."
 
@@ -310,7 +330,8 @@ See `synthesis.md` for the full alignment view.
 - Truncated personas continued once via SendMessage; persistent failures noted in synthesis, not dropped
 - `synthesis.md` identifies cross-persona themes and explicit alignment gaps tied to constitution sections
 - Unless `--no-foil`, a single `panels:rude-qa` subagent runs *after* synthesis as a closing adversarial pass; its report is captured to `foil.md` and never blocks the run
-- `proposed-issues.md` annotates each draft with the constitution section it relates to AND fuzzy-matches against open issues; unanswered foil Hostile-Q&A items and pre-mortem causes-of-death become `strategic-risk` issues when not already covered by a persona
+- `proposed-issues.md` annotates each draft with the constitution section it relates to AND fuzzy-matches against open issues; unanswered foil Hostile-Q&A items and pre-mortem causes-of-death become issues when not already covered by a persona
+- Every label on a draft exists in the repository's own label vocabulary as captured in `snapshot.md`; no label is invented
 - End-of-run issue-filing prompt offered only when forge tooling is available AND `--skip-issues` not set
 - Constitution-refresh suggestion surfaced when personas indicate stated direction has been left behind by reality (in a way that is healthy, not just drift)
 - No issues filed without explicit user choice
