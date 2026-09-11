@@ -1,7 +1,7 @@
 {
   "name": "panels",
   "description": "Repo-wide multi-persona health panels: CONSTITUTION.md authoring, engineering and product review boards, and adversarial pressure-testing via Rude Q&A",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Chris Clonch",
     "email": "chris@theclonchs.com"
