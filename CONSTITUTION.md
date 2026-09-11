@@ -34,14 +34,49 @@ This project is explicitly **not** trying to:
 
 ## Success Criteria
 
-We'll know this is working if:
+Each criterion names the check that settles it. Run them all:
 
-- Skills in the collection get invoked by the maintainer with reasonable frequency
-- New skills can be added in a session without restructuring existing ones
-- All resources validate cleanly against `claude plugin validate`
-- Marketplace stays coherent: one marketplace, one plugin, consistent conventions across resources
-- The repo's CLAUDE.md stays under ~250 lines (context-scarcity discipline)
+```bash
+make constitution-check
+```
+
+**C1 — The collection stays in use.**
+*Judgement call, reported but not scored.* Invocation frequency lives in the
+maintainer's local Claude Code history, not in this repository, and every in-repo
+proxy for it is dishonest — a stable skill needs no commits. The check reports how
+many skills have had no commit in 365 days as supporting evidence; the ruling is
+made at each refresh. A criterion that cannot be mechanised is allowed to say so
+rather than be forced into a false metric.
+
+**C2 — A new skill can be added without restructuring existing ones.**
+No skill added in the last 90 days changed more than **20 lines** of any existing
+file outside its own directory, excluding the shared registry files every addition
+must touch (`README.md`, `marketplace.json`, the owning `plugin.json`). Edits under
+that line are cross-references, which are healthy; above it is rework, which is the
+coupling this criterion exists to catch. The 20 is a judgement — move it here, in
+the open, rather than in the script.
+
+**C3 — Every resource validates cleanly.**
+`claude plugin validate` exits clean for every plugin, with **zero warnings**. A
+tolerated warning trains everyone to ignore warnings, which is how a real one hides.
+
+**C4 — The marketplace stays coherent.**
+Three things hold: every directory under `plugins/` is registered in
+`marketplace.json` and every entry resolves to a directory; each plugin's version
+matches its marketplace entry; and no plugin hard-dispatches another plugin's agent
+(CLAUDE.md structure rule 7 — cross-plugin references stay descriptive).
+
+*Replaces "one marketplace, one plugin", which the five-plugin split (`a8540c8`)
+made false. Coherence in a multi-plugin marketplace is about boundaries holding,
+not about there being one of everything.*
+
+**C5 — CLAUDE.md stays within its line ceiling.**
+`wc -l CLAUDE.md` is **250 or fewer**. Context is scarce; the entry point is the
+file that costs every session.
 
 ---
 
-*Last refreshed: 2026-05-16*
+*Last refreshed: 2026-05-16. Success Criteria rewritten as executable checks
+2026-09-11, after the first `panel-product` run found two of them false — one of
+which had been false since the day this document was written, because nothing
+verified it. If a criterion here cannot be settled by a command, it says so.*
