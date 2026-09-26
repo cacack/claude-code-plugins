@@ -128,19 +128,46 @@ Detection: If the prompt file's parent directory is NOT `.prompts/` itself, it's
 <parallel_execution>
 
 1. Read all prompt files
-2. **Spawn all Task tools in a SINGLE MESSAGE** (this is critical for parallel execution):
+2. Apply `<parallel_git_safety>` steps 1–2: record the baseline, prepend the git-write ban to every Task prompt
+3. **Spawn all Task tools in a SINGLE MESSAGE** (this is critical for parallel execution):
    <example>
    Use Task tool for prompt 005
    Use Task tool for prompt 006
    Use Task tool for prompt 007
    (All in one message with multiple tool calls)
    </example>
-3. Wait for ALL to complete
-4. Ensure `.prompts/completed/` directory exists (use Bash tool: `mkdir -p .prompts/completed`)
-5. Archive all prompts using appropriate method for each (flat file vs subdirectory)
-6. Update `.prompts/.batch.json` if it exists (add all prompt filenames to `completed` array)
-7. Return consolidated results
+4. Wait for ALL to complete
+5. Apply `<parallel_git_safety>` steps 3–4: run the check, archive the layer, and stop if the check failed
+6. Return consolidated results
    </parallel_execution>
+
+<parallel_git_safety>
+Parallel subagents share one worktree and therefore one `.git/index`. Git's index has no coordination between concurrent writers, so two subagents staging and committing at once can land a commit carrying one prompt's message with another's files — silently. The rule: **in a parallel layer, only the orchestrator writes git state.** Single-prompt and sequential execution are unaffected.
+
+The ban is the control; the check below **detects** violations after the fact — it cannot prevent them. It catches commits, staging, and stashes. It **cannot** catch a subagent discarding working-tree changes (`restore`, `checkout -- <path>`, `reset --hard` to the same commit, `clean`): those leave no trace distinguishable from normal edits, so the prompt-level ban is the only protection there.
+
+1. **Before spawning, record a fresh baseline for this layer** (never reuse an earlier layer's — a sequential layer in between legitimately moves HEAD):
+   - `git rev-parse HEAD`
+   - `git diff --cached --name-only` (the staged set)
+   - `git stash list --format=%H`
+2. **Prepend this preamble to every Task prompt in the layer.** It overrides anything the prompt file says about committing:
+   ```
+   You are running in parallel with other subagents in the same git worktree.
+   Do NOT run any git command that writes the index, refs, stash, or discards
+   changes — no add, commit, reset, checkout, switch, restore, stash, clean,
+   merge, rebase, or push. Read-only git (status, diff, log, show) is fine.
+   Leave your changes uncommitted in the working tree. End your final response
+   with a list of every file you changed; if your prompt has its own folder,
+   also write that list to SUMMARY.md there.
+   ```
+3. **After the layer completes**, re-run the three baseline commands and compare. Any difference is a violation:
+   - HEAD moved → a subagent committed; name the commits (`git log --oneline <recorded>..HEAD`)
+   - staged set changed → a subagent staged files
+   - new stash entries → a subagent stashed. The stash stack is shared across worktrees, so another session may be the cause — report it as a possible violation and name the entries.
+4. **Archive every prompt in the layer that succeeded and mark it `completed` in `.batch.json` — whether or not the check passed** (`mkdir -p .prompts/completed`, archive per `<archiving_logic>`, update `.batch.json` if it exists). Those subagents have finished and their work is on disk; leaving them incomplete would make a resume re-run them on top of that work. A prompt whose subagent itself failed stays incomplete, as in any other mode. Then, if the check failed, **stop the batch** and report the violation. Do not auto-repair. Tell the user to inspect (and revert, if wrong) the listed commits, staged files, or stashes before running `/run-prompt` again — the resume continues with the next layer, it does not redo this one.
+
+The layer's changes stay uncommitted for `/ship` or a later sequential prompt. A prompt that commits must stage explicit paths (never `git add -A` or `git add .`) so it does not sweep another prompt's uncommitted files under its own message — this is the authoritative statement of that rule; `play`'s prompt template points here.
+</parallel_git_safety>
 
 <sequential_execution>
 
@@ -163,11 +190,13 @@ When `.batch.json` contains an `execution` array, execute layer by layer:
 3. For each layer in order:
    a. Get prompts in this layer that aren't in `completed` array
    b. If layer strategy is "parallel":
+      - Apply `<parallel_git_safety>` steps 1–2 (fresh baseline, prepend the git-write ban)
       - **Spawn all Task tools in a SINGLE MESSAGE**
       - Wait for ALL to complete
+      - Apply `<parallel_git_safety>` steps 3–4 (check, archive and record the whole layer, stop if the check failed). Step d does not apply to parallel layers.
    c. If layer strategy is "sequential":
       - Execute prompts one at a time, waiting for each
-   d. After each prompt completes:
+   d. Sequential layers only — after each prompt completes:
       - Archive using appropriate method (flat file vs subdirectory)
       - Update `completed` array in `.batch.json`
    e. If any prompt fails, stop and report error (progress preserved)
@@ -274,6 +303,7 @@ Layer 3 [parallel]:
 <critical_notes>
 
 - For parallel execution: ALL Task tool calls MUST be in a single message
+- For parallel execution: subagents never write git state; the orchestrator detects commits, staging, and stashes after the layer and halts — see `<parallel_git_safety>`
 - For sequential execution: Wait for each Task to complete before starting next
 - For layered execution: Complete each layer before starting the next; within each layer, respect its strategy
 - Archive prompts only after successful completion
