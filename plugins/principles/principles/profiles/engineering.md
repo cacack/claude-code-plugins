@@ -35,6 +35,7 @@ How Claude Code should work.
 
 The five rules above are the complete floor and stand on their own. If the `principles` plugin is installed, its `privacy-redaction` skill carries the longer procedure — visibility ladders, placeholder conventions, published artifacts, remediation; if it isn't, nothing above is missing.
 
-## Issue Delivery
+## Issues
 
+- **Write issues to the standard.** State acceptance criteria as observable conditions a second reader could check, not activities, and answer each with evidence in a comment before the issue closes. That is the rule in full; the `authoring` plugin's `issue-standards` skill adds the types, template, and labels if you have it.
 - **Close the loop on tracked issues.** Link the PR to its issue (`Closes #N`, or `Refs #N` when partial) and check it against the acceptance criteria before merging. That is the rule in full; the `delivery` plugin's `issue-delivery` skill adds the mechanics if you have it.

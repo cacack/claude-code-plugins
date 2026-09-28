@@ -4,7 +4,7 @@ Durable principles and operating rules — the canon the `principles:instill` sk
 
 The canon ships as **profiles**: self-contained payload files, one per audience, copied verbatim into a managed block. [`principles/PROFILES.md`](../principles/PROFILES.md) is the contract that binds them — the registry of payload and target paths, the marker format, the migration rule, and the map that keeps the two wordings of one idea from drifting apart.
 
-- [`principles/profiles/engineering.md`](../principles/profiles/engineering.md) — for someone writing and shipping code: 9 durable, language-agnostic engineering principles, 6 agent operating rules, a privacy floor, and the issue-delivery line.
+- [`principles/profiles/engineering.md`](../principles/profiles/engineering.md) — for someone writing and shipping code: 9 durable, language-agnostic engineering principles, 6 agent operating rules, a privacy floor, and the issue-writing and issue-delivery lines.
 - [`principles/profiles/universal.md`](../principles/profiles/universal.md) — for someone doing non-code work with Claude: the same ideas where they survive generalization, in wording that names no code.
 
 The framing, owed to Matt Pocock's "Claude Code for real engineers": **AI is the tactical programmer on the ground; you are the strategic one above it.** Good codebases are easy to change, and AI thrives in them — so software fundamentals matter *more* in the AI age, not less.

@@ -43,7 +43,7 @@
     },
     {
       "name": "principles",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "The canon: install or re-sync durable principles and agent operating rules into always-on Claude Code context, plus the privacy-redaction floor",
       "author": {
         "name": "Chris Clonch",
