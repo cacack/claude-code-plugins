@@ -101,6 +101,7 @@ Relationship values are exactly four: `same text` (identical wording in both pay
 | Be concise | yes | yes | tuned variant |
 | Confirm before irreversible or outward-facing actions | yes | yes | tuned variant |
 | Privacy core | yes | yes | tuned variant |
+| Issue writing | no | yes | engineering only |
 | Issue delivery | no | yes | engineering only |
 | Precedence and floors | yes | yes | tuned variant |
 
