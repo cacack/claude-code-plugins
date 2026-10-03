@@ -483,7 +483,7 @@ Verdict: [ship-it | proceed-with-caution | block (overridden)]
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-**Persist unverified dismissals.** If the review phase surfaced entries, post the **most recent** panel run's set (an amend + re-review replaces the earlier set) as one PR comment once the PR exists, so the review's boundary outlives this session. This is the **authoritative format** — `deliver-milestone` posts the same comment and must match it:
+**Persist unverified dismissals.** If the review phase surfaced entries, post the **most recent** panel run's set (an amend + re-review replaces the earlier set) as one PR comment once the PR exists, so the review's boundary outlives this session. This is the **authoritative format** — `deliver-milestone` posts the same comment and must match it, and `milestone-review` step 3 parses its heading and `Review of` stamp, so a change here must update both:
 ```markdown
 ## Unverified review dismissals
 _Review of `<short SHA of the reviewed HEAD>`. Lines a panel reviewer examined but could not clear — the boundary of the review, not findings and not clearance._
