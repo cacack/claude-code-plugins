@@ -66,10 +66,10 @@ Engineering-panel subagents (invoked in parallel by the `panel-engineering` skil
 - `engineering-maintainability` - Long-term carrying cost: test coverage patterns, convention drift, dead code, refactor debt
 
 Product-panel subagents (invoked in parallel by the `panel-product` skill):
-- `product-mission` - Mission alignment: observed activity vs. stated mission, audience-fit, scope discipline, principle adherence
+- `product-mission` - What has been built: shipped work vs. stated mission, principle adherence, scope discipline
 - `product-market` - Market positioning: differentiation, competitive context, category fit, clarity of value proposition (scale-aware; opt-in — runs only when named in `--personas`)
-- `product-roadmap` - Roadmap coherence: open issues/milestones vs. stated direction, non-goal discipline, resource alignment
-- `product-audience` - Audience experience: friction at the value moment, unmet needs, surface-level audience-fit (distinct from `engineering-dx`)
+- `product-roadmap` - What is planned and ruled out: open issues/milestones vs. stated direction, priority alignment, sole owner of non-goal discipline
+- `product-audience` - Who it serves: audience-fit (sole owner), friction at the value moment, unmet needs, audience surprise (distinct from `engineering-dx`)
 - `product-trust` - Trust signals: promise vs. reality, transparency, expectation-setting, accountability signals
 
 Strategy foil (standalone via the `pressure-test` skill, and the closing pass of `panel-product`):
