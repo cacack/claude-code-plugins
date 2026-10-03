@@ -72,6 +72,16 @@ else
   for c in $adds; do
     sk=$(git show --format='' --name-only --diff-filter=A "$c" | grep 'skills/.*/SKILL\.md' | head -1)
     [ -z "$sk" ] && continue
+    # A commit marked breaking (Conventional Commits `type!:` / `type(scope)!:`, or a
+    # BREAKING CHANGE footer) is a declared restructure; its rework is the point, not
+    # fallout from the skill it also added. Exempt per CONSTITUTION.md C2 — reported,
+    # never silently dropped.
+    msg=$(git log -1 --format=%B "$c")
+    if printf '%s\n' "$msg" | head -1 | grep -Eq '^[a-z]+(\([^)]*\))?!:' \
+       || printf '%s\n' "$msg" | grep -Eq '^BREAKING[ -]CHANGE:'; then
+      info "skipped: $c ($(basename "$(dirname "$sk")")) is marked breaking — a declared restructure, not a skill addition"
+      continue
+    fi
     dir=$(dirname "$sk")
     # Only MODIFIED and DELETED files count — a commit that also *adds* a companion
     # agent or doc is additive growth, which is what this criterion wants. And a

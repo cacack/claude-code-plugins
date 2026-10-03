@@ -58,7 +58,10 @@ file outside its own directory, excluding the shared registry files every additi
 must touch (`README.md`, `marketplace.json`, the owning `plugin.json`). Edits under
 that line are cross-references, which are healthy; above it is rework, which is the
 coupling this criterion exists to catch. The 20 is a judgement — move it here, in
-the open, rather than in the script.
+the open, rather than in the script. A commit marked breaking (`type!:` or a
+`BREAKING CHANGE` footer) is exempt: it declares a restructure, so its rework is
+the point rather than fallout from a skill it also adds. Exempt commits are named
+in the check's output, never dropped silently.
 
 **C3 — Every resource validates cleanly.**
 `claude plugin validate` exits clean for every plugin, with **zero warnings**. A
