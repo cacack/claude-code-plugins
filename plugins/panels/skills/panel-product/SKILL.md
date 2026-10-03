@@ -326,8 +326,10 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    For each drafted issue:
    - Title (imperative, scoped)
    - Body: problem statement + which constitution section it relates to + which persona(s) flagged + suggested approach
+   <!-- The label-vocabulary + dedupe rule below has three writers: this step, panel-engineering
+   step 7, and delivery:milestone-review step 5. Change one, change all three. -->
    - 1–2 labels, **chosen only from the repository label vocabulary captured in `snapshot.md`**. Never invent a label: `gh issue create --label` fails outright on an unknown label, which would kill the filing step after the whole panel has already run. Where no captured label fits a draft, leave its labels empty and add `**Wanted label:** <name> (not present in this repo)` so the human can create it deliberately.
-   - Fuzzy-match against open issues in `snapshot.md`; if matched, annotate `**Possibly already tracked:** #N — <title>` rather than drop.
+   - Fuzzy-match (case-insensitive substring or 60%+ word overlap) against open issues in `snapshot.md`; if matched, annotate `**Possibly already tracked:** #N — <title>` rather than drop.
 
    Write all drafts to `<output_folder>/proposed-issues.md` in this format:
 

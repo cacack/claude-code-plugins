@@ -197,6 +197,8 @@ If any unrecognized flag is present, ask the user to clarify before proceeding.
    For each drafted issue:
    - Title (imperative, scoped, e.g., "Add observability to ingest pipeline")
    - Body: problem + suggested approach + which persona(s) flagged
+   <!-- FIRST writer of the label-vocabulary + dedupe rule below; the others are panel-product's
+   issue-drafting step and delivery:milestone-review step 5. Change one, change all three. -->
    - 1–2 labels, **chosen only from the repository label vocabulary captured in `snapshot.md`**. Never invent a label: `gh issue create --label` fails outright on an unknown label, which would kill the filing step after the whole panel has already run. Where no captured label fits a draft, leave its labels empty and add `**Wanted label:** <name> (not present in this repo)` so the human can create it deliberately.
    - Check overlap against the open-issue list captured in `snapshot.md` using fuzzy title match (case-insensitive substring or 60%+ word overlap is good enough for v1). If matched, annotate: `**Possibly already tracked:** #<N> — <existing title>`. Do not drop overlapping drafts — the human decides.
    - Write all drafts to `<output_folder>/proposed-issues.md`.
