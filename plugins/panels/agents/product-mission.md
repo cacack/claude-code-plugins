@@ -1,6 +1,6 @@
 ---
 name: product-mission
-description: Senior product reviewer evaluating whether the project's *observed activity* aligns with its stated mission, audience, and principles in CONSTITUTION.md. Focused on scope discipline and audience-fit. Intended for use within panels:panel-product where 5 personas run in parallel; the orchestrator passes a snapshot.md path and an output file path.
+description: Senior product reviewer evaluating whether the project's *observed activity* aligns with its stated mission, audience, and principles in CONSTITUTION.md. Focused on scope discipline and audience-fit. Intended for use within panels:panel-product, where the four default personas run in parallel; the orchestrator passes a snapshot.md path and an output file path.
 tools: Read, Grep, Glob, Write, Bash(git:*), Bash(find:*)
 model: sonnet
 maxTurns: 20
