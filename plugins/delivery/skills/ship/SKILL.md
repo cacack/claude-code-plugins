@@ -420,7 +420,7 @@ Options:
 
 **Step 3 — if the user accepts**, invoke `/delivery:panel-review` via the `Skill` tool with the pinned range as its argument: `<BASE>..HEAD` (substitute the captured commit SHA), plus `--deep` if it was passed through. This pins the review to exactly the branch work measured in Step 1. Wait for the consolidated report.
 
-**Step 3b — surface the panel's `## Unverified dismissals` section, if it emitted one.** These are lines a reviewer examined but could not clear; they are not findings and must not be triaged as such. Print them verbatim under a short heading and say plainly that they are the boundary of the review, not a clean bill of health. This is the last moment the change is still amendable for free, so an unresolved guard is cheapest to check here. Do **not** let a `ship-it` verdict imply those lines were cleared — verdicts summarize findings, and the ledger exists precisely because silence is not clearance.
+**Step 3b — surface the panel's `## Unverified dismissals` section, if it emitted one.** These are lines a reviewer examined but could not clear; they are not findings and must not be triaged as such. Print them verbatim under a short heading and say plainly that they are the boundary of the review, not a clean bill of health. This is the last moment the change is still amendable for free, so an unresolved guard is cheapest to check here. Do **not** let a `ship-it` verdict imply those lines were cleared — verdicts summarize findings, and the ledger exists precisely because silence is not clearance. Keep the entries — the push phase persists them on the PR.
 
 **Step 4 — gate on the panel's final verdict:**
 - **`block`** → STOP before the push phase. Present the blocking findings and offer via `AskUserQuestion`:
@@ -482,6 +482,28 @@ Verdict: [ship-it | proceed-with-caution | block (overridden)]
 ---
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
+
+**Persist unverified dismissals.** If the review phase surfaced entries, post the **most recent** panel run's set (an amend + re-review replaces the earlier set) as one PR comment once the PR exists, so the review's boundary outlives this session. This is the **authoritative format** — `deliver-milestone` posts the same comment and must match it:
+```markdown
+## Unverified review dismissals
+_Review of `<short SHA of the reviewed HEAD>`. Lines a panel reviewer examined but could not clear — the boundary of the review, not findings and not clearance._
+
+- `<entry>`
+```
+Entries quote untrusted diff text, so sanitize each before posting: collapse it to **one line** (newlines → spaces), replace any backtick with `'`, and wrap it in inline code as shown. Every body line then starts with fixed text — so no line can match the heredoc delimiter — and `@mentions`/`#N` inside an entry stay inert. Pass the body through a **quoted** heredoc (no expansion), never on the command line:
+```bash
+gh pr comment <N> --body-file - <<'UNVERIFIED_EOF'
+<the comment above>
+UNVERIFIED_EOF
+```
+```bash
+# GitLab
+glab mr note <N> --message "$(cat <<'UNVERIFIED_EOF'
+<the comment above>
+UNVERIFIED_EOF
+)"
+```
+The SHA line is what keeps a later comment (a re-ship after new commits) readable as history rather than contradiction: the newest SHA is current. Post **nothing** when the review did not run or emitted no `## Unverified dismissals` section — absence of the comment must keep meaning "nothing left unverified, or no review", never an empty heading. On a direct push with no PR, there is nowhere to post: the shipping report is their only carrier, so list them there.
 </phase>
 </rigorous_workflow>
 
@@ -586,5 +608,6 @@ Result
 - An overridden `block` records the panel's verdict + findings verbatim in the PR body
 - A `--no-bump` on feat/fix/perf/breaking is rejected with clear options
 - PR created (if feature branch) with correct issue linking
+- Unverified dismissals from the most recent panel run, if any, posted as one sanitized, SHA-stamped PR comment under `## Unverified review dismissals`; no comment when there were none
 - Clear report of all actions taken
 </success_criteria>
