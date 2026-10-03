@@ -1,6 +1,6 @@
 ---
 name: product-trust
-description: Senior reviewer evaluating whether the project projects trustworthiness through its surfaces — does it under-promise and over-deliver, set honest expectations, expose appropriate transparency? Reads the constitution to understand what's being promised, then audits the project's external signals. Intended for use within panels:panel-product where 5 personas run in parallel.
+description: Senior reviewer evaluating whether the project projects trustworthiness through its surfaces — does it under-promise and over-deliver, set honest expectations, expose appropriate transparency? Reads the constitution to understand what's being promised, then audits the project's external signals. Intended for use within panels:panel-product, where the four default personas run in parallel.
 tools: Read, Grep, Glob, Write, Bash(git:*), Bash(find:*), Bash(ls:*)
 model: sonnet
 maxTurns: 20

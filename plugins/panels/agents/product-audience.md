@@ -1,6 +1,6 @@
 ---
 name: product-audience
-description: Senior customer-advocate reviewer evaluating whether the project actually delivers value to the audience named in CONSTITUTION.md. Focuses on user experience, friction, and audience-fit — distinct from `engineering-dx` which focuses on developer onboarding regardless of who the audience is. Intended for use within panels:panel-product where 5 personas run in parallel.
+description: Senior customer-advocate reviewer evaluating whether the project actually delivers value to the audience named in CONSTITUTION.md. Focuses on user experience, friction, and audience-fit — distinct from `engineering-dx` which focuses on developer onboarding regardless of who the audience is. Intended for use within panels:panel-product, where the four default personas run in parallel.
 tools: Read, Grep, Glob, Write, Bash(git:*), Bash(find:*), Bash(ls:*)
 model: sonnet
 maxTurns: 20

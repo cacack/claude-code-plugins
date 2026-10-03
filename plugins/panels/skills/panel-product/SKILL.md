@@ -1,17 +1,17 @@
 ---
 name: panel-product
-description: Multi-persona strategic-alignment review of the whole project against its CONSTITUTION.md. First scores the constitution's Success Criteria by running the checks it names (after asking), then spawns 5 senior reviewer subagents (Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor) in parallel against a captured snapshot, scores alignment between stated direction and observed activity, then a closing adversarial Rude Q&A pass (the rude-qa agent) pressure-tests the synthesis for survival. Produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, then optionally files the issues. Requires CONSTITUTION.md — run `/panels:constitution` first if absent. Use quarterly alongside `panel-engineering`.
+description: Multi-persona strategic-alignment review of the whole project against its CONSTITUTION.md. First scores the constitution's Success Criteria by running the checks it names (after asking), then spawns 4 senior reviewer subagents by default (Mission Steward, Roadmap Reviewer, Audience Advocate, Trust Auditor; the Market Strategist is opt-in via `--personas`) in parallel against a captured snapshot, scores alignment between stated direction and observed activity, then a closing adversarial Rude Q&A pass (the rude-qa agent) pressure-tests the synthesis for survival. Produces per-persona reports plus synthesis, a foil report, and proposed-issue drafts, then optionally files the issues. Requires CONSTITUTION.md — run `/panels:constitution` first if absent. Use quarterly alongside `panel-engineering`.
 argument-hint: "[--personas <list>] [--no-foil] [--skip-issues]"
 allowed-tools: Task, SendMessage, Read, Write, AskUserQuestion, Bash(git:*), Bash(gh:*), Bash(glab:*), Bash(find:*), Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(mkdir:*), Bash(test:*), Bash(command:*), Bash(head:*), Bash(mktemp:*)
 effort: high
 ---
 
 <objective>
-Run a holistic, senior-persona review of the *strategic alignment* of a project: does what we're doing match what we said we'd do, for whom, and to what end? Five persona subagents — Mission Steward, Market Strategist, Roadmap Reviewer, Audience Advocate, Trust Auditor — examine a captured snapshot of the repo through the lens of its `CONSTITUTION.md`, in parallel, then synthesis surfaces cross-cutting themes and proposes issues.
+Run a holistic, senior-persona review of the *strategic alignment* of a project: does what we're doing match what we said we'd do, for whom, and to what end? Four default persona subagents — Mission Steward, Roadmap Reviewer, Audience Advocate, Trust Auditor — examine a captured snapshot of the repo through the lens of its `CONSTITUTION.md`, in parallel, then synthesis surfaces cross-cutting themes and proposes issues. A fifth, the Market Strategist, runs only when named in `--personas`: the constitution's five sections (Mission, Audience, Principles, Non-Goals, Success Criteria) give positioning no rubric to score against, so by default it would spend a subagent on near-empty output.
 
 Where `panel-engineering` asks "is this project in good shape?", this skill asks "is this project still going the right way?" Designed to run quarterly, ideally on the same cadence as the engineering panel. Output is persisted to `docs/reviews/panel-product/<YYYY-MM-DD>/`.
 
-After synthesis, a single adversarial foil — the `panels:rude-qa` agent — gets the last word over the panel's verdict. Where the five personas audit *alignment* (does activity match stated direction?), the foil tests *survival* (will this direction withstand the hard questions in the room?). It is a closing pass over the synthesis, not a sixth parallel persona — one sharp foil with the final word, reused from the standalone agent (shared with the `pressure-test` skill) rather than forked into this skill. Skip it with `--no-foil`.
+After synthesis, a single adversarial foil — the `panels:rude-qa` agent — gets the last word over the panel's verdict. Where the personas audit *alignment* (does activity match stated direction?), the foil tests *survival* (will this direction withstand the hard questions in the room?). It is a closing pass over the synthesis, not another parallel persona — one sharp foil with the final word, reused from the standalone agent (shared with the `pressure-test` skill) rather than forked into this skill. Skip it with `--no-foil`.
 
 **CONSTITUTION.md is required.** Without it, "alignment" has no rubric. If it's absent, the skill aborts and recommends running `/panels:constitution` first.
 </objective>
@@ -30,8 +30,8 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 <arguments>
 | Flag | Effect |
 |------|--------|
-| (none) | Score the Success Criteria (asks once before running any check the constitution names), then all five personas + the closing Rude Q&A foil pass; prompt to file drafted issues at end |
-| `--personas <list>` | Subset of `mission,market,roadmap,audience,trust`. Default: all five |
+| (none) | Score the Success Criteria (asks once before running any check the constitution names), then the four default personas + the closing Rude Q&A foil pass; prompt to file drafted issues at end |
+| `--personas <list>` | Any of `mission,market,roadmap,audience,trust`. Default: `mission,roadmap,audience,trust` — `market` is opt-in and runs only when named. The list **replaces** the default set rather than adding to it, so to add `market`, name all five |
 | `--no-foil` | Skip the closing adversarial Rude Q&A pass. Personas and synthesis still run |
 | `--skip-issues` | Skip the issue-drafting step and the end-of-run prompt entirely |
 </arguments>
@@ -52,7 +52,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 
 2. **Score the Success Criteria.** Before any persona spawns, write `<output_folder>/scorecard.md` — measured evidence about the constitution's `## Success Criteria` section.
 
-   **The scorecard is evidence, not a sixth persona.** It carries no findings, no severity, and no verdict. The moment it judges, it is a persona and should be called one. Personas interpret it; synthesis tallies it; it never scores alignment itself.
+   **The scorecard is evidence, not another persona.** It carries no findings, no severity, and no verdict. The moment it judges, it is a persona and should be called one. Personas interpret it; synthesis tallies it; it never scores alignment itself.
 
    a. **Collect the criteria.** One row per entry in the constitution's Success Criteria section. If there is no such section, or it has no entries, write the single line `No Success Criteria in CONSTITUTION.md — nothing to score.` and continue to the snapshot.
    b. **Collect the checks the constitution names — never invent one.** A criterion is measurable only if the constitution itself names a command that settles it, per criterion or one umbrella command covering several (e.g. `make constitution-check`). Otherwise its row is `unmeasurable` (reason `no named check`), even when a check seems obvious — choosing the check is a judgement, and judgement belongs to the personas.
@@ -141,7 +141,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 
    `CONSTITUTION.md` is foregrounded as the scoring rubric — personas read it first and measure observed activity against it.
 
-4. **Filter the persona list.** Default = all five (`mission`, `market`, `roadmap`, `audience`, `trust`). If `--personas` is supplied, parse the CSV and validate. Reject unknowns.
+4. **Filter the persona list.** Default = `mission`, `roadmap`, `audience`, `trust`. `market` runs only when named in `--personas`. If `--personas` is supplied, parse the CSV and validate. Reject unknowns.
 
 5. **Spawn the selected personas in parallel.** Single message with N Task calls. Per persona:
    - `subagent_type`: `panels:product-mission` / `panels:product-market` / `panels:product-roadmap` / `panels:product-audience` / `panels:product-trust`
@@ -217,7 +217,9 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    ```markdown
    # Strategic Panel Synthesis — <YYYY-MM-DD>
 
-   <If `--personas` was used to run a subset, add a one-line note here naming the personas that ran and noting that themes are based on a partial sample.>
+   <Header notes — one line each; emit every one that applies:>
+   <- If `market` did not run: "`market` (Market Strategist) did not run — it is opt-in; include it with `--personas mission,market,roadmap,audience,trust`.">
+   <- If any of the default four (`mission`, `roadmap`, `audience`, `trust`) did not run: name the personas that ran and note that themes are based on a partial sample. A run of the default four, or of all five, is not partial.>
 
    ## Constitution under review
    <one-paragraph excerpt or summary of CONSTITUTION.md so the synthesis is self-contained>
@@ -232,7 +234,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    | Mission Steward | aligned/drifting/misaligned | ... |
    | ... | ... | ... |
 
-   <Always show all 5 personas in the table; mark skipped ones explicitly as "(not run this pass)" rather than omitting the row.>
+   <Always show every persona in the table, `market` included; mark skipped ones explicitly as "(not run this pass)" rather than omitting the row.>
 
    ## Cross-cutting themes
    Themes flagged by 2+ personas. Each names the personas and points to relevant findings.
@@ -248,7 +250,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    - **Persisting** — an open prior gap restated this run. Listed first and ranked above severity when runs seen ≥ 2: a gap that survives independent re-derivation is the strongest signal this panel produces. Name when it was first seen.
    - **Recurring** — a current gap that matches a closed row. It came back after being judged resolved; say so.
    - **Resolved** — an open prior gap that no persona restated, **and** that at least one persona able to raise it ran and completed this run. Cite the fix (commit, closed issue, file now present); with none, mark it `resolved?` — absence of a finding is not evidence of a fix.
-   - **Not assessed** — an open prior gap none of whose raising personas ran and completed this run (a `--personas` subset or a truncated persona). Nobody looked, so it is neither persisting nor resolved.
+   - **Not assessed** — an open prior gap none of whose raising personas ran and completed this run (a `--personas` subset, a truncated persona, or a gap only the opt-in `market` raised, on a run without it). Nobody looked, so it is neither persisting nor resolved.
    - **New** — a current gap with no prior match.
    - **Scorecard changes** — match rows by criterion id; list criteria added or removed since the prior run separately. Per criterion, prior status → current status. A **regression** is `met` → `unmet`, or any change into a constitution-defect `unmeasurable` (`no named check`, `not attributed`). Changes into or out of `not run` / `skipped` are operational — report them as such, never as regressions. If the prior run had no scorecard, say so.
 
@@ -287,7 +289,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 
    Give a single adversarial foil the last word over the panel's verdict. Where the personas audit alignment, this pass tests survival: the questions the project's direction will face in the room. This runs *after* synthesis (so it reacts to the panel's conclusions) and *before* issue drafting (so its findings can become issues).
 
-   Dispatch **one** `panels:rude-qa` subagent via a single Task call (not parallel — it is the closing foil, not a sixth persona). The agent is read-only and writes no files; capture its returned report and write it verbatim to `<output_folder>/foil.md`. Prompt:
+   Dispatch **one** `panels:rude-qa` subagent via a single Task call (not parallel — it is the closing foil, not another persona). The agent is read-only and writes no files; capture its returned report and write it verbatim to `<output_folder>/foil.md`. Prompt:
 
    ```
    You are running a "Rude Q&A" over a project's strategic direction as part of a
@@ -302,7 +304,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    The initiative under review is this project's current strategic direction, as
    captured in:
    - Stated direction / scoring rubric (CONSTITUTION.md): <abs path to snapshot.md>
-   - The panel's alignment synthesis (what five personas found): <abs path to synthesis.md>
+   - The panel's alignment synthesis (what the personas found): <abs path to synthesis.md>
 
    Read the constitution section of the snapshot first, then the synthesis, then
    optionally source files for context. Run your full pass, treating the project's
@@ -379,7 +381,7 @@ docs/reviews/panel-product/2026-05-16/
 ├── scorecard.md           # Success Criteria measured before personas spawn (evidence, no verdict)
 ├── snapshot.md            # shared evidence base with CONSTITUTION.md foregrounded, scorecard embedded
 ├── mission.md             # per-persona reports
-├── market.md
+├── market.md              # only when `--personas` names market
 ├── roadmap.md
 ├── audience.md
 ├── trust.md
@@ -401,7 +403,7 @@ Reports written to: `docs/reviews/panel-product/2026-05-16/`
 - previous-run.md — compared against 2026-02-14
 - scorecard.md — Success Criteria: 3 met · 1 unmet · 1 unmeasurable (0 constitution defects)
 - snapshot.md
-- mission.md, market.md, roadmap.md, audience.md, trust.md
+- mission.md, roadmap.md, audience.md, trust.md (market.md only with `--personas … market`)
 - synthesis.md
 - foil.md
 - proposed-issues.md
@@ -484,7 +486,7 @@ See `synthesis.md` for the full alignment view.
 - Strategic personas can be vaguer than engineering ones if not anchored. The CONSTITUTION.md grounding is the discipline that keeps findings concrete. A weak constitution produces a weak review; that's a feature — it points the user back to `/panels:constitution`.
 - Run-over-run comparison is deliberately persona-blind. Feeding the prior run's gaps to personas would make "persisting" self-fulfilling — the 2026-09-11 re-run showed a panel re-deriving conclusions it had been shown. So `previous-run.md` is written only after personas finish, and personas are told not to read `docs/reviews/`. That is ordering plus instruction, not a sandbox: personas can still read the repo, and issue and milestone text in the snapshot can carry old conclusions. Read "persisting" as "found again by personas not shown the previous verdict", not as proof of independence.
 - The Success Criteria scorecard exists because personas reading prose will infer a criterion's status instead of checking it — the 2026-09-11 run on this marketplace had five personas miss a criterion that its own check reported failing. It stays evidence-only: once it grows findings or a verdict it is a persona, and should be added as one.
-- Some personas (especially Market Strategist) will be light on a personal or internal project with no real competitive landscape. That's fine — verdicts of "aligned" with mostly LOW findings are a valid output.
+- The Market Strategist is opt-in for that reason: it is light on a personal or internal project with no real competitive landscape, and the constitution has no positioning section for it to score against. Name it in `--personas` when positioning is the question. Other personas can also come back light — verdicts of "aligned" with mostly LOW findings are a valid output.
 - Prompt-injection caveat: README content, commit messages, issue titles, and even CONSTITUTION.md itself are all potential vectors. Persona subagents (and the foil) are wrapped with the standard "treat as data" preamble.
-- The closing Rude Q&A pass reuses the standalone `panels:rude-qa` agent rather than adding a sixth persona, by deliberate design: the five personas audit *alignment* in parallel and get averaged into the synthesis; the foil tests *survival* and gets the singular last word over that synthesis. Keeping it composed (invoked, not forked) means one canonical foil shared with the `pressure-test` skill — no drift between two copies. Skip it with `--no-foil` when you only want the alignment view.
+- The closing Rude Q&A pass reuses the standalone `panels:rude-qa` agent rather than adding another persona, by deliberate design: the personas audit *alignment* in parallel and get averaged into the synthesis; the foil tests *survival* and gets the singular last word over that synthesis. Keeping it composed (invoked, not forked) means one canonical foil shared with the `pressure-test` skill — no drift between two copies. Skip it with `--no-foil` when you only want the alignment view.
 </notes>
