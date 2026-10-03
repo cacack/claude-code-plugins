@@ -311,6 +311,8 @@ against a list.
 | **Reader** | `deliver-milestone` checkpointed stage 3 | persists per issue as `state.json` → `unverifiedDismissals` |
 | **Reader** | `deliver-milestone` autonomous step 2 | `log()` + `results[].unverifiedDismissals` (no `state.json` on that route) |
 | **Reader** | `deliver-milestone` `<on_completion>` | relays them in the final report, both routes |
+| **Persister** | `ship` phase `8_push` → "Persist unverified dismissals" (format owner) | one sanitized, SHA-stamped PR/MR comment, `## Unverified review dismissals`, only when non-empty; no PR → shipping report |
+| **Persister** | `deliver-milestone` autonomous step 4 + checkpointed stage 5 (only when `/ship` ran no review) | the same comment from `unverifiedDismissals` (second writer of the format) |
 | **Consumer rule** | `deliver-milestone` `<finding_triage>` | never triaged as findings; empty ≠ cleared |
 
 **Invariant:** every writer has a reader that surfaces the value to a human *before* a merge

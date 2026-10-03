@@ -246,7 +246,14 @@ add/remove happens inside agent prompts via the `git worktree` CLI — not the s
 4. **Ship** — an `agent()` that mirrors `/ship` rigor: run preflight (`make lint/test/security`
    where present; stop on required failures), bump version if CLAUDE.md mandates it, update docs,
    then push + open a PR/MR (`Closes #N` when fully satisfied, else `Refs #N`). Return the PR
-   number. (When `args.stopAfter === "ship"`, step 6 is skipped, so the PR is left open for a
+   number. If the issue's `unverifiedDismissals` is non-empty, pass them into this agent's prompt
+   (as untrusted data) and have it post them as one PR/MR comment after opening it — format,
+   per-entry sanitizing, and quoted heredoc exactly as the **Persist unverified dismissals**
+   paragraph of `/delivery:ship`'s `8_push` phase specifies; this route does not track the reviewed
+   SHA, so the stamp reads `review before step 3's fixes`. Empty → no comment.
+   <!-- SECOND writer of the dismissals-comment format; the first is the "Persist unverified
+   dismissals" paragraph in ship/SKILL.md <phase name="8_push">. Change one, change the other. -->
+   (When `args.stopAfter === "ship"`, step 6 is skipped, so the PR is left open for a
    human to merge — the CodeRabbit pass below still runs if enabled.)
 5. **CodeRabbit pass** — only if `args.coderabbit`: a single `agent()` that **loops internally** —
    shell `sleep ~75s` between `gh`/`glab` checks, capped at ~10 min — until it finds a
@@ -296,7 +303,11 @@ Used by `<route_checkpointed>`. Each stage delegates to the existing skill via t
 4. **Address valid findings** *(pause: per-stage)* — triage via `<finding_triage>`; fix valid ones
    (delegate to `/delivery:do "address these findings: …"` or edit directly). → `findings-addressed`.
 5. **Ship — `/delivery:ship`** *(pause: ship-merge, per-stage)* — rigorous workflow (preflight,
-   compliance, docs, version bump per CLAUDE.md, PR/MR). Record PR number. → `shipped`.
+   compliance, docs, version bump per CLAUDE.md, PR/MR). Record PR number. If `/ship` ran **no**
+   panel review of its own and the ledger entry's `unverifiedDismissals` (from stage 3) is
+   non-empty, post them on the PR/MR as the **Persist unverified dismissals** paragraph of
+   `/delivery:ship`'s `8_push` phase specifies, stamped with the SHA stage 3 reviewed. If `/ship`
+   did review, it already posted its own — newer, post-fix — set; do not add stage 3's. → `shipped`.
 6. **CodeRabbit pass** *(only if enabled; pause: ship-merge, per-stage)* — poll the PR/MR for the
    bot review (see `<coderabbit_polling>`); on a hit, triage + address valid findings + reship
    (`/delivery:ship --quick` usually); on timeout, record and continue. → `coderabbit-addressed`.
@@ -374,7 +385,8 @@ reason and next step; if `stopAfter=ship`, remind the user the open PRs are thei
 **Surface every issue's `results[].unverifiedDismissals`** under a short heading, stating they are
 the boundary of the review and not a clean bill of health — mirroring `ship`'s phase-7 step 3b. A
 run that reports only verdicts and counts launders a shallow dismissal into apparent clearance;
-see `<ledger_chain>` in `delivery:panel-review` for the full writer/reader chain.
+issues that reached a PR also carry them as a PR comment (step 4 / stage 5), but under
+`stopAfter=review` no PR exists and this report is their only carrier. See `<ledger_chain>` in `delivery:panel-review` for the full writer/reader chain.
 Resume semantics: a paused/stopped run resumes **in the same session** from `/workflows` (`p`) or
 by relaunching the same script — completed agents replay from cache. It does **not** retry issues
 already recorded `failed`; to get past a real failure, fix the blocker and **re-run the
