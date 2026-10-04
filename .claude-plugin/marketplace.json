@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "delivery",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "The play → do → panel → ship delivery cycle: planning, execution, multi-persona diff review, preflight checks, issue compliance, PR shipping, and merge",
       "author": {
         "name": "Chris Clonch",
@@ -21,7 +21,7 @@
     },
     {
       "name": "panels",
-      "version": "1.6.1",
+      "version": "1.6.2",
       "description": "Repo-wide multi-persona health panels: CONSTITUTION.md authoring, engineering and product review boards, and adversarial pressure-testing via Rude Q&A",
       "author": {
         "name": "Chris Clonch",
