@@ -234,6 +234,8 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    | Mission Steward | aligned/drifting/misaligned | ... |
    | ... | ... | ... |
 
+   <Every persona reports on the same scale, so the Verdict column sorts: `misaligned` > `drifting` > `aligned`. Runs before panels 1.5.0 used per-persona scales (`well-served`, `trustworthy`, …) — never compare those verdicts across runs.>
+   <Under the table, one legend line so a bare verdict reads on its axis: "Axes — mission: what has been built · roadmap: what is planned and ruled out · audience: who it serves · trust: claims vs. reality · market: positioning (opt-in).">
    <Always show every persona in the table, `market` included; mark skipped ones explicitly as "(not run this pass)" rather than omitting the row.>
 
    ## Cross-cutting themes
