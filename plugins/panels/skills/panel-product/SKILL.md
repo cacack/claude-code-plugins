@@ -249,7 +249,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
    Match gaps by substance, not wording, and show every match. Classify:
    - **Persisting** — an open prior gap restated this run. Listed first and ranked above severity when runs seen ≥ 2: a gap that survives independent re-derivation is the strongest signal this panel produces. Name when it was first seen.
    - **Recurring** — a current gap that matches a closed row. It came back after being judged resolved; say so.
-   - **Resolved** — an open prior gap that no persona restated, **and** that at least one persona able to raise it ran and completed this run. Cite the fix (commit, closed issue, file now present); with none, mark it `resolved?` — absence of a finding is not evidence of a fix.
+   - **Resolved** — an open prior gap that no persona restated, **and** that at least one persona able to raise it ran and completed this run. "Able to raise it" means the persona whose axis owns the gap's concern *today*, not the persona named as its raiser in an older run — persona axes move (an unscheduled open issue a past `mission` run raised now belongs to `roadmap`), and judging by the old raiser would close the gap when nobody looked. Cite the fix (commit, closed issue, file now present); with none, mark it `resolved?` — absence of a finding is not evidence of a fix.
    - **Not assessed** — an open prior gap none of whose raising personas ran and completed this run (a `--personas` subset, a truncated persona, or a gap only the opt-in `market` raised, on a run without it). Nobody looked, so it is neither persisting nor resolved.
    - **New** — a current gap with no prior match.
    - **Scorecard changes** — match rows by criterion id; list criteria added or removed since the prior run separately. Per criterion, prior status → current status. A **regression** is `met` → `unmet`, or any change into a constitution-defect `unmeasurable` (`no named check`, `not attributed`). Changes into or out of `not run` / `skipped` are operational — report them as such, never as regressions. If the prior run had no scorecard, say so.
@@ -322,7 +322,7 @@ After synthesis, a single adversarial foil — the `panels:rude-qa` agent — ge
 
    Draft an issue for each:
    - Finding rated `critical` or `high` (single persona is enough)
-   - Cross-flagged `medium` finding (flagged by 2+ personas — strategic-alignment panels rarely surface HIGH, so cross-flagged MEDIUMs are the highest-leverage actionable items in practice)
+   - Cross-flagged `medium` finding (flagged by 2+ personas — see the cross-flag threshold note in `<notes>` — strategic-alignment panels rarely surface HIGH, so cross-flagged MEDIUMs are the highest-leverage actionable items in practice)
    - **From `foil.md` (unless `--no-foil` skipped it):** any unanswered Hostile Q&A question or pre-mortem cause-of-death that is not already covered by a persona finding above. These are often the highest-leverage issues a strategic panel produces — note "surfaced by: rude-qa (foil)" in the body.
 
    For each drafted issue:
@@ -481,6 +481,7 @@ See `synthesis.md` for the full alignment view.
 </examples>
 
 <notes>
+- **Cross-flag threshold is 2, deliberately.** Four default personas make six pairs, and each owns a disjoint axis (built · planned and ruled out · served · believed), so two of them reaching the same theme is two independent lenses agreeing — not two personas told to look at the same thing. A 3-of-4 bar would almost never fire under disjoint axes. One known overlap: the opt-in `product-market` still looks at audience reach, so on a run that includes it, an audience/market cross-flag on reach is weaker corroboration than the count suggests. If a change makes two default axes overlap again, the threshold stops meaning corroboration.
 - This skill complements `panel-engineering`: the engineering panel asks "is the project in good shape?", the product panel asks "is the project going the right way?". Run both quarterly for full coverage.
 - The constitution is a rubric, not gospel. Real drift sometimes means the project is healthily evolving — synthesis should distinguish "drift to address" from "drift to ratify by updating the constitution".
 - Strategic personas can be vaguer than engineering ones if not anchored. The CONSTITUTION.md grounding is the discipline that keeps findings concrete. A weak constitution produces a weak review; that's a feature — it points the user back to `/panels:constitution`.
