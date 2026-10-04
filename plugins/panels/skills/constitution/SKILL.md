@@ -68,11 +68,12 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
    - **Audience:** infer "for whom" from README + commit subjects (who solves what here). Include a "not for" line — if you can't infer one confidently, mark it `<TODO: confirm with user>`.
    - **Principles:** 3–7 tradeoff choices. Try to surface tradeoffs the project has *actually* made (e.g., "simplicity over completeness", "compatibility over modernity"). If you can't ground a principle in observed evidence, mark it `<TODO>`.
    - **Non-Goals:** 2–5 things the project is explicitly *not* doing. Often inferable from README ("does not", "won't", "out of scope"). If you can't infer any, leave `<TODO>` placeholders and rely on the interview.
-   - **Success Criteria:** 2–5 concrete signals. Try to ground in metrics or qualitative evidence the project already cares about (test pass rate, release cadence, user signals). Mark unknowns `<TODO>`.
+   - **Success Criteria:** 2–5 concrete signals, each with a stable id (`C1`, `C2`, …) and a `Check:` line — the template note in `<constitution_template>` is the single definition of what counts as checked. Ground them in signals the project already measures. Where the repo already has the check — a Make target, a CI job, a script — draft `Check:` with that command. Otherwise draft `Check: <TODO>`. Never invent a command that does not exist.
 
    3b. **Present to user.** Show the full draft with `<TODO>` markers visible.
 
    3c. **Interview (skip if `--no-interview`).** For each section that contains `<TODO>` markers or that you flagged as low-confidence in step 3a, ask the user via AskUserQuestion. Limit to **at most 4 questions per pass** (AskUserQuestion's max). If more sections need input, run multiple passes — but bias toward fewer, better questions.
+      - **Every success criterion whose `Check:` is `<TODO>` gets a question:** *what command or observation would settle this?* Offer: **name a command** (one that credits a result to this criterion — see the template note) · **it's a judgement call** (say what a human looks at, and why no command can settle it; a judgement call with no stated reason is not accepted) · **reword or drop the criterion**. Record the answer on the criterion's `Check:` line. This is the principles rule applied to criteria: reject the platitude, ask for the tradeoff — reject the impression, ask for the check. A judgement call is a legitimate answer; never force a false metric to avoid one. Under `--no-interview`, `Check: <TODO>` lines stay in the written file on purpose — the next refresh flags them.
 
    3d. **Confirm and write.** Show the final draft. Ask:
       - **Write** — write `CONSTITUTION.md` to repo root
@@ -89,6 +90,8 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
    - **Principle drift:** are there principles that the codebase no longer follows, or new tradeoff choices not reflected?
    - **Non-goal drift:** is the project doing things it said it wouldn't (or vice versa)?
    - **Success criteria drift:** are the metrics or signals still relevant? Are there new ones the project actually cares about now?
+   - **Unchecked criteria:** apply the template note's definition of *checked* to every criterion. That includes a named command whose output does not credit a result to this criterion — `panel-product`'s scorecard counts that as a constitution defect (`not attributed`) just as it does a missing check (`no named check`), so refresh must flag both or the scorecard's remedy never lands. Flag each as a `[MINOR]` finding titled `Unchecked criterion: <id>`. Its **Proposed update** is a question, not replacement text: "Name the command that settles this — one that credits a result to this criterion — or declare it a judgement call and say why." Never draft a check on the author's behalf here.
+   - **Criterion ids:** ids are stable — never renumber, never reuse a retired id; the scorecard matches rows across runs by id. A constitution written before ids existed (plain bullets) is cited by position and quoted text (`criterion 2, "releases ship monthly"`), and refresh adds one ordinary `[MINOR]` finding proposing `C<n>` ids in their current order. That one carries real replacement text and applies normally.
 
    4b. **Write drift report.** Path: `docs/reviews/constitution/<YYYY-MM-DD>-drift.md` (create folder if needed; append `-2`, `-3` if same-day collision). Template in `<drift_report_template>`. Each finding cites concrete evidence from the gathered context.
 
@@ -98,6 +101,8 @@ This skill is also the input bootloader for the planned `panel-product` skill, w
       - **Apply all proposed updates** — apply the drift-report's suggested edits to CONSTITUTION.md
       - **Pick a subset** — show numbered list of proposed updates; user selects indices
       - **Skip** — leave CONSTITUTION.md unchanged; drift report persists
+
+      `Unchecked criterion` findings carry a question, not replacement text, so neither apply path ever offers or applies them — not "Apply all", and not as an index in "Pick a subset". Answer them with the author afterwards, the same way bootstrap step 3c does, and write only what the author gives.
 
    4e. **Principle-change gate.** Before applying, check whether any selected update has `**Section:** Principles`.
       - If no principle changes are in the selection → proceed directly to 4f.
@@ -157,11 +162,18 @@ This project is explicitly **not** trying to:
 
 We'll know this is working if:
 
-- <concrete, observable signal>
-- <concrete, observable signal>
-- <concrete, observable signal>
+<Optional, when one command settles several criteria and reports per criterion:> Run them all: `<command>`
 
-(Concrete and observable. Avoid vibes-based metrics like "users are happy" — use something you could actually check.)
+**C1 — <concrete, observable signal>.**
+Check: `<command that settles it>` — e.g. `make test` exits 0 on the default branch
+
+**C2 — <concrete, observable signal>.**
+Check: judgement call — <what a human looks at, and why no command can settle it>
+
+**C3 — <concrete, observable signal>.**
+Check: <TODO> — the form bootstrap drafts when no check is known yet; the interview or the next refresh resolves it
+
+(Every criterion carries a stable id and a `Check:` line. **Checked** means exactly one of: (a) a command whose result is credited to this criterion — its own exit code, or output that labels a result for this criterion by id; (b) the section's umbrella command, when its output labels a result per criterion by id; (c) `judgement call — <reason>`, stating what a human looks at and why no command can settle it. Anything else — no check, `<TODO>`, a command whose output does not credit this criterion, or a bare `judgement call` — is unchecked. This definition mirrors `panel-product`'s scorecard rules (step 2); keep the two in step. Avoid vibes-based metrics like "users are happy".)
 
 ---
 
@@ -185,7 +197,7 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 - **Section:** <Mission | Audience | Principles | Non-Goals | Success Criteria>
 - **Current text:** <quote>
 - **Evidence of drift:** <concrete pointer to README/commits/issues>
-- **Proposed update:** <specific replacement text>
+- **Proposed update:** <specific replacement text — or, for an `Unchecked criterion` finding, the question to put to the author>
 
 ### [MINOR] <short title>
 - ...
@@ -205,6 +217,9 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 - Bootstrap interview asks at most 4 questions per AskUserQuestion call; only re-runs if necessary
 - Refresh drift report cites concrete evidence (file paths, commit messages, issue titles), not impressions
 - Refresh never modifies CONSTITUTION.md without explicit user choice
+- Every bootstrap success criterion carries a stable id and a `Check:` line; *checked* is defined once, in the template note, to match the scorecard
+- Refresh flags each unchecked criterion — including a command that does not credit the criterion — as a finding that asks for a check; neither apply path ever writes one unasked
+- Criterion ids are never renumbered; legacy un-numbered criteria are cited by position and quoted text, with one ordinary proposal to assign ids
 - Bootstrap with `--mode=bootstrap` warns before overwriting an existing file
 - `*Last refreshed*` footer updated on any successful write
 - Drift report persisted to `docs/reviews/constitution/<date>-drift.md` regardless of whether updates were applied
@@ -235,5 +250,6 @@ Existing constitution last refreshed: <date from footer, or "unknown">
 - Principles framed as platitudes ("be excellent", "users first") are noise. Framed as tradeoffs ("simplicity over completeness") they constrain decisions. The bootstrap interview should push toward the tradeoff framing.
 - **Principles are gated, other sections aren't.** Mission, Audience, Non-Goals, and Success Criteria reasonably evolve as context shifts and update under normal confirmation. Principles capture foundational tradeoff choices and trigger an extra confirmation in refresh mode (override with `--allow-principle-changes`). This is convention enforced by the tool, not by file structure — direct `Edit` on `CONSTITUTION.md` bypasses the gate, as does any approach. The friction lives at the most common edit path (the refresh skill).
 - The drift report is more valuable than the update itself in many cases — it surfaces the gap between stated and actual intent. Skipping the update but reading the drift report is a legitimate use mode.
+- The `Check:` line is what `panel-product`'s scorecard reads. A checked command lets it score the criterion `met` or `unmet`; a declared judgement call is scored `unmeasurable` with reason `judgement call` (deliberate, no remedy); an unchecked criterion is scored `unmeasurable` with reason `no named check` or `not attributed`, both of which it counts as constitution defects and sends back here to fix. A scorecard that mostly reports "unmeasurable" trains its reader to skip it — the interview's check question is what keeps it worth reading.
 - `panel-product` reads `CONSTITUTION.md` as its scoring rubric. A weak constitution will produce a weak product review; a clear, opinionated constitution will produce a sharp one.
 </notes>
