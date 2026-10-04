@@ -67,8 +67,8 @@ Writes `docs/reviews/milestone-review/<YYYY-MM-DD>/report.md` (and `proposed-iss
    - `complete` — none of the above. A `not-planned` or `refs-only` issue whose successor is named counts as handled here; the successor's own state belongs to its own milestone.
 
 5. **Draft issues** (skip with `--skip-issues`). One draft per gap cluster — each `unevidenced` issue's missing evidence can be one "Record evidence for #N" draft, while dismissals and TODOs cluster by file. Each draft: imperative title (plain words — no quotes, backticks, or `$`), body stating the gap and the forge record it came from, generated-content attribution line.
-   <!-- THIRD writer of the label-vocabulary + dedupe rule. The others: panels:panel-engineering
-   workflow step 7 and panels:panel-product's issue-drafting step. Change one, change all three. -->
+   <!-- One of two writers of the label-vocabulary + dedupe rule; the other is the panels plugin's
+   docs/panel-protocol.md ("Draft proposed issues"). Change one, change both. -->
    - Labels **only from the vocabulary captured in step 0** — `gh issue create --label` fails outright on an unknown one. Where none fits, leave labels empty and add `**Wanted label:** <name> (not present in this repo)`.
    - Overlap check against the open-issue list from step 0: case-insensitive substring or 60%+ word overlap → annotate `**Possibly already tracked:** #<N> — <title>`. Never drop an overlapping draft — the human decides.
 
@@ -113,7 +113,7 @@ PR set: #… (closing and merged referencing PRs).
 Code-level defects across PRs (run `/delivery:panel-review` over the PR set), and anything not recorded on the forge.
 ```
 
-`proposed-issues.md` uses `panels:panel-engineering`'s draft layout: `## <n>. <Title>`, then `**Labels:**` and any `**Possibly already tracked:**` line, then the body.
+`proposed-issues.md` uses the panels plugin's panel-protocol draft layout: `## <n>. <Title>`, then `**Labels:**` and any `**Possibly already tracked:**` line, then the body.
 </output_format>
 
 <safety>
