@@ -84,7 +84,7 @@ Parsing and unrecognized-flag handling: protocol **Arguments**.
 
    ## Repository label vocabulary  (protocol)
 
-   ## Open issues and milestones  (protocol "Open issues"; gh fields: number,title,labels)
+   ## Open issues  (protocol; gh fields: number,title,labels)
    ```
 
    CONSTITUTION.md is included for **grounding only** — personas should understand what the project is trying to be, but not score against it. That role belongs to `panel-product`.

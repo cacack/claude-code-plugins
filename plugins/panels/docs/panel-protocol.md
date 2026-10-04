@@ -198,13 +198,13 @@ work survives a skip.
 
 Skip if `--skip-issues`. If neither `gh` nor `glab` is available, print "No `gh` or
 `glab` detected — drafted N issues in `<path to proposed-issues.md>`. File them
-manually when ready." and stop.
+manually when ready." and continue with the panel's next step.
 
 Otherwise ask via AskUserQuestion:
 
 - **Create all** drafted issues now
 - **Pick a subset** — show a numbered list, accept indices, and confirm the selection back before filing
-- **Skip** — print the path to `proposed-issues.md` and stop
+- **Skip** — print the path to `proposed-issues.md` and continue with the panel's next step
 
 To file, per selected draft: write the body to a file made with `mktemp` (so
 multi-line bodies pass intact), then `gh issue create --title <T> --body-file <tmp>`
