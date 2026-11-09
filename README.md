@@ -143,11 +143,11 @@ Domain expertise (`expertise/`):
 - `expertise/iphone-apps` - Comprehensive iPhone app development expertise (SwiftUI, App Store, testing, CI/CD)
 - `expertise/macos-apps` - Complete macOS app development knowledge (AppKit, document apps, system APIs)
 
-## Scripts
+## Configuration
 
-Standalone utilities in `scripts/` directory (not plugin resources):
+Personal Claude Code tooling config kept in `config/` (not plugin resources):
 
-- `ccstatusline-usage.sh` - Claude Code usage monitor for [ccstatusline](https://github.com/sirmalloc/ccstatusline). Displays 5-hour session and 7-day weekly utilization as progress bars. Run `make install` to symlink to `~/.local/bin/`, then configure as a custom-command widget.
+- `ccstatusline/settings.json` - [ccstatusline](https://github.com/sirmalloc/ccstatusline) status line layout, including the native `weekly-usage` widget that reads the rate-limit data Claude Code pipes to the status line. Run `make install` to symlink `~/.config/ccstatusline` here.
 
 ## Attribution
 
