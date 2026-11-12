@@ -109,6 +109,13 @@
         }
       },
       {
+        "id": "usage-weekly-reset-label",
+        "type": "custom-text",
+        "customText": "Reset: ",
+        "color": "brightGreen",
+        "merge": "no-padding"
+      },
+      {
         "id": "usage-weekly-reset",
         "type": "weekly-reset-timer",
         "color": "brightGreen",
@@ -119,7 +126,8 @@
           "hide": "no-data",
           "weekday": "true",
           "compact": "true"
-        }
+        },
+        "rawValue": true
       }
     ],
     []
