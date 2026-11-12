@@ -29,14 +29,24 @@
         "type": "flex-separator"
       },
       {
-        "id": "ddb65b88-b921-4b9f-a707-14deab3650e3",
-        "type": "session-clock",
-        "color": "brightCyan"
+        "id": "usage-block",
+        "type": "session-usage",
+        "color": "brightGreen",
+        "metadata": {
+          "hide": "no-data"
+        }
       },
       {
-        "id": "ec0df2a5-b32e-4075-a002-1b3a664587e0",
-        "type": "block-timer",
-        "color": "brightCyan"
+        "id": "usage-block-reset",
+        "type": "reset-timer",
+        "color": "brightGreen",
+        "metadata": {
+          "absolute": "true",
+          "hour12": "true",
+          "timezone": "America/New_York",
+          "hide": "no-data",
+          "compact": "true"
+        }
       }
     ],
     [
@@ -93,12 +103,31 @@
       {
         "id": "usage-weekly",
         "type": "weekly-usage",
-        "color": "brightGreen"
+        "color": "brightGreen",
+        "metadata": {
+          "hide": "no-data"
+        }
+      },
+      {
+        "id": "usage-weekly-reset-label",
+        "type": "custom-text",
+        "customText": "Reset: ",
+        "color": "brightGreen",
+        "merge": "no-padding"
       },
       {
         "id": "usage-weekly-reset",
         "type": "weekly-reset-timer",
-        "color": "brightGreen"
+        "color": "brightGreen",
+        "metadata": {
+          "absolute": "true",
+          "hour12": "true",
+          "timezone": "America/New_York",
+          "hide": "no-data",
+          "weekday": "true",
+          "compact": "true"
+        },
+        "rawValue": true
       }
     ],
     []
@@ -114,7 +143,7 @@
   "powerline": {
     "enabled": false,
     "separators": [
-      ""
+      "\ue0b0"
     ],
     "separatorInvertBackground": [
       false
