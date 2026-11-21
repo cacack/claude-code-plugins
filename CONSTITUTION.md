@@ -64,8 +64,10 @@ the point rather than fallout from a skill it also adds. Exempt commits are name
 in the check's output, never dropped silently.
 
 **C3 — Every resource validates cleanly.**
-`claude plugin validate` exits clean for every plugin, with **zero warnings**. A
+`claude plugin validate --strict` exits clean for every plugin, so **zero warnings**. A
 tolerated warning trains everyone to ignore warnings, which is how a real one hides.
+The CLI's advisory plugin-directory findings (catalog submission, e.g. a missing
+icon) are not validation warnings and are not scored.
 
 **C4 — The marketplace stays coherent.**
 Three things hold: every directory under `plugins/` is registered in
