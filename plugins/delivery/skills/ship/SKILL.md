@@ -433,7 +433,7 @@ Options:
   3. Abort
   ```
   - **Option 1 (address + re-review):** help fix the findings, `git commit --amend`, then re-run the panel invocation from Step 3 directly against the amended commit — **do not** re-show the Step 2 offer. This re-review is bounded: run it at most **one** additional time per `/ship` invocation. If the second pass still returns `block`, drop back to this prompt with only options 2 (override) and 3 (abort) — do not loop further.
-  - **Option 2 (override):** record the override in the PR body's `## Panel Review` section. Paste the panel's verdict and its blocking findings **verbatim** (not a paraphrase), then append the user's override rationale, labelled as the user's own assertion — it is not a re-evaluation by the panel. See `<safety>`.
+  - **Option 2 (override):** record the override in the PR body's `## Panel Review` section. Paste the panel's verdict and its blocking findings **verbatim** (not a paraphrase), then append the user's override rationale, labeled as the user's own assertion — it is not a re-evaluation by the panel. See `<safety>`.
 - **`proceed-with-caution`** → continue to the push phase; carry the verdict and the top 1–3 findings into the PR body's `## Panel Review` section.
 - **`ship-it`** → continue to the push phase; note the clean verdict in the PR body.
 

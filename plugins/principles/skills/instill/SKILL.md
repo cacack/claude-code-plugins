@@ -92,7 +92,7 @@ The guard is scope-local by design. A block at the *other* scope is not blocked;
 
 ### 4. Audit the target for overlap and conflicts
 
-Read **every file in the scope's rules directory** — `.claude/rules/` at repo scope, `~/.claude/rules/` at user scope — not just the target, plus the repo's `CLAUDE.md` and both profiles' target files at *both* scopes. Overlap comes from hand-written neighbours as readily as from a sibling profile or the same profile one scope up.
+Read **every file in the scope's rules directory** — `.claude/rules/` at repo scope, `~/.claude/rules/` at user scope — not just the target, plus the repo's `CLAUDE.md` and both profiles' target files at *both* scopes. Overlap comes from hand-written neighbors as readily as from a sibling profile or the same profile one scope up.
 
 Non-target rules files are the likeliest source and the easiest to miss: they carry no markers, so the skill will never own them, never remove them, and will happily write a second copy of what they already say. **Anyone migrating from a pre-2.0.0 install is the standard case here** — the privacy and issue-delivery sections are new to the payload, and a hand-written `privacy.md` or `issue-delivery.md` sitting alongside the target is exactly the duplication *Never duplicate* forbids. Surface it by name in step 5.
 

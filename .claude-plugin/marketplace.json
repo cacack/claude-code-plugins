@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "delivery",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "The play → do → panel → ship delivery cycle: planning, execution, multi-persona diff review, preflight checks, issue compliance, PR shipping, and merge",
       "author": {
         "name": "Chris Clonch",
@@ -21,7 +21,7 @@
     },
     {
       "name": "panels",
-      "version": "1.7.0",
+      "version": "1.7.1",
       "description": "Repo-wide multi-persona health panels: CONSTITUTION.md authoring, engineering and product review boards, and adversarial pressure-testing via Rude Q&A",
       "author": {
         "name": "Chris Clonch",
@@ -32,7 +32,7 @@
     },
     {
       "name": "authoring",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Toolkit for building Claude Code resources: create and audit skills, slash commands, subagents, hooks, CLAUDE.md files, prompts, plans, and project docs",
       "author": {
         "name": "Chris Clonch",
@@ -43,7 +43,7 @@
     },
     {
       "name": "principles",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "The canon: install or re-sync durable principles and agent operating rules into always-on Claude Code context, plus the privacy-redaction floor",
       "author": {
         "name": "Chris Clonch",
@@ -54,7 +54,7 @@
     },
     {
       "name": "toolbox",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Personal productivity utilities: todos, context parking, session history, decision frameworks, domain expertise packs, and expert debugging mode",
       "author": {
         "name": "Chris Clonch",

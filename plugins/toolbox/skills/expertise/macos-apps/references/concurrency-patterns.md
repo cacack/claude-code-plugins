@@ -52,7 +52,7 @@ struct ItemListView: View {
     }
 
     func loadItems(for category: Category? = nil) async {
-        // Automatically cancelled if view disappears
+        // Automatically canceled if view disappears
         items = await dataService.fetchItems(category: category)
     }
 }

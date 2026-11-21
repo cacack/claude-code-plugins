@@ -45,11 +45,11 @@ make constitution-check
 ```
 
 **C1 — The collection stays in use.**
-*Judgement call, reported but not scored.* Invocation frequency lives in the
+*Judgment call, reported but not scored.* Invocation frequency lives in the
 maintainer's local Claude Code history, not in this repository, and every in-repo
 proxy for it is dishonest — a stable skill needs no commits. The check reports how
 many skills have had no commit in 365 days as supporting evidence; the ruling is
-made at each refresh. A criterion that cannot be mechanised is allowed to say so
+made at each refresh. A criterion that cannot be mechanized is allowed to say so
 rather than be forced into a false metric.
 
 **C2 — A new skill can be added without restructuring existing ones.**
@@ -57,7 +57,7 @@ No skill added in the last 90 days changed more than **20 lines** of any existin
 file outside its own directory, excluding the shared registry files every addition
 must touch (`README.md`, `marketplace.json`, the owning `plugin.json`). Edits under
 that line are cross-references, which are healthy; above it is rework, which is the
-coupling this criterion exists to catch. The 20 is a judgement — move it here, in
+coupling this criterion exists to catch. The 20 is a judgment — move it here, in
 the open, rather than in the script. A commit marked breaking (`type!:` or a
 `BREAKING CHANGE` footer) is exempt: it declares a restructure, so its rework is
 the point rather than fallout from a skill it also adds. Exempt commits are named

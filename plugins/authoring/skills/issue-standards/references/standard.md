@@ -167,7 +167,7 @@ find each one:
 
 - **Why now** — the trigger: a failure, an audit, a dependency, a panel review,
   or a request.
-- **What is missing** — the concrete gap, in terms of observable behaviour
+- **What is missing** — the concrete gap, in terms of observable behavior
   rather than of the fix.
 - **Value** — what you gain by doing it, or what it costs to keep not doing it.
 
@@ -334,7 +334,7 @@ Each type adds to the sections above.
 | Type | Additional requirements |
 |---|---|
 | **Spike** | The **question** it answers, stated as a question. The **time-box**, in days or sessions. The **artifact** it produces — a decision record, a design, a written comparison, a recommendation on an issue |
-| **Bug** | **Observed** versus **expected** behaviour. **Reproduction** steps, or why it is not reproducible. **Blast radius** — what is affected and how badly. **First seen**, where known |
+| **Bug** | **Observed** versus **expected** behavior. **Reproduction** steps, or why it is not reproducible. **Blast radius** — what is affected and how badly. **First seen**, where known |
 | **Task** | A link to the **procedure** the task executes. Where none exists, say so; that is usually a sign the issue is a Story |
 | **Story** | Nothing beyond the base sections |
 
@@ -513,7 +513,7 @@ A recurring obligation is filed per instance, and the instance is planned. "Q2
 dependency sweep" was chosen, has an end state, and closes. The obligation behind
 it never closes, and it is not what gets filed.
 
-An unlabelled issue is untriaged rather than planned. Carrying both values
+An unlabeled issue is untriaged rather than planned. Carrying both values
 explicitly is what makes the untriaged queue countable:
 
 ```bash
