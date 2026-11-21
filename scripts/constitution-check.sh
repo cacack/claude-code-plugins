@@ -3,7 +3,7 @@
 # constitution-check.sh — verify the Success Criteria in CONSTITUTION.md.
 #
 # Each criterion in CONSTITUTION.md names the check below that settles it. A
-# criterion that cannot be settled by a command is reported as a judgement call
+# criterion that cannot be settled by a command is reported as a judgment call
 # and never passes or fails silently — it is printed for a human to rule on.
 #
 # Exit codes:
@@ -33,7 +33,7 @@ head_() { printf '\n\033[1m%s\033[0m\n' "$1"; }
 # "The collection stays in use." Invocation frequency lives in the maintainer's
 # local Claude Code history, not in this repository, and no in-repo proxy for it
 # is honest — a stable skill needs no commits. Reported, never scored.
-head_ "C1  The collection stays in use  (judgement call — reported, not scored)"
+head_ "C1  The collection stays in use  (judgment call — reported, not scored)"
 
 # `find -depth N` is BSD-only; count SKILL.md files, which is portable and exact.
 total_skills=$(find plugins -name SKILL.md | wc -l | tr -d ' ')

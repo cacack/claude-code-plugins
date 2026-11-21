@@ -44,7 +44,7 @@ Hunt specifically for:
 - Concurrency: data races, missing locks, lock ordering, double-close, deadlocks
 - Error handling: errors ignored (`_ = ...`), errors wrapped incorrectly, partial cleanup on error path, panic where error should be returned
 - State mutation: mutation during iteration, shared mutable state across goroutines
-- Resource leaks: files/connections/timers not closed, goroutines that never exit, contexts not cancelled
+- Resource leaks: files/connections/timers not closed, goroutines that never exit, contexts not canceled
 - Type and conversion bugs: integer overflow, signed/unsigned mismatch, lossy float/int conversion, time-zone confusion
 
 **Value domain of a modified condition (do this before judging any changed guard):**
