@@ -32,7 +32,7 @@
     },
     {
       "name": "authoring",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "Toolkit for building Claude Code resources: create and audit skills, slash commands, subagents, hooks, CLAUDE.md files, prompts, plans, and project docs",
       "author": {
         "name": "Chris Clonch",
