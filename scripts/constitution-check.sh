@@ -116,13 +116,11 @@ if ! command -v claude >/dev/null 2>&1; then
 else
   c3_bad=0
   for p in plugins/*/; do
-    if out=$(claude plugin validate "$p" 2>&1); then
-      if printf '%s' "$out" | grep -qi 'warn'; then
-        fail "$(basename "$p") validates with warnings"
-        c3_bad=1
-      fi
-    else
-      fail "$(basename "$p") failed validation"
+    # --strict exits nonzero on any validation warning. Don't grep the output
+    # for "warn": the CLI also prints advisory plugin-directory (catalog
+    # submission) findings there, which are not validation warnings.
+    if ! out=$(claude plugin validate --strict "$p" 2>&1); then
+      fail "$(basename "$p") failed validation or has warnings"
       printf '%s\n' "$out" | tail -3 | sed 's/^/          /'
       c3_bad=1
     fi
