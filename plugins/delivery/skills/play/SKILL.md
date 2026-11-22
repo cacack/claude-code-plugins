@@ -8,6 +8,8 @@ allowed-tools:
   - Grep
   - Glob
   - Bash(gh issue:*)
+  - Bash(gh project list:*)
+  - Bash(gh project item-edit:*)
   - Bash(glab issue:*)
   - Bash(git status:*)
   - Bash(git branch:*)
@@ -104,6 +106,12 @@ Enter plan mode with `EnterPlanMode`. The plan file should follow the structure 
 
 If the user rejects or asks for changes, iterate in plan mode until approved.
 </step_5_plan_mode>
+
+<step_5_2_board>
+**Issue mode on GitHub only** — skip in task mode and on GitLab. Now that the plan is approved, work on the issue has started: read `${CLAUDE_SKILL_DIR}/../../docs/project-board.md` and apply its procedure with target **In Progress**, passing the issue URL when the input was one (so an issue in another repository resolves correctly) and the number otherwise. It prints nothing when the issue is on no project board, and it never blocks — whatever it reports, continue to the next step.
+
+Approval is the trigger, not the fetch in step 1: a plan that is fetched and then abandoned must not leave a card stranded in In Progress.
+</step_5_2_board>
 
 <step_5_5_execution_choice>
 After plan approval, ask the user how to execute via `AskUserQuestion`:
@@ -298,6 +306,7 @@ Notes:
 - Codebase exploration produced concrete affected-area list before planning
 - Build-vs-Reuse check happened explicitly
 - Plan approved via `ExitPlanMode`, not via inline markdown + "ready?"
+- In issue mode on GitHub, the issue's project board card set to In Progress after approval — silently skipped when the issue is on no board, and never blocking
 - After approval, user offered the inline-vs-emit choice with a sensible default recommendation
 - Inline path hands off to `/delivery:do` via `Skill` tool with no `.prompts/` artifacts
 - Emit path produces prompts as subdirectories matching the create-meta-prompts format

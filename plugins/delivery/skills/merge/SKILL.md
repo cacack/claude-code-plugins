@@ -18,6 +18,9 @@ allowed-tools:
   - Bash(git remote:*)
   - Bash(git log:*)
   - Bash(gh pr:*)
+  - Bash(gh issue view:*)
+  - Bash(gh project list:*)
+  - Bash(gh project item-edit:*)
   - Bash(glab mr:*)
   - Bash(glab ci:*)
 ---
@@ -115,6 +118,8 @@ Leave the local clone clean. Order matters — a branch checked out in a worktre
 
 **Confirm the merge actually landed before any destructive teardown.** Re-fetch and verify the PR/MR state is `MERGED` (`gh pr view <n> --json state` / `glab mr view <n>`). If it is *not* merged (API hiccup, race, false-positive re-gate), **stop cleanup** and report — never run `discard_changes`/`--force` removal against work that wasn't merged.
 
+**Board check (GitHub only), once the merge is confirmed.** List the issues this PR closed with `gh pr view <n> --json closingIssuesReferences`. For each, read `${CLAUDE_SKILL_DIR}/../../docs/project-board.md` and apply its procedure with target **Done**, passing that reference's `url` — never its bare number, which would resolve a cross-repository reference against this repo. The procedure prints nothing when the card is already Done or the issue is on no board; where it has to set the card, it says so. Issues the PR only `Refs` are not in that list and are left alone. It never blocks — continue to teardown whatever it reports. Do this **before** the worktree is removed.
+
 1. **Worktree teardown** — detect with `git rev-parse --show-toplevel`; if the returned path **contains** `/.claude/worktrees/` (matching the substring used by `play`/`do`), this change was developed in a cycle worktree:
    - If this session entered it via `EnterWorktree` → call `ExitWorktree` with `action: remove` and `discard_changes: true` (safe now that the merge is confirmed landed — the local branch commits are redundant). This returns the session to the original directory.
    - Otherwise (ad-hoc / different session) → `cd` to the main checkout root, then `git worktree remove --force <worktree-path>`.
@@ -139,6 +144,7 @@ Cleanup
 ✓ branch      : deleted <head> (local + remote)
 ✓ base        : <base> pulled, now at <sha>
 ✓ refs        : pruned
+✓ board       : <the `board:` lines the procedure printed, verbatim>   (omit this row when it printed none)
 
 Note: version tags are not created by /merge — tag manually if this was a release.
 ```
@@ -190,6 +196,7 @@ If the change bumped the version, remind the user of the tag command:
 - Merge commit body de-conventionalized (Conventional-Commit prefix stripped, or empty), so release-please doesn't duplicate CHANGELOG entries
 - Conflicted rebase aborted and handed back, never forced
 - Destructive cleanup gated on a confirmed `MERGED` state
+- On GitHub, each issue the PR closed has its project board card confirmed Done (set, with a note, only where the board had not moved it); no output when no board is involved; never blocking
 - Local clone left clean: worktree removed (if any, via the `/.claude/worktrees/` substring check), base checked out + pulled, feature branch deleted locally + remotely, stale refs pruned
 - Tagging left to the user, with a reminder when a version bump is detected
 </success_criteria>
