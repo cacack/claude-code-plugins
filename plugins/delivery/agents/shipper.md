@@ -168,7 +168,7 @@ Execute these phases in order. Each phase gates the next.
    - Push with upstream tracking
    - Create PR/MR with issue references
    - Use "Closes #N" only if compliance is COMPLETE
-   - Use "Related to #N" for PARTIAL compliance
+   - Use "Refs #N" for PARTIAL compliance
 
 5. For main branch (basic workflow):
    - Push directly
