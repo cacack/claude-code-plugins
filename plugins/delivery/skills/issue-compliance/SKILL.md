@@ -164,7 +164,7 @@ Based on coverage, recommend issue linking:
 |----------|----------------|
 | 100% complete | `Closes #N` - PR will close issue |
 | 80-99% complete | `Closes #N` with note about minor gaps |
-| 50-79% complete | `Related to #N` - partial implementation |
+| 50-79% complete | `Refs #N` - partial implementation |
 | <50% complete | `See #N` - minimal progress, or wrong issue |
 
 **Special cases:**
@@ -203,7 +203,7 @@ Missing:  N/N
 
 Recommendation
 ──────────────
-[Closes #N | Related to #N | See #N]
+[Closes #N | Refs #N | See #N]
 
 [Detailed reasoning for recommendation]
 

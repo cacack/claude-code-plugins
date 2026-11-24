@@ -268,6 +268,10 @@ git log --oneline $(git merge-base HEAD origin/<default> 2>/dev/null || echo HEA
 3. Compare staged diff against requirements
 4. Score: COMPLETE, PARTIAL, MISSING for each
 
+**Committed branch.** If nothing is staged or modified and the branch already has commits ahead of `origin/<default>`, the work is those commits — compare `git diff origin/<default>...HEAD` instead of the staged diff. An empty staged diff is not a MISSING result.
+
+**More than one issue.** Only an issue this branch's commits deliver counts as linked. The detection above over-matches: a second digit run in a branch name (`42-add-oauth2` → `2`) and a `#N` that names a PR or an unrelated issue are not linked issues — drop them. For each issue that remains, run the steps and keep a separate result — the push phase links each one on its own result. When the caller supplies the linked issues and their results (`deliver-milestone`'s integration ship does, having scored each issue against its own commits before they were combined), use those and do not re-detect or re-score: the combined branch diff cannot tell one issue's work from another's.
+
 **Gate:** If PARTIAL or MISSING, present options via `AskUserQuestion`:
 ```
 Issue #42 compliance: 2/4 complete, 1/4 partial, 1/4 missing
@@ -363,6 +367,8 @@ Create the commit locally. Pushing and PR creation are deferred to the push phas
 git add .
 git commit -m "[message]"
 ```
+
+If there is nothing to commit and the branch already has commits ahead of `origin/<default>` (see **Committed branch** in the compliance phase), skip this commit and carry on — the work is already committed.
 
 Always be on a feature branch — never commit toward a direct push to the protected default. The branch (and, under the worktree-containment flow, its dedicated worktree) was established by `/play` or `/do`; `/ship` runs from wherever that left the session and commits its branch with no extra handling. If somehow still on the default branch, create a feature branch before committing.
 
@@ -461,8 +467,9 @@ git push
 
 **Issue linking in PR body:**
 - 100% compliance → `Closes #N`
-- Partial compliance → `Related to #N`
+- Partial compliance → `Refs #N`
 - User override → As specified
+- More than one linked issue (e.g. `deliver-milestone`'s integration PR) → one line per issue, each chosen by the rules above from **that issue's** compliance result — a PR may close some and only reference others
 
 **PR body format** (the `## Panel Review` section is part of the body **only when the panel actually executed** — omit it entirely if the review phase hard-skipped or the user declined; the `Co-Authored-By` trailer belongs in the git commit, not the PR body):
 ```markdown
@@ -483,6 +490,19 @@ Verdict: [ship-it | proceed-with-caution | block (overridden)]
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
+**With more than one linked issue**, the `## Issue` section becomes `## Issues`: one heading per issue, with that issue's acceptance-criteria evidence grouped under it, so no criterion is answered away from its own issue:
+```markdown
+## Issues
+
+### #42 — [issue title]
+Closes #42
+- [criterion] — [evidence]
+
+### #43 — [issue title]
+Refs #43
+- [criterion] — [evidence, or what remains]
+```
+
 **Persist unverified dismissals.** If the review phase surfaced entries, post the **most recent** panel run's set (an amend + re-review replaces the earlier set) as one PR comment once the PR exists, so the review's boundary outlives this session. This is the **authoritative format** — `deliver-milestone` posts the same comment and must match it, and `milestone-review` step 3 parses its heading and `Review of` stamp, so a change here must update both:
 ```markdown
 ## Unverified review dismissals
@@ -490,6 +510,8 @@ _Review of `<short SHA of the reviewed HEAD>`. Lines a panel reviewer examined b
 
 - `<entry>`
 ```
+A PR that delivers several **separately reviewed** issues (`deliver-milestone`'s integration PR) gets **one such comment per issue** that has entries, each in this exact format, its stamp naming the issue: `_Review of #<N> at `<short SHA>`. Lines a panel reviewer…_`. The format carries one stamp per comment and `milestone-review` reads each comment on its own, so one comment for several reviews would attribute every entry to a single SHA.
+
 Entries quote untrusted diff text, so sanitize each before posting: collapse it to **one line** (newlines → spaces), replace any backtick with `'`, and wrap it in inline code as shown. Every body line then starts with fixed text — so no line can match the heredoc delimiter — and `@mentions`/`#N` inside an entry stay inert. Pass the body through a **quoted** heredoc (no expansion), never on the command line:
 ```bash
 gh pr comment <N> --body-file - <<'UNVERIFIED_EOF'
@@ -534,7 +556,7 @@ Preflight
 Issue Compliance (#N)
 ─────────────────────
 Coverage: N/N complete
-Recommendation: [Closes/Related to]
+Recommendation: [Closes/Refs]
 
 [If docs needed:]
 Documentation
